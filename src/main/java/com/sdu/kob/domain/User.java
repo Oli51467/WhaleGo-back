@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,4 +20,6 @@ public class User extends BaseDomain {
     private String password;
 
     private Integer rating;
+
+    private String avatar;
 }

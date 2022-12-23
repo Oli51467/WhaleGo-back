@@ -1,0 +1,60 @@
+package com.sdu.kob.config.filter;
+
+import com.sdu.kob.dao.UserDAO;
+import com.sdu.kob.domain.User;
+import com.sdu.kob.utils.JwtUtil;
+import com.sdu.kob.utils.UserDetailsUtil;
+import io.jsonwebtoken.Claims;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@Component
+public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
+    @Autowired
+    private UserDAO userDAO;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+        String token = request.getHeader("Authorization");
+
+        if (!StringUtils.hasText(token) || !token.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        token = token.substring(7);
+
+        String userid;
+        try {
+            Claims claims = JwtUtil.parseJWT(token);
+            userid = claims.getSubject();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        User user = userDAO.findById(Integer.parseInt(userid));
+
+        if (user == null) {
+            throw new RuntimeException("用户名未登录");
+        }
+
+        UserDetailsUtil loginUser = new UserDetailsUtil(user);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(loginUser, null, null);
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+        filterChain.doFilter(request, response);
+    }
+}
