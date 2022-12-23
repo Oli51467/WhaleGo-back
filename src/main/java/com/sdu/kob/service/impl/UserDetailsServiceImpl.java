@@ -1,8 +1,7 @@
 package com.sdu.kob.service.impl;
 
-import com.sdu.kob.dao.UserDAO;
+import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.domain.User;
-import com.sdu.kob.utils.UserDetailsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +20,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new RuntimeException("user not exist");
         }
-        return new UserDetailsUtil(user);
+        return new UserDetailsImpl(user);
     }
 }

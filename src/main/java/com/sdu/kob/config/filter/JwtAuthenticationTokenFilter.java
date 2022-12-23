@@ -1,9 +1,9 @@
 package com.sdu.kob.config.filter;
 
-import com.sdu.kob.dao.UserDAO;
+import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.service.impl.UserDetailsImpl;
 import com.sdu.kob.utils.JwtUtil;
-import com.sdu.kob.utils.UserDetailsUtil;
 import io.jsonwebtoken.Claims;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throw new RuntimeException("用户名未登录");
         }
 
-        UserDetailsUtil loginUser = new UserDetailsUtil(user);
+        UserDetailsImpl loginUser = new UserDetailsImpl(user);
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginUser, null, null);
 

@@ -1,4 +1,4 @@
-package com.sdu.kob.dao;
+package com.sdu.kob.repository;
 
 import com.sdu.kob.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.sdu.kob.utils;
+package com.sdu.kob.service.impl;
 
 import com.sdu.kob.domain.User;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.Collection;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsUtil implements UserDetails {
+public class UserDetailsImpl implements UserDetails {
 
     private User user;
 

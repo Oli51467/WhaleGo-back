@@ -1,6 +1,6 @@
 package com.sdu.kob.controller;
 
-import com.sdu.kob.dao.UserDAO;
+import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
