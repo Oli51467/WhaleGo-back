@@ -12,7 +12,7 @@ public class InfoController {
     @Autowired
     private InfoService infoService;
 
-    @RequestMapping(value = "/api/account/info/", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/account/info/", method = RequestMethod.GET)
     public Map<String, String> getInfo() {
         return infoService.getInfo();
     }

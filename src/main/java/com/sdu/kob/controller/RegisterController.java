@@ -15,11 +15,10 @@ public class RegisterController {
     @Autowired
     private RegisterService registerService;
 
-    @RequestMapping(value = "/api/account/register", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/account/register/", method = RequestMethod.POST)
     public Map<String, String> register(@RequestParam Map<String, String> info) {
         String userName = info.get("username");
         String password = info.get("password");
-        String confirmedPassword = info.get("confirmedPassword");
-        return registerService.register(userName, password, confirmedPassword);
+        return registerService.register(userName, password);
     }
 }

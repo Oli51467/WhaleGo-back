@@ -20,35 +20,8 @@ public class RegisterServiceImpl implements RegisterService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Map<String, String> register(String userName, String password, String confirmedPassword) {
+    public Map<String, String> register(String userName, String password) {
         Map<String, String> result = new HashMap<>();
-        if (userName == null) {
-            result.put("msg", "用户名不能为空");
-            return result;
-        }
-        if (password == null || confirmedPassword == null) {
-            result.put("mas", "密码不能为空");
-            return result;
-        }
-        userName = userName.trim();
-        if (userName.length() == 0) {
-            result.put("msg", "用户名不能为空");
-            return result;
-        }
-        if (password.length() == 0 || confirmedPassword.length() == 0) {
-            result.put("msg", "密码不能为空");
-        }
-        if (userName.length() > 20) {
-            result.put("msg", "用户名长度不能大于20");
-            return result;
-        }
-        if (password.length() > 30 || confirmedPassword.length() > 30) {
-            result.put("msg", "密码长度不能大于30");
-            return result;
-        }
-        if (!password.equals(confirmedPassword)) {
-            result.put("msg", "两次输入的密码不一致");
-        }
         if (userDAO.findByUserName(userName) != null) {
             result.put("msg", "用户名已存在");
             return result;
