@@ -3,6 +3,8 @@ package com.sdu.kob.consumer;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.impl.UserDetailsImpl;
+import com.sdu.kob.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,17 +33,21 @@ public class WebSocketServer {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("token") String token) {
+    public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         // 建立连接 所有与连接相关的信息都会存到这个类中
         this.session = session;
-        System.out.println("Connected!");
-        // 1. 从token中读取建立连接的用户是谁
-
-        // 2. 取出userId
-        int userId = Integer.parseInt(token);
+        // 1. 从token中读取建立连接的用户是谁 拿到id
+        int userId = JwtUtil.JWTAuthentication(token);
+        // 2. 根据id查找用户
         this.user = userDAO.findById(userId);
+        System.out.println(user);
         // 3. 将用户存下来
-        users.put(userId, this);
+        if (this.user != null) {
+            users.put(userId, this);
+            System.out.println("Connected!");
+        } else {
+            this.session.close();
+        }
     }
 
     @OnClose
