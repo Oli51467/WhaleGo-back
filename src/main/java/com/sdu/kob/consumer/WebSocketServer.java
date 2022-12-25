@@ -2,6 +2,7 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.entity.Game;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +73,15 @@ public class WebSocketServer {
             User a = it.next(), b = it.next();
             matchPool.remove(a);
             matchPool.remove(b);
+            Game game = new Game(19, 20, 55);
+            game.createMap();
 
             // A回传B的信息
             JSONObject respA = new JSONObject();
             respA.put("event", "start");
             respA.put("opponent_username", b.getUserName());
             respA.put("opponent_avatar", b.getAvatar());
+            respA.put("game_map", game.getG());
             // 用users哈希表获取A是哪个用户
             WebSocketServer userA = users.get(a.getId());
             if (userA != null) {
@@ -91,6 +95,7 @@ public class WebSocketServer {
             respB.put("event", "start");
             respB.put("opponent_username", a.getUserName());
             respB.put("opponent_avatar", a.getAvatar());
+            respB.put("game_map", game.getG());
             // 用users哈希表获取B是哪个用户
             WebSocketServer userB = users.get(b.getId());
             if (userB != null) {
