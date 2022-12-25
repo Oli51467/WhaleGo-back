@@ -27,12 +27,12 @@ public class BotController {
         return botService.getUserBots();
     }
 
-    @RequestMapping(value = "/api/bot/remove", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/bot/remove/", method = RequestMethod.POST)
     public Map<String, String> removeBot(@RequestParam Map<String, String> data) {
         return botService.removeBot(data);
     }
 
-    @RequestMapping(value = "/api/bot/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/bot/update/", method = RequestMethod.POST)
     public Map<String, String> updateBot(@RequestParam Map<String, String> data) {
         return botService.updateBot(data);
     }
