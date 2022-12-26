@@ -27,8 +27,6 @@ public class Bot extends BaseDomain {
 
     private String content;
 
-    private Integer rating;
-
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @CreatedDate
     @Column(name = "create_time")

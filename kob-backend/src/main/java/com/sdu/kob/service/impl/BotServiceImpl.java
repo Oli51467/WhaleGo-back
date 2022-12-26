@@ -63,7 +63,7 @@ public class BotServiceImpl implements BotService {
         }
         System.out.println(title + " " + description + " " + content + "\n");
         Date now = new Date();
-        Bot bot = new Bot(user.getId(), title, description, content, 1500, now, now);
+        Bot bot = new Bot(user.getId(), title, description, content, now, now);
 
         botDAO.save(bot);
         map.put("msg", "success");
@@ -165,7 +165,7 @@ public class BotServiceImpl implements BotService {
             return map;
         }
 
-        botDAO.update(bot_id, user.getId(), title, description, content, bot.getRating(), new Date());
+        botDAO.update(bot_id, user.getId(), title, description, content, new Date());
 
         map.put("msg", "success");
 

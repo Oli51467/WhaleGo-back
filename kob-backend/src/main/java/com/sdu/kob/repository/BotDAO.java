@@ -16,6 +16,6 @@ public interface BotDAO extends JpaRepository<Bot, Integer> {
 
     @Modifying
     @Transactional
-    @Query(value = "update bot set user_id = ?2, title = ?3, description = ?4, content = ?5, rating = ?6, modify_time = ?7 where id = ?1", nativeQuery = true)
-    void update(int id, int UserId, String title, String desc, String content, int rating, Date modifyTime);
+    @Query(value = "update bot set user_id = ?2, title = ?3, description = ?4, content = ?5, modify_time = ?6 where id = ?1", nativeQuery = true)
+    void update(int id, int UserId, String title, String desc, String content, Date modifyTime);
 }

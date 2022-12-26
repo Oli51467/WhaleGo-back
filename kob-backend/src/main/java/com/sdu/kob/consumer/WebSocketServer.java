@@ -1,7 +1,6 @@
 package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.protobuf.RpcUtil;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.Game;
 import com.sdu.kob.repository.SnakeRecordDAO;
@@ -9,23 +8,25 @@ import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 @ServerEndpoint("/websocket/{token}")  // 注意不要以'/'结尾
 public class WebSocketServer {
 
+    public static final String addPlayerUrl = "http://127.0.0.1:3001/matching/player/add/";
+    public static final String removePlayerUrl = "http://127.0.0.1:3001/matching/player/remove/";
+
     // 存储所有user对应的连接 当匹配成功后，将匹配成功的连接返回给用户 加static为的是users对所有实例均可见
     final public static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
-    // 匹配池 要用线程安全的Set
-    final private static CopyOnWriteArraySet<User> matchPool = new CopyOnWriteArraySet<>();
 
     private User user;
     private Session session = null; // 用户信息存储到session中
@@ -33,6 +34,8 @@ public class WebSocketServer {
     private static UserDAO userDAO; // 用静态变量的set函数注入
     public static SnakeRecordDAO snakeRecordDAO;
     private Game game = null;
+
+    private static RestTemplate restTemplate;   // 两个spring间通信的工具
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -44,6 +47,10 @@ public class WebSocketServer {
         WebSocketServer.snakeRecordDAO = snakeRecordDAO;
     }
 
+    @Autowired
+    public void setRestTemplate(RestTemplate restTemplate) {
+        WebSocketServer.restTemplate = restTemplate;
+    }
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         // 建立连接 所有与连接相关的信息都会存到这个类中
@@ -68,70 +75,75 @@ public class WebSocketServer {
         System.out.println("Closed!");
         if (this.user != null) {
             users.remove(this.user.getId());
-            matchPool.remove(this.user);
+        }
+    }
+
+    // *** 又匹配系统匹配出的结果 匹配出来两名玩家进行对战 ***
+    private void startGame(Integer aId, Integer bId) {
+        User a = userDAO.findById((int) aId);
+        User b = userDAO.findById((int) bId);
+
+        Game game = new Game(19, 20, 55, a.getId(), b.getId());
+        game.createMap();
+        // 将同步的地图同步给两名玩家
+        users.get(a.getId()).game = game;
+        users.get(b.getId()).game = game;
+
+        game.start();
+
+        JSONObject respGame = new JSONObject();
+        respGame.put("a_id", game.getPlayer(1).getId());
+        respGame.put("a_sx", game.getPlayer(1).getSx());
+        respGame.put("a_sy", game.getPlayer(1).getSy());
+        respGame.put("b_id", game.getPlayer(2).getId());
+        respGame.put("b_sx", game.getPlayer(2).getSx());
+        respGame.put("b_sy", game.getPlayer(2).getSy());
+        respGame.put("map", game.getG());
+
+        // A回传B的信息
+        JSONObject respA = new JSONObject();
+        respA.put("event", "start");
+        respA.put("opponent_username", b.getUserName());
+        respA.put("opponent_avatar", b.getAvatar());
+        respA.put("game", respGame);
+        // 用users哈希表获取A是哪个用户
+        WebSocketServer userA = users.get(a.getId());
+        if (userA != null) {
+            userA.sendMessage(respA.toJSONString());
+        } else {
+            throw new NullPointerException("null user not found");
+        }
+
+        // B回传A的信息
+        JSONObject respB = new JSONObject();
+        respB.put("event", "start");
+        respB.put("opponent_username", a.getUserName());
+        respB.put("opponent_avatar", a.getAvatar());
+        respB.put("game", respGame);
+        // 用users哈希表获取B是哪个用户
+        WebSocketServer userB = users.get(b.getId());
+        if (userB != null) {
+            userB.sendMessage(respB.toJSONString());
+        } else {
+            throw new NullPointerException("null user not found");
         }
     }
 
     private void startMatching() {
         System.out.println("start Matching");
-        matchPool.add(this.user);
-
-        // 临时配对算法
-        while(matchPool.size() >= 2) {
-            Iterator<User> it = matchPool.iterator();
-            User a = it.next(), b = it.next();
-            matchPool.remove(a);
-            matchPool.remove(b);
-            Game game = new Game(19, 20, 55, a.getId(), b.getId());
-            game.createMap();
-            // 将同步的地图同步给两名玩家
-            users.get(a.getId()).game = game;
-            users.get(b.getId()).game = game;
-
-            game.start();
-
-            JSONObject respGame = new JSONObject();
-            respGame.put("a_id", game.getPlayer(1).getId());
-            respGame.put("a_sx", game.getPlayer(1).getSx());
-            respGame.put("a_sy", game.getPlayer(1).getSy());
-            respGame.put("b_id", game.getPlayer(2).getId());
-            respGame.put("b_sx", game.getPlayer(2).getSx());
-            respGame.put("b_sy", game.getPlayer(2).getSy());
-            respGame.put("map", game.getG());
-
-            // A回传B的信息
-            JSONObject respA = new JSONObject();
-            respA.put("event", "start");
-            respA.put("opponent_username", b.getUserName());
-            respA.put("opponent_avatar", b.getAvatar());
-            respA.put("game", respGame);
-            // 用users哈希表获取A是哪个用户
-            WebSocketServer userA = users.get(a.getId());
-            if (userA != null) {
-                userA.sendMessage(respA.toJSONString());
-            } else {
-                throw new NullPointerException("null user not found");
-            }
-
-            // B回传A的信息
-            JSONObject respB = new JSONObject();
-            respB.put("event", "start");
-            respB.put("opponent_username", a.getUserName());
-            respB.put("opponent_avatar", a.getAvatar());
-            respB.put("game", respGame);
-            // 用users哈希表获取B是哪个用户
-            WebSocketServer userB = users.get(b.getId());
-            if (userB != null) {
-                userB.sendMessage(respB.toJSONString());
-            } else {
-                throw new NullPointerException("null user not found");
-            }
-        }
+        // 向matching Server发出一个请求开始匹配
+        MultiValueMap<String, String> matchData = new LinkedMultiValueMap<>();
+        matchData.add("user_id", this.user.getId().toString());
+        matchData.add("rating", this.user.getRating().toString());
+        restTemplate.postForObject(addPlayerUrl, matchData, String.class);
     }
 
     private void cancelMatching() {
         System.out.println("cancel Matching");
-        matchPool.remove(this.user);
+        // 向matching Server发出一个请求取消匹配
+        MultiValueMap<String, String> cancelMatchData = new LinkedMultiValueMap<>();
+        cancelMatchData.add("user_id", this.user.getId().toString());
+        restTemplate.postForObject(removePlayerUrl, cancelMatchData, String.class);
     }
 
     private void move(int direction) {
