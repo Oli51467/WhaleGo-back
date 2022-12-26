@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 public class WebSocketServer {
 
     // 存储所有user对应的连接 当匹配成功后，将匹配成功的连接返回给用户 加static为的是users对所有实例均可见
-    final private static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
+    final public static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
     // 匹配池 要用线程安全的Set
     final private static CopyOnWriteArraySet<User> matchPool = new CopyOnWriteArraySet<>();
 
@@ -29,6 +29,7 @@ public class WebSocketServer {
     private Session session = null; // 用户信息存储到session中
 
     private static UserDAO userDAO; // 用静态变量的set函数注入
+    private Game game = null;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -73,15 +74,29 @@ public class WebSocketServer {
             User a = it.next(), b = it.next();
             matchPool.remove(a);
             matchPool.remove(b);
-            Game game = new Game(19, 20, 55);
+            Game game = new Game(19, 20, 55, a.getId(), b.getId());
             game.createMap();
+            // 将同步的地图同步给两名玩家
+            users.get(a.getId()).game = game;
+            users.get(b.getId()).game = game;
+
+            game.start();
+
+            JSONObject respGame = new JSONObject();
+            respGame.put("a_id", game.getPlayer(1).getId());
+            respGame.put("a_sx", game.getPlayer(1).getSx());
+            respGame.put("a_sy", game.getPlayer(1).getSy());
+            respGame.put("b_id", game.getPlayer(2).getId());
+            respGame.put("b_sx", game.getPlayer(2).getSx());
+            respGame.put("b_sy", game.getPlayer(2).getSy());
+            respGame.put("map", game.getG());
 
             // A回传B的信息
             JSONObject respA = new JSONObject();
             respA.put("event", "start");
             respA.put("opponent_username", b.getUserName());
             respA.put("opponent_avatar", b.getAvatar());
-            respA.put("game_map", game.getG());
+            respA.put("game", respGame);
             // 用users哈希表获取A是哪个用户
             WebSocketServer userA = users.get(a.getId());
             if (userA != null) {
@@ -95,7 +110,7 @@ public class WebSocketServer {
             respB.put("event", "start");
             respB.put("opponent_username", a.getUserName());
             respB.put("opponent_avatar", a.getAvatar());
-            respB.put("game_map", game.getG());
+            respB.put("game", respGame);
             // 用users哈希表获取B是哪个用户
             WebSocketServer userB = users.get(b.getId());
             if (userB != null) {
@@ -111,16 +126,27 @@ public class WebSocketServer {
         matchPool.remove(this.user);
     }
 
+    private void move(int direction) {
+        // 先判断自己是谁
+        if (game.getPlayer(1).getId().equals(this.user.getId())) {
+            this.game.setNextStepA(direction);
+        } else if (game.getPlayer(2).getId().equals(this.user.getId())) {
+            this.game.setNextStepB(direction);
+        }
+    }
+
     @OnMessage
     // 从Client接收消息 接收到前端信息时触发
     public void onMessage(String message, Session session) {    // 将message当作路由 根据请求作不同的处理
         System.out.println("Receive message");
-        JSONObject jsonObject = JSONObject.parseObject(message);
-        String event = jsonObject.getString("event");
+        JSONObject data = JSONObject.parseObject(message);
+        String event = data.getString("event");
         if ("start".equals(event)) {
             startMatching();
         } else if ("cancel".equals(event)) {
             cancelMatching();
+        } else if ("move".equals(event)) {
+            move(data.getInteger("direction"));
         }
     }
 
