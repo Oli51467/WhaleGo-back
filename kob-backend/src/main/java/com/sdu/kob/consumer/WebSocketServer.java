@@ -79,7 +79,7 @@ public class WebSocketServer {
     }
 
     // *** 又匹配系统匹配出的结果 匹配出来两名玩家进行对战 ***
-    private void startGame(Integer aId, Integer bId) {
+    public static void startGame(Integer aId, Integer bId) {
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);
 
