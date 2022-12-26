@@ -212,21 +212,8 @@ public class Game extends Thread {
         try {
             JSONObject resp = new JSONObject();
             resp.put("event", "move");
-            if (status.equals("finished")) {
-                if (loser.equals("A")) {
-                    resp.put("a_direction", -1);
-                    resp.put("b_direction", nextStepB);
-                } else if (loser.equals("B")) {
-                    resp.put("a_direction", nextStepA);
-                    resp.put("b_direction", -1);
-                } else if (loser.equals("all")) {
-                    resp.put("a_direction", -1);
-                    resp.put("b_direction", -1);
-                }
-            } else {
-                resp.put("a_direction", nextStepA);
-                resp.put("b_direction", nextStepB);
-            }
+            resp.put("a_direction", nextStepA);
+            resp.put("b_direction", nextStepB);
             // 进行下一步 先清空操作
             nextStepA = nextStepB = null;
             sendAllMessage(resp.toJSONString());
@@ -243,6 +230,16 @@ public class Game extends Thread {
         JSONObject resp = new JSONObject();
         resp.put("event", "result");
         resp.put("loser", loser);
+        if (loser.equals("A")) {
+            resp.put("a_direction", -1);
+            resp.put("b_direction", nextStepB);
+        } else if (loser.equals("B")) {
+            resp.put("a_direction", nextStepA);
+            resp.put("b_direction", -1);
+        } else if (loser.equals("all")) {
+            resp.put("a_direction", nextStepA);
+            resp.put("b_direction", nextStepB);
+        }
         sendAllMessage(resp.toJSONString());
     }
 
@@ -252,8 +249,9 @@ public class Game extends Thread {
         for (int i = 0; i < 1000; i ++ ) {
             if (nextStep()) {
                 judge();
-                sendMove();
-                if (status.equals("finished")) {
+                if (status.equals("playing")) {
+                    sendMove();
+                } else {
                     sendResult();
                     break;
                 }

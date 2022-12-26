@@ -138,7 +138,6 @@ public class WebSocketServer {
     @OnMessage
     // 从Client接收消息 接收到前端信息时触发
     public void onMessage(String message, Session session) {    // 将message当作路由 根据请求作不同的处理
-        System.out.println("Receive message");
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
         if ("start".equals(event)) {
