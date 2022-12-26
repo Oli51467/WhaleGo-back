@@ -27,6 +27,8 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+/kob-backend/src/test
+/matching-system/src/test
 
 ### VS Code ###
 .vscode/
