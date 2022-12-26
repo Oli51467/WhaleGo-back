@@ -86,8 +86,12 @@ public class WebSocketServer {
         Game game = new Game(19, 20, 55, a.getId(), b.getId());
         game.createMap();
         // 将同步的地图同步给两名玩家
-        users.get(a.getId()).game = game;
-        users.get(b.getId()).game = game;
+        if (users.get(a.getId()) != null) {
+            users.get(a.getId()).game = game;
+        }
+        if (users.get(b.getId()) != null) {
+            users.get(b.getId()).game = game;
+        }
 
         game.start();
 
