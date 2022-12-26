@@ -1,8 +1,10 @@
 package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.protobuf.RpcUtil;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.Game;
+import com.sdu.kob.repository.SnakeRecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +31,17 @@ public class WebSocketServer {
     private Session session = null; // 用户信息存储到session中
 
     private static UserDAO userDAO; // 用静态变量的set函数注入
+    public static SnakeRecordDAO snakeRecordDAO;
     private Game game = null;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
         WebSocketServer.userDAO = userDAO;
+    }
+
+    @Autowired
+    public void setSnakeRecordMapper(SnakeRecordDAO snakeRecordDAO) {
+        WebSocketServer.snakeRecordDAO = snakeRecordDAO;
     }
 
     @OnOpen

@@ -2,8 +2,10 @@ package com.sdu.kob.entity;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.consumer.WebSocketServer;
+import com.sdu.kob.domain.SnakeRecord;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
@@ -222,6 +224,33 @@ public class Game extends Thread {
         }
     }
 
+    public String getMap2String() {
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < this.rows; i ++ ) {
+            for (int j = 0; j < this.cols; j ++ ) {
+                res.append(g[i][j]);
+            }
+        }
+        return res.toString();
+    }
+
+    private void save2Database() {
+        SnakeRecord snakeRecord = new SnakeRecord(
+                playerA.getId(),
+                playerA.getSx(),
+                playerA.getSy(),
+                playerB.getId(),
+                playerB.getSx(),
+                playerB.getSy(),
+                playerA.getSteps2String(),
+                playerB.getSteps2String(),
+                getMap2String(),
+                loser,
+                new Date()
+        );
+        WebSocketServer.snakeRecordDAO.save(snakeRecord);
+    }
+
 
     /**
      * 向两名玩家广播结果 根据两名玩家的id广播
@@ -240,6 +269,7 @@ public class Game extends Thread {
             resp.put("a_direction", nextStepA);
             resp.put("b_direction", nextStepB);
         }
+        save2Database();
         sendAllMessage(resp.toJSONString());
     }
 
