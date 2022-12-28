@@ -2,6 +2,7 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class GoWebSocketServer {
 
     private User user;
     private Session session = null;
+    private GoGame goGame = null;
 
     private static UserDAO userDAO;
     private static RestTemplate restTemplate;
@@ -82,7 +84,6 @@ public class GoWebSocketServer {
         } else if ("cancel".equals(event)) {
             cancelMatching();
         } else if ("move".equals(event)) {
-            //move(data.getInteger("direction"));
             System.out.println("Go game move!");
         } else if ("resign".equals(event)) {
             endGame();
@@ -191,5 +192,14 @@ public class GoWebSocketServer {
         } else {
             throw new NullPointerException("null user not found");
         }
+    }
+
+    private void play(int x, int y) {
+//        // 先判断自己是谁
+//        if (goGame.getPlayer(1).getId().equals(this.user.getId())) {
+//            this.game.setNextStepA(direction);
+//        } else if (game.getPlayer(2).getId().equals(this.user.getId())) {
+//            this.game.setNextStepB(direction);
+//        }
     }
 }
