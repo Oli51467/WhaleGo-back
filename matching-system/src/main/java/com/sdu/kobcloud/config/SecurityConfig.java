@@ -17,7 +17,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/matching/player/add/", "/matching/player/remove/").hasIpAddress("127.0.0.1")
+                .antMatchers("/matching/add/", "/matching/remove/", "/go/matching/add/", "/go/matching/remove/").hasIpAddress("127.0.0.1")
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest()
                 .authenticated();

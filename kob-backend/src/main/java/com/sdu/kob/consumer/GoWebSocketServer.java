@@ -14,14 +14,15 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @ServerEndpoint("/go/websocket/{token}")
 public class GoWebSocketServer {
 
-    public static final String addPlayerUrl = "http://127.0.0.1:3001/matching/player/add/";
-    public static final String removePlayerUrl = "http://127.0.0.1:3001/matching/player/remove/";
+    public static final String addPlayerUrl = "http://127.0.0.1:3001/go/matching/add/";
+    public static final String removePlayerUrl = "http://127.0.0.1:3001/go/matching/remove/";
 
     final public static ConcurrentHashMap<Integer, GoWebSocketServer> goUsers = new ConcurrentHashMap<>();
 
@@ -30,6 +31,9 @@ public class GoWebSocketServer {
 
     private static UserDAO userDAO;
     private static RestTemplate restTemplate;
+
+    // temp
+    private static Integer blackId, whiteId;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -80,6 +84,8 @@ public class GoWebSocketServer {
         } else if ("move".equals(event)) {
             //move(data.getInteger("direction"));
             System.out.println("Go game move!");
+        } else if ("resign".equals(event)) {
+            endGame();
         }
     }
 
@@ -126,11 +132,24 @@ public class GoWebSocketServer {
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);
 
+        JSONObject respGame = new JSONObject();
+        Random random = new Random();
+        int seed = random.nextInt();
+        if (seed * 10 >= 5) {
+            blackId = aId;
+            whiteId = bId;
+        } else {
+            blackId = bId;
+            whiteId = aId;
+        }
+        respGame.put("black_id", blackId);
+        respGame.put("white_id", whiteId);
         // A回传B的信息
         JSONObject respA = new JSONObject();
         respA.put("event", "start");
         respA.put("opponent_username", b.getUserName());
         respA.put("opponent_avatar", b.getAvatar());
+        respA.put("game", respGame);
         // 用users哈希表获取A是哪个用户
         GoWebSocketServer userA = goUsers.get(a.getId());
         if (userA != null) {
@@ -144,6 +163,7 @@ public class GoWebSocketServer {
         respB.put("event", "start");
         respB.put("opponent_username", a.getUserName());
         respB.put("opponent_avatar", a.getAvatar());
+        respB.put("game", respGame);
         // 用users哈希表获取B是哪个用户
         GoWebSocketServer userB = goUsers.get(b.getId());
         if (userB != null) {
@@ -152,5 +172,24 @@ public class GoWebSocketServer {
             throw new NullPointerException("null user not found");
         }
         System.out.println("ok");
+    }
+
+    // temp funx
+    private void endGame() {
+        JSONObject respGame = new JSONObject();
+        respGame.put("event", "result");
+        respGame.put("loser", this.user.getId());
+        GoWebSocketServer userA = goUsers.get(blackId);
+        if (userA != null) {
+            userA.sendMessage(respGame.toJSONString());
+        } else {
+            throw new NullPointerException("null user not found");
+        }
+        GoWebSocketServer userB = goUsers.get(whiteId);
+        if (userB != null) {
+            userB.sendMessage(respGame.toJSONString());
+        } else {
+            throw new NullPointerException("null user not found");
+        }
     }
 }

@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint("/websocket/{token}")  // 注意不要以'/'结尾
 public class WebSocketServer {
 
-    public static final String addPlayerUrl = "http://127.0.0.1:3001/matching/player/add/";
-    public static final String removePlayerUrl = "http://127.0.0.1:3001/matching/player/remove/";
+    public static final String addPlayerUrl = "http://127.0.0.1:3001/matching/add/";
+    public static final String removePlayerUrl = "http://127.0.0.1:3001/matching/remove/";
 
     // 存储所有user对应的连接 当匹配成功后，将匹配成功的连接返回给用户 加static为的是users对所有实例均可见
     final public static ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
