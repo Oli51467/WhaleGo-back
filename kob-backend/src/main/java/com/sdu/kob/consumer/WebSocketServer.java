@@ -51,6 +51,7 @@ public class WebSocketServer {
     public void setRestTemplate(RestTemplate restTemplate) {
         WebSocketServer.restTemplate = restTemplate;
     }
+
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         // 建立连接 所有与连接相关的信息都会存到这个类中
@@ -78,7 +79,7 @@ public class WebSocketServer {
         }
     }
 
-    // *** 又匹配系统匹配出的结果 匹配出来两名玩家进行对战 ***
+    // *** 由匹配系统匹配出的结果 匹配出来两名玩家进行对战 ***
     public static void startGame(Integer aId, Integer bId) {
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);

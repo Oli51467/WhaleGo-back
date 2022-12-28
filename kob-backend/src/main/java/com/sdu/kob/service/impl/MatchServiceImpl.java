@@ -1,5 +1,6 @@
 package com.sdu.kob.service.impl;
 
+import com.sdu.kob.consumer.GoWebSocketServer;
 import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.service.MatchService;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public String startGame(Integer aId, Integer bId) {
         System.out.println("start game:" + aId + " " + bId);
-        WebSocketServer.startGame(aId, bId);
+        GoWebSocketServer.startGame(aId, bId);
         return "begin game success";
     }
 }
