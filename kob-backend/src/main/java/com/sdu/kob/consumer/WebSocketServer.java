@@ -1,8 +1,10 @@
 package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.domain.Bot;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.Game;
+import com.sdu.kob.repository.BotDAO;
 import com.sdu.kob.repository.SnakeRecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
@@ -33,6 +35,7 @@ public class WebSocketServer {
 
     private static UserDAO userDAO; // 用静态变量的set函数注入
     public static SnakeRecordDAO snakeRecordDAO;
+    public static BotDAO botDAO;
     private Game game = null;
 
     private static RestTemplate restTemplate;   // 两个spring间通信的工具
@@ -41,6 +44,9 @@ public class WebSocketServer {
     public void setUserMapper(UserDAO userDAO) {
         WebSocketServer.userDAO = userDAO;
     }
+
+    @Autowired
+    public void setBotMapper(BotDAO botDAO) { WebSocketServer.botDAO = botDAO; }
 
     @Autowired
     public void setSnakeRecordMapper(SnakeRecordDAO snakeRecordDAO) {
@@ -83,14 +89,16 @@ public class WebSocketServer {
     public static void startGame(Integer aId, Integer bId) {
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);
+        Bot botA = botDAO.findById((int) aId);
+        Bot botB = botDAO.findById((int) bId);
 
-        Game game = new Game(19, 20, 55, a.getId(), b.getId());
+        Game game = new Game(19, 20, 55, a.getId(), botA, b.getId(), botB);
         game.createMap();
         // 将同步的地图同步给两名玩家
-        if (users.get(a.getId()) != null) {
+        if (aId != 0 && null != users.get(a.getId())) {
             users.get(a.getId()).game = game;
         }
-        if (users.get(b.getId()) != null) {
+        if (bId != 0 && null != users.get(b.getId())) {
             users.get(b.getId()).game = game;
         }
 
@@ -113,10 +121,8 @@ public class WebSocketServer {
         respA.put("game", respGame);
         // 用users哈希表获取A是哪个用户
         WebSocketServer userA = users.get(a.getId());
-        if (userA != null) {
+        if (aId != 0 && null != userA) {
             userA.sendMessage(respA.toJSONString());
-        } else {
-            throw new NullPointerException("null user not found");
         }
 
         // B回传A的信息
@@ -127,20 +133,26 @@ public class WebSocketServer {
         respB.put("game", respGame);
         // 用users哈希表获取B是哪个用户
         WebSocketServer userB = users.get(b.getId());
-        if (userB != null) {
+        if (bId != 0 && null != userB) {
             userB.sendMessage(respB.toJSONString());
-        } else {
-            throw new NullPointerException("null user not found");
         }
     }
 
-    private void startMatching() {
+    // mode=0:匹配 mode=1:人机
+    private void startMatching(Integer mode) {
         System.out.println("start Matching");
         // 向matching Server发出一个请求开始匹配
         MultiValueMap<String, String> matchData = new LinkedMultiValueMap<>();
         matchData.add("user_id", this.user.getId().toString());
         matchData.add("rating", this.user.getRating().toString());
         restTemplate.postForObject(addPlayerUrl, matchData, String.class);
+        // 添加一个bot
+        if (mode == 1) {
+            MultiValueMap<String, String> botData = new LinkedMultiValueMap<>();
+            botData.add("user_id", String.valueOf(0));
+            botData.add("rating", this.user.getRating().toString());
+            restTemplate.postForObject(addPlayerUrl, botData, String.class);
+        }
     }
 
     private void cancelMatching() {
@@ -166,7 +178,8 @@ public class WebSocketServer {
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
         if ("start".equals(event)) {
-            startMatching();
+            System.out.println(data.getInteger("mode"));
+            startMatching(data.getInteger("mode"));
         } else if ("cancel".equals(event)) {
             cancelMatching();
         } else if ("move".equals(event)) {
