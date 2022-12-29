@@ -9,6 +9,7 @@ import com.sdu.kob.repository.SnakeRecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -38,7 +39,7 @@ public class WebSocketServer {
     public static BotDAO botDAO;
     private Game game = null;
 
-    private static RestTemplate restTemplate;   // 两个spring间通信的工具
+    public static RestTemplate restTemplate;   // 两个spring间通信的工具
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -166,9 +167,11 @@ public class WebSocketServer {
     private void move(int direction) {
         // 先判断自己是谁
         if (game.getPlayer(1).getId().equals(this.user.getId())) {
-            this.game.setNextStepA(direction);
+            if (game.getPlayer(1).getBotId().equals(-1))
+                this.game.setNextStepA(direction);
         } else if (game.getPlayer(2).getId().equals(this.user.getId())) {
-            this.game.setNextStepB(direction);
+            if (game.getPlayer(2).getBotId().equals(-1))
+                this.game.setNextStepB(direction);
         }
     }
 
