@@ -230,14 +230,19 @@ public class GoWebSocketServer {
         }
         Board board = goGame.board;
         Player player = board.getPlayer();
+        JSONObject respData = new JSONObject();
         if (goGame.board.play(x, y, player)) {
             goGame.board.nextPlayer();
             GameTurn gameTurn = goGame.board.gameRecord.getLastTurn();
-            JSONObject respData = new JSONObject();
             respData.put("board", gameTurn.boardState);
             respData.put("event", "play");
+            respData.put("valid", "yes");
             respData.put("current", goGame.board.getPlayer().getIdentifier());
-            sendAllMessage(respData.toJSONString());
+        } else {
+            respData.put("event", "play");
+            respData.put("valid", "no");
+            respData.put("current", goGame.board.getPlayer().getIdentifier());
         }
+        sendAllMessage(respData.toJSONString());
     }
 }
