@@ -9,7 +9,6 @@ import com.sdu.kob.repository.SnakeRecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -37,7 +36,7 @@ public class WebSocketServer {
     private static UserDAO userDAO; // 用静态变量的set函数注入
     public static SnakeRecordDAO snakeRecordDAO;
     public static BotDAO botDAO;
-    private Game game = null;
+    public Game game = null;
 
     public static RestTemplate restTemplate;   // 两个spring间通信的工具
 
@@ -96,10 +95,10 @@ public class WebSocketServer {
         Game game = new Game(19, 20, 55, a.getId(), botA, b.getId(), botB);
         game.createMap();
         // 将同步的地图同步给两名玩家
-        if (aId != 0 && null != users.get(a.getId())) {
+        if (users.get(a.getId()) != null) {
             users.get(a.getId()).game = game;
         }
-        if (bId != 0 && null != users.get(b.getId())) {
+        if (users.get(b.getId()) != null) {
             users.get(b.getId()).game = game;
         }
 
@@ -149,6 +148,7 @@ public class WebSocketServer {
         restTemplate.postForObject(addPlayerUrl, matchData, String.class);
         // 添加一个bot
         if (mode == 1) {
+            users.put(0, this); // 放入AI
             MultiValueMap<String, String> botData = new LinkedMultiValueMap<>();
             botData.add("user_id", String.valueOf(0));
             botData.add("rating", this.user.getRating().toString());

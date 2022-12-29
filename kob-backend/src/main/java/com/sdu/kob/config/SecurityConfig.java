@@ -40,7 +40,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/account/token/", "/api/account/register/").permitAll()
-                .antMatchers("/match/startGame/", "/go/match/startGame/").hasIpAddress("127.0.0.1") // 只允许本地
+                .antMatchers("/match/startGame/",
+                        "/go/match/startGame/",
+                        "/bot/move/receive/"
+                        ).hasIpAddress("127.0.0.1") // 只允许本地
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest()
                 .authenticated();
