@@ -2,6 +2,9 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.entity.go.GameTurn;
+import com.sdu.kob.entity.go.Player;
+import com.sdu.kob.entity.go.Board;
 import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
@@ -29,7 +32,7 @@ public class GoWebSocketServer {
 
     private User user;
     private Session session = null;
-    private GoGame goGame = null;
+    private static GoGame goGame = null;
 
     private static UserDAO userDAO;
     private static RestTemplate restTemplate;
@@ -71,6 +74,7 @@ public class GoWebSocketServer {
         System.out.println("Closed!");
         if (this.user != null) {
             goUsers.remove(this.user.getId());
+            goGame = null;
         }
     }
 
@@ -83,8 +87,8 @@ public class GoWebSocketServer {
             startMatching();
         } else if ("cancel".equals(event)) {
             cancelMatching();
-        } else if ("move".equals(event)) {
-            System.out.println("Go game move!");
+        } else if ("play".equals(event)) {
+            play(data.getInteger("x"), data.getInteger("y"));
         } else if ("resign".equals(event)) {
             endGame();
         }
@@ -143,8 +147,12 @@ public class GoWebSocketServer {
             blackId = bId;
             whiteId = aId;
         }
+        goGame = new GoGame(19, 19, blackId, whiteId);
+        GameTurn lastTurn = goGame.board.gameRecord.getLastTurn();
         respGame.put("black_id", blackId);
         respGame.put("white_id", whiteId);
+        respGame.put("board", lastTurn.boardState);
+
         // A回传B的信息
         JSONObject respA = new JSONObject();
         respA.put("event", "start");
@@ -194,12 +202,42 @@ public class GoWebSocketServer {
         }
     }
 
+    private void sendAllMessage(String message) {
+        if (blackId == null || goUsers.get(blackId) == null) return;
+        GoWebSocketServer clientA = goUsers.get(blackId);
+        if (clientA != null) {
+            clientA.sendMessage(message);
+        }
+        GoWebSocketServer clientB = goUsers.get(whiteId);
+        if (clientB != null) {
+            clientB.sendMessage(message);
+        }
+    }
+
     private void play(int x, int y) {
-//        // 先判断自己是谁
-//        if (goGame.getPlayer(1).getId().equals(this.user.getId())) {
-//            this.game.setNextStepA(direction);
-//        } else if (game.getPlayer(2).getId().equals(this.user.getId())) {
-//            this.game.setNextStepB(direction);
-//        }
+        int[][] a = new int[20][20];
+        for (int i = 0; i <= 19; i ++ ) {
+            for (int j = 0; j <= 19; j ++ ) {
+                a[i][j] = 0;
+            }
+        }
+        if (goGame == null) {
+            JSONObject respData = new JSONObject();
+            respData.put("board", a);
+            respData.put("event", "play");
+            sendAllMessage(respData.toJSONString());
+            return;
+        }
+        Board board = goGame.board;
+        Player player = board.getPlayer();
+        if (goGame.board.play(x, y, player)) {
+            goGame.board.nextPlayer();
+            GameTurn gameTurn = goGame.board.gameRecord.getLastTurn();
+            JSONObject respData = new JSONObject();
+            respData.put("board", gameTurn.boardState);
+            respData.put("event", "play");
+            respData.put("current", goGame.board.getPlayer().getIdentifier());
+            sendAllMessage(respData.toJSONString());
+        }
     }
 }

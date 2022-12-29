@@ -147,6 +147,10 @@ public class Board {
         return play(point, player, true);
     }
 
+    public Player getPlayer() {
+        return actualPlayer;
+    }
+
     public void nextPlayer() {
         changePlayer(false);
     }

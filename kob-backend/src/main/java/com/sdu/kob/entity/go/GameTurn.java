@@ -5,13 +5,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GameTurn {
-    public final int[][] boardState;
+    public int[][] boardState;
     public final int x, y;
     private final int hashCode;
     public Set<Point> capturedStones;
 
     public GameTurn(int width, int height) {
         boardState = new int[width + 1][height + 1];
+        for (int i = 1; i <= 19; i ++ ) {
+            for (int j = 1; j <= 19; j ++ ) {
+                boardState[i][j] = 0;
+            }
+        }
         x = -1;
         y = -1;
         hashCode = Arrays.deepHashCode(boardState);
