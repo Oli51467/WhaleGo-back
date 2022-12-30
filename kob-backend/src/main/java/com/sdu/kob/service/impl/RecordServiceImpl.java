@@ -49,6 +49,10 @@ public class RecordServiceImpl implements RecordService {
             item.put("a_username", userA.getUserName());
             item.put("b_avatar", userB.getAvatar());
             item.put("b_username", userB.getUserName());
+            String result = "平局";
+            if ("A".equals(snakeRecord.getLoser())) result = "B胜";
+            else if ("B".equals(snakeRecord.getLoser())) result = "A胜";
+            item.put("result", result);
             item.put("record", snakeRecord);
             items.add(item);
         }
