@@ -90,7 +90,7 @@ public class WebSocketServer {
 
     public static User putBot2Pool(Integer id) {
         UUID uuid = UUID.randomUUID();
-        User user = new User(id.toString(), uuid.toString().substring(0, 4), 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png");
+        User user = new User("bot", uuid.toString().substring(0, 4), 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png");
         user.setId(id);
         return user;
     }

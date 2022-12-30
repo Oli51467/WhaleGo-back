@@ -333,6 +333,14 @@ public class Game extends Thread {
         sendAllMessage(resp.toJSONString());
     }
 
+    private void removeAIFromUsers() {
+        if (playerA.getId() < 0) {
+            users.remove(playerA.getId());
+        } else if (playerB.getId() < 0) {
+            users.remove(playerB.getId());
+        }
+    }
+
     // 线程入口函数
     @Override
     public void run() {
@@ -351,10 +359,13 @@ public class Game extends Thread {
                 try {
                     if (nextStepA == null && nextStepB == null) {
                         loser = "all";
+                        removeAIFromUsers();
                     } else if (nextStepA == null) {
                         loser = "A";
+                        removeAIFromUsers();
                     } else {
                         loser = "B";
+                        removeAIFromUsers();
                     }
                 } finally {
                     lock.unlock();
