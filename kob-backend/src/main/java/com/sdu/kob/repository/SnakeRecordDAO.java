@@ -1,8 +1,10 @@
 package com.sdu.kob.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sdu.kob.domain.SnakeRecord;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface SnakeRecordDAO extends JpaRepository<SnakeRecord, Integer> {
+@Mapper
+public interface SnakeRecordDAO extends BaseMapper<SnakeRecord> {
 
 }

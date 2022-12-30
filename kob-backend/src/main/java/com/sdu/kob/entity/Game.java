@@ -296,6 +296,7 @@ public class Game extends Thread {
 
     private void save2Database() {
         SnakeRecord snakeRecord = new SnakeRecord(
+                null,
                 playerA.getId(),
                 playerA.getSx(),
                 playerA.getSy(),
@@ -308,7 +309,7 @@ public class Game extends Thread {
                 loser,
                 new Date()
         );
-        WebSocketServer.snakeRecordDAO.save(snakeRecord);
+        WebSocketServer.snakeRecordDAO.insert(snakeRecord);
     }
 
 
