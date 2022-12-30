@@ -18,6 +18,9 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Date;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -85,14 +88,34 @@ public class WebSocketServer {
         }
     }
 
+    public static User putBot2Pool(Integer id) {
+        UUID uuid = UUID.randomUUID();
+        User user = new User(id.toString(), uuid.toString().substring(0, 4), 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png");
+        user.setId(id);
+        return user;
+    }
+
     // *** 由匹配系统匹配出的结果 匹配出来两名玩家进行对战 ***
     public static void startGame(Integer aId, Integer bId) {
+        System.out.println(aId + " " + bId);
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);
-        Bot botA = botDAO.findById((int) aId);
-        Bot botB = botDAO.findById((int) bId);
+        Bot botA = null, botB = null;
+        Date date = new Date();
+        String content = botDAO.findById(0).getContent();
+        if (a == null) {
+            a = putBot2Pool(aId);
+            botA = new Bot(aId, "", "", content, date, date);
+            botA.setId(aId);
+        }
+        if (b == null) {
+            b = putBot2Pool(bId);
+            botB = new Bot(bId, "", "", content, date, date);
+            botB.setId(bId);
+        }
 
-        Game game = new Game(19, 20, 55, a.getId(), botA, b.getId(), botB);
+
+        Game game = new Game(13, 14, 20, a.getId(), botA, b.getId(), botB);
         game.createMap();
         // 将同步的地图同步给两名玩家
         if (users.get(a.getId()) != null) {
@@ -121,7 +144,7 @@ public class WebSocketServer {
         respA.put("game", respGame);
         // 用users哈希表获取A是哪个用户
         WebSocketServer userA = users.get(a.getId());
-        if (aId != 0 && null != userA) {
+        if (aId > 0 && null != userA) {
             userA.sendMessage(respA.toJSONString());
         }
 
@@ -133,7 +156,7 @@ public class WebSocketServer {
         respB.put("game", respGame);
         // 用users哈希表获取B是哪个用户
         WebSocketServer userB = users.get(b.getId());
-        if (bId != 0 && null != userB) {
+        if (bId > 0 && null != userB) {
             userB.sendMessage(respB.toJSONString());
         }
     }
@@ -148,9 +171,15 @@ public class WebSocketServer {
         restTemplate.postForObject(addPlayerUrl, matchData, String.class);
         // 添加一个bot
         if (mode == 1) {
-            users.put(0, this); // 放入AI
+            int id;
+            for (id = -1; id >= -100; id -- ) {
+                if (users.get(id) == null) {
+                    users.put(id, this);
+                    break;
+                }
+            }
             MultiValueMap<String, String> botData = new LinkedMultiValueMap<>();
-            botData.add("user_id", String.valueOf(0));
+            botData.add("user_id", String.valueOf(id));
             botData.add("rating", this.user.getRating().toString());
             restTemplate.postForObject(addPlayerUrl, botData, String.class);
         }
@@ -167,10 +196,10 @@ public class WebSocketServer {
     private void move(int direction) {
         // 先判断自己是谁
         if (game.getPlayer(1).getId().equals(this.user.getId())) {
-            if (game.getPlayer(1).getBotId().equals(-1))
+            if (game.getPlayer(1).getBotId() == 0)
                 this.game.setNextStepA(direction);
         } else if (game.getPlayer(2).getId().equals(this.user.getId())) {
-            if (game.getPlayer(2).getBotId().equals(-1))
+            if (game.getPlayer(2).getBotId() == 0)
                 this.game.setNextStepB(direction);
         }
     }

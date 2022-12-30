@@ -43,11 +43,11 @@ public class Game extends Thread {
         this.cols = cols;
         this.inner_walls_count = inner_walls_count;
         this.g = new int[rows][cols];
-        Integer botIdA = -1, botIdB = -1;
+        Integer botIdA = 0, botIdB = 0;
         String botCodeA = "", botCodeB = "";
         if (botA != null) {
             botIdA = botA.getId();
-            botCodeA =botA.getContent();
+            botCodeA = botA.getContent();
         }
         if (botB != null) {
             botIdB = botB.getId();
@@ -169,7 +169,7 @@ public class Game extends Thread {
      */
     private void sendBotCode(Player player) {
         // 是人
-        if (player.getBotId().equals(-1)) return;
+        if (player.getBotId() == 0) return;
         // 否则需要执行一段代码
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", player.getId().toString());

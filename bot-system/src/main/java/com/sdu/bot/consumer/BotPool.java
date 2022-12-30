@@ -32,7 +32,7 @@ public class BotPool extends Thread {
      */
     private void consume(Bot bot) {
         JoorConsumer joorConsumer = new JoorConsumer();
-        joorConsumer.startTimeout(5000, bot);
+        joorConsumer.startTimeout(2000, bot);
     }
 
     @Override
