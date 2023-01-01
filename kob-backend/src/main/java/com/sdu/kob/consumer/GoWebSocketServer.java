@@ -3,8 +3,6 @@ package com.sdu.kob.consumer;
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.go.GameTurn;
-import com.sdu.kob.entity.go.Player;
-import com.sdu.kob.entity.go.Board;
 import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
@@ -32,13 +30,10 @@ public class GoWebSocketServer {
 
     private User user;
     private Session session = null;
-    private static GoGame goGame = null;
+    public GoGame goGame = null;
 
     private static UserDAO userDAO;
     private static RestTemplate restTemplate;
-
-    // temp
-    private static Integer blackId, whiteId;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -88,9 +83,11 @@ public class GoWebSocketServer {
         } else if ("cancel".equals(event)) {
             cancelMatching();
         } else if ("play".equals(event)) {
-            play(data.getInteger("x"), data.getInteger("y"));
-        } else if ("resign".equals(event)) {
-            endGame();
+            Integer x = data.getInteger("x"), y = data.getInteger("y");
+            if (x == -1 && y == -1) {
+                this.goGame.setLoser(this.user.getId());
+            }
+            this.goGame.setNextStep(x, y);
         }
     }
 
@@ -140,6 +137,8 @@ public class GoWebSocketServer {
         JSONObject respGame = new JSONObject();
         Random random = new Random();
         int seed = random.nextInt();
+        // temp
+        Integer blackId, whiteId;
         if (seed * 10 >= 5) {
             blackId = aId;
             whiteId = bId;
@@ -147,7 +146,18 @@ public class GoWebSocketServer {
             blackId = bId;
             whiteId = aId;
         }
-        goGame = new GoGame(19, 19, blackId, whiteId);
+        GoGame goGame = new GoGame(19, 19, blackId, whiteId);
+
+        // 将同步的地图同步给两名玩家
+        if (goUsers.get(a.getId()) != null) {
+            goUsers.get(a.getId()).goGame = goGame;
+        }
+        if (goUsers.get(b.getId()) != null) {
+            goUsers.get(b.getId()).goGame = goGame;
+        }
+
+        goGame.start();
+
         GameTurn lastTurn = goGame.board.gameRecord.getLastTurn();
         respGame.put("black_id", blackId);
         respGame.put("white_id", whiteId);
@@ -180,69 +190,5 @@ public class GoWebSocketServer {
         } else {
             throw new NullPointerException("null user not found");
         }
-        System.out.println("ok");
-    }
-
-    // temp funx
-    private void endGame() {
-        JSONObject respGame = new JSONObject();
-        respGame.put("event", "result");
-        respGame.put("loser", this.user.getId());
-        GoWebSocketServer userA = goUsers.get(blackId);
-        if (userA != null) {
-            userA.sendMessage(respGame.toJSONString());
-        } else {
-            throw new NullPointerException("null user not found");
-        }
-        GoWebSocketServer userB = goUsers.get(whiteId);
-        if (userB != null) {
-            userB.sendMessage(respGame.toJSONString());
-        } else {
-            throw new NullPointerException("null user not found");
-        }
-    }
-
-    private void sendAllMessage(String message) {
-        if (blackId == null || goUsers.get(blackId) == null) return;
-        GoWebSocketServer clientA = goUsers.get(blackId);
-        if (clientA != null) {
-            clientA.sendMessage(message);
-        }
-        GoWebSocketServer clientB = goUsers.get(whiteId);
-        if (clientB != null) {
-            clientB.sendMessage(message);
-        }
-    }
-
-    private void play(int x, int y) {
-        int[][] a = new int[20][20];
-        for (int i = 0; i <= 19; i ++ ) {
-            for (int j = 0; j <= 19; j ++ ) {
-                a[i][j] = 0;
-            }
-        }
-        if (goGame == null) {
-            JSONObject respData = new JSONObject();
-            respData.put("board", a);
-            respData.put("event", "play");
-            sendAllMessage(respData.toJSONString());
-            return;
-        }
-        Board board = goGame.board;
-        Player player = board.getPlayer();
-        JSONObject respData = new JSONObject();
-        if (goGame.board.play(x, y, player)) {
-            goGame.board.nextPlayer();
-            GameTurn gameTurn = goGame.board.gameRecord.getLastTurn();
-            respData.put("board", gameTurn.boardState);
-            respData.put("event", "play");
-            respData.put("valid", "yes");
-            respData.put("current", goGame.board.getPlayer().getIdentifier());
-        } else {
-            respData.put("event", "play");
-            respData.put("valid", "no");
-            respData.put("current", goGame.board.getPlayer().getIdentifier());
-        }
-        sendAllMessage(respData.toJSONString());
     }
 }
