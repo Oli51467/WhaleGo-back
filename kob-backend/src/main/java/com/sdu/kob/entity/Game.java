@@ -2,7 +2,6 @@ package com.sdu.kob.entity;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.consumer.WebSocketServer;
-import com.sdu.kob.domain.Bot;
 import com.sdu.kob.domain.SnakeRecord;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
