@@ -3,6 +3,8 @@ package com.sdu.kob.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,4 +23,8 @@ public class User extends BaseDomain {
     private Integer rating;
 
     private String avatar;
+
+    private Integer win;
+
+    private Integer lose;
 }

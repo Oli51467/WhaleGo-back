@@ -10,4 +10,6 @@ public interface UserService {
     String follow(String friendName, String userName);
 
     String unfollow(String friendName, String userName);
+
+    JSONObject getUserFollowed(String userName);
 }

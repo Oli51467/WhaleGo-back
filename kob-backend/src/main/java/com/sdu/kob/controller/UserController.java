@@ -37,4 +37,10 @@ public class UserController {
         String userName = principal.getName();
         return userService.unfollow(searchName, userName);
     }
+
+    @RequestMapping(value = "/api/user/getFollowed/", method = RequestMethod.GET)
+    public JSONObject getUserFollowed(Principal principal) {
+        String userName = principal.getName();
+        return userService.getUserFollowed(userName);
+    }
 }

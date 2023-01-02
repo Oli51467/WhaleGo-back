@@ -10,6 +10,9 @@ import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @Service("UserService")
 public class UserServiceImpl implements UserService {
 
@@ -92,4 +95,29 @@ public class UserServiceImpl implements UserService {
         friendDAO.update(userId, friendId, "false");
         return "success";
     }
+
+    @Override
+    public JSONObject getUserFollowed(String userName) {
+        User user = userDAO.findByUserName(userName);
+        Integer userId = user.getId();
+        List<Friend> followed = friendDAO.findByUserAAndFollowed(userId, "true");
+        JSONObject resp = new JSONObject();
+        List<JSONObject> items = new LinkedList<>();
+        for (Friend friend: followed) {
+            JSONObject item = new JSONObject();
+            Integer followedId = friend.getUserB();
+            User u = userDAO.findById((int)followedId);
+            item.put("id", u.getId());
+            item.put("username", u.getUserName());
+            item.put("avatar", u.getAvatar());
+            item.put("level", RatingUtil.getRating2Level(u.getRating()));
+            item.put("win", u.getWin());
+            item.put("lose", u.getLose());
+            items.add(item);
+        }
+        resp.put("users", items);
+        return resp;
+    }
+
+
 }
