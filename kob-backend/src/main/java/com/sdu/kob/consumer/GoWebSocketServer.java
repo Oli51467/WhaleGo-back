@@ -6,6 +6,7 @@ import com.sdu.kob.entity.go.GameTurn;
 import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
+import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -57,7 +58,6 @@ public class GoWebSocketServer {
         // 3. 将用户存下来
         if (this.user != null) {
             goUsers.put(userId, this);
-            userDAO.updateState(userId, 1);
             System.out.println("Connected!");
         } else {
             this.session.close();
@@ -71,7 +71,6 @@ public class GoWebSocketServer {
         if (this.user != null) {
             Integer userId = this.user.getId();
             goUsers.remove(userId);
-            userDAO.updateState(userId, 0);
             goGame = null;
         }
     }
@@ -91,6 +90,16 @@ public class GoWebSocketServer {
                 this.goGame.setLoser(this.user.getId());
             }
             this.goGame.setNextStep(x, y);
+        } else if ("request_play".equals(event)) {
+            Integer friendId = data.getInteger("friend_id");
+            Integer requestId = data.getInteger("request_id");
+            sendRequest2play(friendId, requestId);
+        } else if ("request_cancel".equals(event)) {
+            Integer friendId = data.getInteger("friend_id");
+            sendRequest2Cancel(friendId);
+        } else if ("refuse_invitation".equals(event)) {
+            Integer friendId = data.getInteger("friend_id");
+            sendRefuseMessage(friendId);
         }
     }
 
@@ -108,6 +117,42 @@ public class GoWebSocketServer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void sendRefuseMessage(Integer friendId) {
+        GoWebSocketServer friendClient = goUsers.get(friendId);
+        JSONObject resp = new JSONObject();
+        resp.put("event", "friend_refuse");
+        friendClient.sendMessage(resp.toJSONString());
+    }
+
+    private void sendRequest2Cancel(Integer friendId) {
+        GoWebSocketServer friendClient = goUsers.get(friendId);
+        JSONObject resp = new JSONObject();
+        resp.put("event", "request_cancel");
+        friendClient.sendMessage(resp.toJSONString());
+    }
+
+    /**
+     * 向另一名玩家发送对战请求
+     * @param friendId 被邀请人的id
+     */
+    private void sendRequest2play(Integer friendId, Integer requestId) {
+        if (goUsers.get(friendId) != null) {
+            GoWebSocketServer friendClient = goUsers.get(friendId);
+            JSONObject resp = new JSONObject();
+            JSONObject request_user = new JSONObject();
+            User requestUser = userDAO.findById((int)requestId);
+            resp.put("event", "request_play");
+            request_user.put("id", requestUser.getId());
+            request_user.put("username", requestUser.getUserName());
+            request_user.put("avatar", requestUser.getAvatar());
+            request_user.put("level", RatingUtil.getRating2Level(requestUser.getRating()));
+            request_user.put("win", requestUser.getWin());
+            request_user.put("lose", requestUser.getLose());
+            resp.put("request_user", request_user);
+            friendClient.sendMessage(resp.toJSONString());
         }
     }
 
