@@ -8,6 +8,7 @@ import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.UserService;
 import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -21,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private FriendDAO friendDAO;
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     @Override
     public JSONObject searchUser(String searchName, String userName) {
@@ -63,7 +67,6 @@ public class UserServiceImpl implements UserService {
             item.put("id", searchUser.getId());
             item.put("username", searchUser.getUserName());
             item.put("avatar", searchUser.getAvatar());
-            item.put("state", searchUser.getState());
             item.put("level", RatingUtil.getRating2Level(searchUser.getRating()));
             resp.put("info", item);
         }
@@ -161,7 +164,7 @@ public class UserServiceImpl implements UserService {
                     item.put("id", u.getId());
                     item.put("username", u.getUserName());
                     item.put("avatar", u.getAvatar());
-                    item.put("state", u.getState());
+                    item.put("state", checkLogin(u.getId()));
                     item.put("level", RatingUtil.getRating2Level(u.getRating()));
                     item.put("win", u.getWin());
                     item.put("lose", u.getLose());
@@ -173,4 +176,16 @@ public class UserServiceImpl implements UserService {
         return resp;
     }
 
+    public int checkLogin(Integer id) {
+        List<Object> list = sessionRegistry.getAllPrincipals();
+        for (Object o : list) {
+            if (o instanceof UserDetailsImpl) {
+                System.out.println(((UserDetailsImpl) o).getUser().getId());
+                if (((UserDetailsImpl) o).getUser().getId().equals(id)) {
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
 }
