@@ -294,7 +294,7 @@ public class WebSocketServer {
 
     public static User putBot2Pool(Integer id) {
         UUID uuid = UUID.randomUUID();
-        User user = new User("bot", uuid.toString().substring(0, 4), 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0);
+        User user = new User("bot", uuid.toString().substring(0, 4), 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0, 0);
         user.setId(id);
         return user;
     }

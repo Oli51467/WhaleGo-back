@@ -27,4 +27,6 @@ public class User extends BaseDomain {
     private Integer win;
 
     private Integer lose;
+
+    private Integer state;
 }

@@ -35,12 +35,12 @@ public class RecordServiceImpl implements RecordService {
         for (SnakeRecord snakeRecord: records) {
             User userA, userB;
             if (snakeRecord.getAId() < 0) {
-                userA = new User("AI", "1", 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0);
+                userA = new User("AI", "1", 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0, 0);
             } else {
                 userA = userDAO.findById((int)snakeRecord.getAId());
             }
             if (snakeRecord.getBId() < 0) {
-                userB = new User("AI", "1", 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0);
+                userB = new User("AI", "1", 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0, 0);
             } else {
                 userB = userDAO.findById((int)snakeRecord.getBId());
             }

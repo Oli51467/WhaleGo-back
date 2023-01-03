@@ -57,6 +57,7 @@ public class GoWebSocketServer {
         // 3. 将用户存下来
         if (this.user != null) {
             goUsers.put(userId, this);
+            userDAO.updateState(userId, 1);
             System.out.println("Connected!");
         } else {
             this.session.close();
@@ -68,7 +69,9 @@ public class GoWebSocketServer {
         // 关闭连接
         System.out.println("Closed!");
         if (this.user != null) {
-            goUsers.remove(this.user.getId());
+            Integer userId = this.user.getId();
+            goUsers.remove(userId);
+            userDAO.updateState(userId, 0);
             goGame = null;
         }
     }

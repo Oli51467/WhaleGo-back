@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService {
             item.put("id", searchUser.getId());
             item.put("username", searchUser.getUserName());
             item.put("avatar", searchUser.getAvatar());
+            item.put("state", searchUser.getState());
             item.put("level", RatingUtil.getRating2Level(searchUser.getRating()));
             resp.put("info", item);
         }
@@ -160,6 +161,7 @@ public class UserServiceImpl implements UserService {
                     item.put("id", u.getId());
                     item.put("username", u.getUserName());
                     item.put("avatar", u.getAvatar());
+                    item.put("state", u.getState());
                     item.put("level", RatingUtil.getRating2Level(u.getRating()));
                     item.put("win", u.getWin());
                     item.put("lose", u.getLose());
