@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
         User friend = userDAO.findByUserName(friendName);
         Integer userId = user.getId();
         Integer friendId = friend.getId();
-        Friend relationship = friendDAO.findByUserAOrUserB(userId, friendId);
+        Friend relationship = friendDAO.findByUserAAndUserB(userId, friendId);
         if (relationship == null) {
             Friend relation = new Friend(userId, friendId, "true");
             friendDAO.save(relation);
@@ -180,7 +180,6 @@ public class UserServiceImpl implements UserService {
         List<Object> list = sessionRegistry.getAllPrincipals();
         for (Object o : list) {
             if (o instanceof UserDetailsImpl) {
-                System.out.println(((UserDetailsImpl) o).getUser().getId());
                 if (((UserDetailsImpl) o).getUser().getId().equals(id)) {
                     return 1;
                 }
