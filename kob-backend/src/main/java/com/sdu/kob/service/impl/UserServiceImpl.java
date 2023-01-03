@@ -119,5 +119,56 @@ public class UserServiceImpl implements UserService {
         return resp;
     }
 
+    @Override
+    public JSONObject getAllFollowers(String userName) {
+        User user = userDAO.findByUserName(userName);
+        Integer userId = user.getId();
+        List<Friend> followers = friendDAO.findByUserBAndFollowed(userId, "true");
+        JSONObject resp = new JSONObject();
+        List<JSONObject> items = new LinkedList<>();
+        for (Friend friend: followers) {
+            JSONObject item = new JSONObject();
+            Integer followedId = friend.getUserA();
+            User u = userDAO.findById((int)followedId);
+            item.put("id", u.getId());
+            item.put("username", u.getUserName());
+            item.put("avatar", u.getAvatar());
+            item.put("level", RatingUtil.getRating2Level(u.getRating()));
+            item.put("win", u.getWin());
+            item.put("lose", u.getLose());
+            items.add(item);
+        }
+        resp.put("users", items);
+        return resp;
+    }
+
+    @Override
+    public JSONObject getFriends(String userName) {
+        User user = userDAO.findByUserName(userName);
+        Integer userId = user.getId();
+        List<Friend> followers = friendDAO.findByUserBAndFollowed(userId, "true");
+        List<Friend> followed = friendDAO.findByUserAAndFollowed(userId, "true");
+
+        JSONObject resp = new JSONObject();
+        List<JSONObject> items = new LinkedList<>();
+        for (Friend a : followed) {
+            Integer userAId = a.getUserB();
+            for (Friend b : followers) {
+                if (b.getUserA().equals(userAId)) {
+                    JSONObject item = new JSONObject();
+                    User u = userDAO.findById((int)b.getUserA());
+                    item.put("id", u.getId());
+                    item.put("username", u.getUserName());
+                    item.put("avatar", u.getAvatar());
+                    item.put("level", RatingUtil.getRating2Level(u.getRating()));
+                    item.put("win", u.getWin());
+                    item.put("lose", u.getLose());
+                    items.add(item);
+                }
+            }
+        }
+        resp.put("users", items);
+        return resp;
+    }
 
 }

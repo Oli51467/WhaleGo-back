@@ -12,4 +12,8 @@ public interface UserService {
     String unfollow(String friendName, String userName);
 
     JSONObject getUserFollowed(String userName);
+
+    JSONObject getAllFollowers(String userName);
+
+    JSONObject getFriends(String userName);
 }

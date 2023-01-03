@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 public interface FriendDAO extends JpaRepository<Friend, Integer> {
 
@@ -20,4 +21,6 @@ public interface FriendDAO extends JpaRepository<Friend, Integer> {
     void update(int userId, int followerId, String relation);
 
     List<Friend> findByUserAAndFollowed(Integer userId, String followed);
+
+    List<Friend> findByUserBAndFollowed(Integer userId, String followed);
 }

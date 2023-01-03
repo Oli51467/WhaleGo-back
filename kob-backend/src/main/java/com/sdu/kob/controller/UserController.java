@@ -43,4 +43,16 @@ public class UserController {
         String userName = principal.getName();
         return userService.getUserFollowed(userName);
     }
+
+    @RequestMapping(value = "/api/user/getFollowers/", method = RequestMethod.GET)
+    public JSONObject getAllFollowers(Principal principal) {
+        String userName = principal.getName();
+        return userService.getAllFollowers(userName);
+    }
+
+    @RequestMapping(value = "/api/user/getFriends/", method = RequestMethod.GET)
+    public JSONObject getFriends(Principal principal) {
+        String userName = principal.getName();
+        return userService.getFriends(userName);
+    }
 }
