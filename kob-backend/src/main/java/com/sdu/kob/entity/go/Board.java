@@ -167,10 +167,8 @@ public class Board {
         } else {
             if (actualPlayer == P1) {
                 actualPlayer = P2;
-                System.out.println("Changing player for P2");
             } else {
                 actualPlayer = P1;
-                System.out.println("Changing player for P1");
             }
         }
     }

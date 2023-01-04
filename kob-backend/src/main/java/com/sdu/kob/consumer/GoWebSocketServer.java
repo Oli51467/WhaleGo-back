@@ -54,7 +54,7 @@ public class GoWebSocketServer {
         int userId = JwtUtil.JWTAuthentication(token);
         // 2. 根据id查找用户
         this.user = userDAO.findById(userId);
-        System.out.println("go connect" + user);
+        System.out.println("go connect" + user.getUserName());
         // 3. 将用户存下来
         if (this.user != null) {
             goUsers.put(userId, this);
@@ -100,12 +100,31 @@ public class GoWebSocketServer {
         } else if ("refuse_invitation".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             sendRefuseMessage(friendId);
+        } else if ("accept_invitation".equals(event)) {
+            Integer aId = data.getInteger("user_id");
+            Integer bId = data.getInteger("friend_id");
+            getReady(aId, bId);
+            startGame(aId, bId);
         }
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
         error.printStackTrace();
+    }
+
+    private void getReady(Integer aId, Integer bId) {
+        GoWebSocketServer aClient = goUsers.get(aId);
+        GoWebSocketServer bClient = goUsers.get(bId);
+        JSONObject resp = new JSONObject();
+        resp.put("event", "ready");
+        aClient.sendMessage(resp.toJSONString());
+        bClient.sendMessage(resp.toJSONString());
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     // 从后端向前端发送信息
