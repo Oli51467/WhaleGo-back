@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.sdu.kob.utils.BoardUtil.getStrContainData;
+
 @Service("RecordService")
 public class RecordServiceImpl implements RecordService {
 
@@ -44,7 +46,6 @@ public class RecordServiceImpl implements RecordService {
             item.put("white_avatar", userWhite.getAvatar());
             item.put("white_username", userWhite.getUserName());
             item.put("white_level", RatingUtil.getRating2Level(userWhite.getRating()));
-            item.put("result", record.getResult());
             item.put("record", record);
             items.add(item);
         }
@@ -71,12 +72,26 @@ public class RecordServiceImpl implements RecordService {
             item.put("white_avatar", userWhite.getAvatar());
             item.put("white_username", userWhite.getUserName());
             item.put("white_level", RatingUtil.getRating2Level(userWhite.getRating()));
-            item.put("result", record.getResult());
+            item.put("steps", getSteps(record.getSteps()));
             item.put("record", record);
             items.add(item);
         }
         resp.put("records", items);
         resp.put("records_count", recordDAO.count());    // 总页数
         return resp;
+    }
+
+    private List<String> getSteps(String content) {
+        List<String> blackMoves = getStrContainData(content, "B\\[", "\\]");
+        List<String> whiteMoves = getStrContainData(content, "W\\[", "\\]");
+        List<String> moves = new LinkedList<>();
+        int bs = blackMoves.size(), ws = whiteMoves.size();
+        int i = 0;
+        while(i < bs || i < ws) {
+            if (i < bs) moves.add(blackMoves.get(i));
+            if (i < ws) moves.add(whiteMoves.get(i));
+            i ++;
+        }
+        return moves;
     }
 }

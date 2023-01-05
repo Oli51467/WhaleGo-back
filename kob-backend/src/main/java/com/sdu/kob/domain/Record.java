@@ -28,6 +28,6 @@ public class Record extends BaseDomain {
     private String level;
 
     @Column(name = "create_time")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 }

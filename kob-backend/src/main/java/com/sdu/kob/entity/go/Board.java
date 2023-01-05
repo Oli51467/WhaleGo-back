@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.sdu.kob.utils.RatingUtil.getPositionByIndex;
+import static com.sdu.kob.utils.BoardUtil.getPositionByIndex;
 
 // 棋盘
 public class Board {
@@ -224,7 +224,9 @@ public class Board {
         StringBuilder game = new StringBuilder();
         String which = "B";
         for (GameTurn gameTurn : this.gameRecord.preceding) {
-            game.append(";").append(which).append(getPositionByIndex(gameTurn.x, gameTurn.y));
+            int x = gameTurn.x, y = gameTurn.y;
+            if (!isInBoard(x, y)) continue;
+            game.append(which).append('[').append(x).append(',').append(y).append(']');
             which = (which.equals("B") ? "W" : "B");
         }
         return game.toString();
