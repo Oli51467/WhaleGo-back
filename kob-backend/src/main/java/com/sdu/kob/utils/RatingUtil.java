@@ -1,8 +1,5 @@
 package com.sdu.kob.utils;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class RatingUtil {
 
     public static String getRating2Level(Integer rating) {
