@@ -28,6 +28,7 @@ public class GoWebSocketServer {
     public static final String removePlayerUrl = "http://127.0.0.1:3001/go/matching/remove/";
 
     final public static ConcurrentHashMap<Integer, GoWebSocketServer> goUsers = new ConcurrentHashMap<>();
+    final public static ConcurrentHashMap<Integer, GoGame> games = new ConcurrentHashMap<>();
 
     private User user;
     private Session session = null;
@@ -54,11 +55,10 @@ public class GoWebSocketServer {
         int userId = JwtUtil.JWTAuthentication(token);
         // 2. 根据id查找用户
         this.user = userDAO.findById(userId);
-        System.out.println("go connect" + user.getUserName());
         // 3. 将用户存下来
         if (this.user != null) {
             goUsers.put(userId, this);
-            System.out.println("Connected!");
+            System.out.println("Connected! " + user.getUserName());
         } else {
             this.session.close();
         }
@@ -86,14 +86,21 @@ public class GoWebSocketServer {
             cancelMatching();
         } else if ("play".equals(event)) {
             Integer x = data.getInteger("x"), y = data.getInteger("y");
+            Integer userId = this.user.getId();
             if (x == -1 && y == -1) {
-                this.goGame.setLoser(this.user.getId());
+                games.get(userId).setLoser(userId);
             }
-            this.goGame.setNextStep(x, y);
+            games.get(userId).setNextStep(x, y);
         } else if ("request_play".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             Integer requestId = data.getInteger("request_id");
             sendRequest2play(friendId, requestId);
+        } else if ("request_draw".equals(event)) {
+            Integer friendId = data.getInteger("friend_id");
+            sendRequest2Draw(friendId);
+        } else if ("refuse_draw".equals(event)) {
+            Integer friendId = data.getInteger("friend_id");
+            sendRefuseMessage2Draw(friendId);
         } else if ("request_cancel".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             sendRequest2Cancel(friendId);
@@ -105,6 +112,10 @@ public class GoWebSocketServer {
             Integer bId = data.getInteger("friend_id");
             getReady(aId, bId);
             startGame(aId, bId);
+        } else if ("accept_draw".equals(event)){
+            Integer aId = data.getInteger("user_id");
+            Integer bId = data.getInteger("friend_id");
+            drawGame(aId, bId);
         }
     }
 
@@ -121,7 +132,7 @@ public class GoWebSocketServer {
         aClient.sendMessage(resp.toJSONString());
         bClient.sendMessage(resp.toJSONString());
         try {
-            Thread.sleep(200);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -139,6 +150,25 @@ public class GoWebSocketServer {
         }
     }
 
+    private void drawGame(Integer aId, Integer bId) {
+        GoWebSocketServer aClient = goUsers.get(aId);
+        GoWebSocketServer bClient = goUsers.get(bId);
+        JSONObject resp = new JSONObject();
+        resp.put("event", "result");
+        resp.put("loser", "draw");
+        aClient.sendMessage(resp.toJSONString());
+        bClient.sendMessage(resp.toJSONString());
+        games.remove(aId);
+        games.remove(bId);
+    }
+
+    private void sendRefuseMessage2Draw(Integer friendId) {
+        GoWebSocketServer friendClient = goUsers.get(friendId);
+        JSONObject resp = new JSONObject();
+        resp.put("event", "refuse_draw");
+        friendClient.sendMessage(resp.toJSONString());
+    }
+
     private void sendRefuseMessage(Integer friendId) {
         GoWebSocketServer friendClient = goUsers.get(friendId);
         JSONObject resp = new JSONObject();
@@ -150,6 +180,13 @@ public class GoWebSocketServer {
         GoWebSocketServer friendClient = goUsers.get(friendId);
         JSONObject resp = new JSONObject();
         resp.put("event", "request_cancel");
+        friendClient.sendMessage(resp.toJSONString());
+    }
+
+    private void sendRequest2Draw(Integer opponentId) {
+        GoWebSocketServer friendClient = goUsers.get(opponentId);
+        JSONObject resp = new JSONObject();
+        resp.put("event", "request_draw");
         friendClient.sendMessage(resp.toJSONString());
     }
 
@@ -217,10 +254,10 @@ public class GoWebSocketServer {
 
         // 将同步的地图同步给两名玩家
         if (goUsers.get(a.getId()) != null) {
-            goUsers.get(a.getId()).goGame = goGame;
+            games.put(a.getId(), goGame);
         }
         if (goUsers.get(b.getId()) != null) {
-            goUsers.get(b.getId()).goGame = goGame;
+            games.put(b.getId(), goGame);
         }
 
         goGame.start();
@@ -235,6 +272,7 @@ public class GoWebSocketServer {
         respA.put("event", "start");
         respA.put("opponent_username", b.getUserName());
         respA.put("opponent_avatar", b.getAvatar());
+        respA.put("opponent_userid", b.getId());
         respA.put("game", respGame);
         // 用users哈希表获取A是哪个用户
         GoWebSocketServer userA = goUsers.get(a.getId());
@@ -249,6 +287,7 @@ public class GoWebSocketServer {
         respB.put("event", "start");
         respB.put("opponent_username", a.getUserName());
         respB.put("opponent_avatar", a.getAvatar());
+        respB.put("opponent_userid", a.getId());
         respB.put("game", respGame);
         // 用users哈希表获取B是哪个用户
         GoWebSocketServer userB = goUsers.get(b.getId());

@@ -5,6 +5,7 @@ import com.sdu.kob.consumer.GoWebSocketServer;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import static com.sdu.kob.consumer.GoWebSocketServer.games;
 import static com.sdu.kob.consumer.GoWebSocketServer.goUsers;
 
 public class GoGame extends Thread {
@@ -146,6 +147,9 @@ public class GoGame extends Thread {
                     loser = whitePlayer.getId();
                 }
                 sendResult();
+                // 对局结束 移除保存的棋盘信息
+                games.remove(blackPlayer.getId());
+                games.remove(whitePlayer.getId());
                 break;
             }
         }
