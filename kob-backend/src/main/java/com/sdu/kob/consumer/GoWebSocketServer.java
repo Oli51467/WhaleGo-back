@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.go.GameTurn;
 import com.sdu.kob.entity.go.GoGame;
+import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import com.sdu.kob.utils.RatingUtil;
@@ -35,11 +36,17 @@ public class GoWebSocketServer {
     public GoGame goGame = null;
 
     private static UserDAO userDAO;
+    public static RecordDAO recordDAO;
     private static RestTemplate restTemplate;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
         GoWebSocketServer.userDAO = userDAO;
+    }
+
+    @Autowired
+    public void setRecordDAO(RecordDAO recordDAO) {
+        GoWebSocketServer.recordDAO = recordDAO;
     }
 
     @Autowired
@@ -158,6 +165,8 @@ public class GoWebSocketServer {
         resp.put("loser", "draw");
         aClient.sendMessage(resp.toJSONString());
         bClient.sendMessage(resp.toJSONString());
+        games.get(aId).save2Database();
+        games.get(aId).interrupt();
         games.remove(aId);
         games.remove(bId);
     }

@@ -3,13 +3,19 @@ package com.sdu.kob.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sdu.kob.domain.Record;
 import com.sdu.kob.domain.SnakeRecord;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.SnakeRecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.RecordService;
+import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -19,45 +25,35 @@ import java.util.List;
 public class RecordServiceImpl implements RecordService {
 
     @Autowired
-    private SnakeRecordDAO snakeRecordDAO;
+    private RecordDAO recordDAO;
 
     @Autowired
     private UserDAO userDAO;
 
     @Override
     public JSONObject getRecordList(Integer page) {
-        IPage<SnakeRecord> recordIPage = new Page<>(page, 10);
-        QueryWrapper<SnakeRecord> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("id");
-        List<SnakeRecord> records = snakeRecordDAO.selectPage(recordIPage, queryWrapper).getRecords();
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = PageRequest.of(page, 10, sort);
+        Page<Record> recordsPage = recordDAO.findAll(pageable);
+        List<Record> records = recordsPage.toList();
         JSONObject resp = new JSONObject();
         List<JSONObject> items = new LinkedList<>();
-        for (SnakeRecord snakeRecord: records) {
-            User userA, userB;
-            if (snakeRecord.getAId() < 0) {
-                userA = new User("AI", "1", 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0);
-            } else {
-                userA = userDAO.findById((int)snakeRecord.getAId());
-            }
-            if (snakeRecord.getBId() < 0) {
-                userB = new User("AI", "1", 1500, "https://cdn.acwing.com/media/article/image/2022/07/07/1_535cd642fd-kob2.png", 0, 0);
-            } else {
-                userB = userDAO.findById((int)snakeRecord.getBId());
-            }
+        for (Record record: records) {
+            User userBlack = userDAO.findById((int) record.getBlackId());
+            User userWhite = userDAO.findById((int) record.getWhiteId());
             JSONObject item = new JSONObject();
-            item.put("a_avatar", userA.getAvatar());
-            item.put("a_username", userA.getUserName());
-            item.put("b_avatar", userB.getAvatar());
-            item.put("b_username", userB.getUserName());
-            String result = "平局";
-            if ("A".equals(snakeRecord.getLoser())) result = "B胜";
-            else if ("B".equals(snakeRecord.getLoser())) result = "A胜";
-            item.put("result", result);
-            item.put("record", snakeRecord);
+            item.put("black_avatar", userBlack.getAvatar());
+            item.put("black_username", userBlack.getUserName());
+            item.put("black_level", RatingUtil.getRating2Level(userBlack.getRating()));
+            item.put("white_avatar", userWhite.getAvatar());
+            item.put("white_username", userWhite.getUserName());
+            item.put("white_level", RatingUtil.getRating2Level(userWhite.getRating()));
+            item.put("result", record.getResult());
+            item.put("record", record);
             items.add(item);
         }
         resp.put("records", items);
-        resp.put("records_count", snakeRecordDAO.selectCount(null));    // 总页数
+        resp.put("records_count", recordDAO.count());    // 总页数
         return resp;
     }
 }

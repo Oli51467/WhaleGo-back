@@ -2,7 +2,9 @@ package com.sdu.kob.entity.go;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.consumer.GoWebSocketServer;
+import com.sdu.kob.domain.Record;
 
+import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.sdu.kob.consumer.GoWebSocketServer.games;
@@ -119,6 +121,23 @@ public class GoGame extends Thread {
         }
     }
 
+    public void save2Database() {
+        String result = "";
+        if (blackPlayer.getId().equals(loser)) {
+            result = "白中盘胜";
+        } else if (whitePlayer.getId().equals(loser)) result = "黑中盘胜";
+        else result = "和棋";
+        Record record = new Record(
+                blackPlayer.getId(),
+                whitePlayer.getId(),
+                result,
+                board.getSteps2Sgf(),
+                null,
+                new Date()
+        );
+        GoWebSocketServer.recordDAO.save(record);
+    }
+
     /**
      * 向两名玩家广播结果 根据两名玩家的id广播
      */
@@ -126,6 +145,7 @@ public class GoGame extends Thread {
         JSONObject resp = new JSONObject();
         resp.put("event", "result");
         resp.put("loser", loser);
+        save2Database();
         sendAllMessage(resp.toJSONString());
     }
 
@@ -147,6 +167,7 @@ public class GoGame extends Thread {
                     loser = whitePlayer.getId();
                 }
                 sendResult();
+
                 // 对局结束 移除保存的棋盘信息
                 games.remove(blackPlayer.getId());
                 games.remove(whitePlayer.getId());

@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.sdu.kob.utils.RatingUtil.getPositionByIndex;
+
 // 棋盘
 public class Board {
     public final static int BLACK_STONE = 1;
@@ -216,6 +218,16 @@ public class Board {
                 point.setGroup(null);
             }
         }
+    }
+
+    public String getSteps2Sgf() {
+        StringBuilder game = new StringBuilder();
+        String which = "B";
+        for (GameTurn gameTurn : this.gameRecord.preceding) {
+            game.append(";").append(which).append(getPositionByIndex(gameTurn.x, gameTurn.y));
+            which = (which.equals("B") ? "W" : "B");
+        }
+        return game.toString();
     }
 }
 

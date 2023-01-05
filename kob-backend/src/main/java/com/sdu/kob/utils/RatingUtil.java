@@ -24,4 +24,18 @@ public class RatingUtil {
             return "2段";
         }
     }
+
+    public static String getPositionByIndex(int x, int y) {
+        String position = "";
+        int cnt = 1;
+        for (char c = 'A'; c <= 'T'; c ++ ) {
+            if (cnt == y) {
+                position += c;
+                break;
+            }
+            cnt ++;
+        }
+        position += 20 - x;
+        return position;
+    }
 }
