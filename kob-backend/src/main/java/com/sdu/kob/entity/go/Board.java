@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.sdu.kob.utils.BoardUtil.getPositionByIndex;
-
 // 棋盘
 public class Board {
     public final static int BLACK_STONE = 1;
@@ -14,6 +12,7 @@ public class Board {
 
     private final int width;
     private final int height;
+    public int playCount;
     public final Point[][] points;
     public List<Point> recordPoints;
     public Set<Point> capturedStones;
@@ -46,6 +45,7 @@ public class Board {
             }
         }
         handicap = 0;
+        playCount = 0;
     }
 
     public boolean isInBoard(int x, int y) {
@@ -137,13 +137,13 @@ public class Board {
             gameRecord.apply(currentTurn);
         }
         recordPoints.add(point);
+        playCount ++;
         return true;
     }
 
     public boolean play(int x, int y, Player player) {
         Point point = getPoint(x, y);
         if (point == null) {
-            System.out.println("落子超出棋盘范围了 请重新落子！");
             return false;
         }
         return play(point, player, true);

@@ -3,8 +3,10 @@ package com.sdu.kob.entity.go;
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.domain.Record;
+import com.sdu.kob.domain.User;
 
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.sdu.kob.consumer.WebSocketServer.games;
@@ -12,18 +14,22 @@ import static com.sdu.kob.consumer.WebSocketServer.goUsers;
 
 public class GoGame extends Thread {
 
-    private final Player blackPlayer;
-    private final Player whitePlayer;
+    public final UUID uuid;
+    public final Player blackPlayer;
+    public final Player whitePlayer;
     public final Board board;
     public Integer nextX = null, nextY = null;
     private String status = "playing";  // playing -> finished
     private Integer loser = null;
     private ReentrantLock lock = new ReentrantLock();
 
-    public GoGame(Integer rows, Integer cols, Integer blackPlayerId, Integer whitePlayerId) {
-        this.blackPlayer = new Player(1, blackPlayerId);
-        this.whitePlayer = new Player(2, whitePlayerId);
+    public GoGame(Integer rows, Integer cols,
+                  Integer blackPlayerId, User blackUser,
+                  Integer whitePlayerId, User whiteUser) {
+        this.blackPlayer = new Player(1, blackPlayerId, blackUser);
+        this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
         this.board = new Board(rows + 1, cols + 1, 0);
+        this.uuid = UUID.randomUUID();
     }
 
     public Player getPlayer(int identifier) {
@@ -61,7 +67,7 @@ public class GoGame extends Thread {
 
     // 等待玩家的下一步操作
     public boolean nextStep() {
-        for (int i = 0; i < 5000; i ++ ) {
+        while(true) {
             try {
                 if (this.isInterrupted()) break;
                 Thread.sleep(20);
@@ -152,7 +158,7 @@ public class GoGame extends Thread {
 
     @Override
     public void run() {
-        for (int i = 0; i < 10000; i ++ ) {
+        while (true){
             if (this.isInterrupted()) break;
             if (nextStep()) {
                 judge();

@@ -1,5 +1,6 @@
 package com.sdu.kob.entity.go;
 
+import com.sdu.kob.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,9 +11,12 @@ public class Player {
 
     private Integer id;
 
-    public Player(Integer identifier, Integer id) {
+    private User user;
+
+    public Player(Integer identifier, Integer id, User user) {
         this.identifier = identifier;
         this.id = id;
+        this.user = user;
     }
 
     public Player(Integer identifier) {

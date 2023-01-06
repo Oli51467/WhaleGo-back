@@ -33,7 +33,6 @@ public class WebSocketServer {
 
     private User user;
     private Session session = null;
-    public GoGame goGame = null;
 
     private static UserDAO userDAO;
     public static RecordDAO recordDAO;
@@ -78,7 +77,6 @@ public class WebSocketServer {
         if (this.user != null) {
             Integer userId = this.user.getId();
             goUsers.remove(userId);
-            goGame = null;
         }
     }
 
@@ -252,14 +250,16 @@ public class WebSocketServer {
         int seed = random.nextInt();
         // temp
         Integer blackId, whiteId;
+        GoGame goGame = null;
         if (seed * 10 >= 5) {
             blackId = aId;
             whiteId = bId;
+            goGame = new GoGame(19, 19, blackId, a, whiteId, b);
         } else {
             blackId = bId;
             whiteId = aId;
+            goGame = new GoGame(19, 19, blackId, b, whiteId, a);
         }
-        GoGame goGame = new GoGame(19, 19, blackId, whiteId);
 
         // 将同步的地图同步给两名玩家
         if (goUsers.get(a.getId()) != null) {
