@@ -4,7 +4,7 @@ import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.service.MatchService;
 import org.springframework.stereotype.Service;
 
-@Service("MatchService")
+@Service("MatchGoService")
 public class MatchServiceImpl implements MatchService {
 
     // 匹配系统返回结果的Service

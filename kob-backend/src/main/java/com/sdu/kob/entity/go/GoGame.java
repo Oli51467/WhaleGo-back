@@ -1,14 +1,14 @@
 package com.sdu.kob.entity.go;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sdu.kob.consumer.GoWebSocketServer;
+import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.domain.Record;
 
 import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.sdu.kob.consumer.GoWebSocketServer.games;
-import static com.sdu.kob.consumer.GoWebSocketServer.goUsers;
+import static com.sdu.kob.consumer.WebSocketServer.games;
+import static com.sdu.kob.consumer.WebSocketServer.goUsers;
 
 public class GoGame extends Thread {
 
@@ -31,13 +31,13 @@ public class GoGame extends Thread {
     }
 
     private void sendAllMessage(String message) {
-        GoWebSocketServer clientA = goUsers.get(blackPlayer.getId());
+        WebSocketServer clientA = goUsers.get(blackPlayer.getId());
         if (clientA != null) {
             clientA.sendMessage(message);
         } else {
             throw new NullPointerException("null user not found");
         }
-        GoWebSocketServer clientB = goUsers.get(whitePlayer.getId());
+        WebSocketServer clientB = goUsers.get(whitePlayer.getId());
         if (clientB != null) {
             clientB.sendMessage(message);
         } else {
@@ -63,6 +63,7 @@ public class GoGame extends Thread {
     public boolean nextStep() {
         for (int i = 0; i < 5000; i ++ ) {
             try {
+                if (this.isInterrupted()) break;
                 Thread.sleep(20);
                 lock.lock();
                 try {
@@ -135,7 +136,7 @@ public class GoGame extends Thread {
                 null,
                 new Date()
         );
-        GoWebSocketServer.recordDAO.save(record);
+        WebSocketServer.recordDAO.save(record);
     }
 
     /**
@@ -152,6 +153,7 @@ public class GoGame extends Thread {
     @Override
     public void run() {
         for (int i = 0; i < 10000; i ++ ) {
+            if (this.isInterrupted()) break;
             if (nextStep()) {
                 judge();
                 if (this.status.equals("finished")) {

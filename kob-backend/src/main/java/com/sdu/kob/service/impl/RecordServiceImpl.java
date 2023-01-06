@@ -46,6 +46,7 @@ public class RecordServiceImpl implements RecordService {
             item.put("white_avatar", userWhite.getAvatar());
             item.put("white_username", userWhite.getUserName());
             item.put("white_level", RatingUtil.getRating2Level(userWhite.getRating()));
+            item.put("steps", getSteps(record.getSteps()));
             item.put("record", record);
             items.add(item);
         }

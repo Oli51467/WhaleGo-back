@@ -131,6 +131,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/be.brugo/brugo -->
+        <dependency>
+            <groupId>be.brugo</groupId>
+            <artifactId>brugo</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+
     </dependencies>
 
 </project>
