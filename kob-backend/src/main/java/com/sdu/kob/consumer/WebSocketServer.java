@@ -18,6 +18,8 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +32,7 @@ public class WebSocketServer {
 
     final public static ConcurrentHashMap<Integer, WebSocketServer> goUsers = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Integer, GoGame> games = new ConcurrentHashMap<>();
+    final public static ConcurrentHashMap<String, List<Integer>> rooms = new ConcurrentHashMap<>();
 
     private User user;
     private Session session = null;
@@ -164,7 +167,7 @@ public class WebSocketServer {
         aClient.sendMessage(resp.toJSONString());
         bClient.sendMessage(resp.toJSONString());
         games.get(aId).save2Database();
-        games.get(aId).interrupt();
+        games.get(aId).stop();
         games.remove(aId);
         games.remove(bId);
     }
@@ -268,12 +271,18 @@ public class WebSocketServer {
         if (goUsers.get(b.getId()) != null) {
             games.put(b.getId(), goGame);
         }
+        // 将用户加入到房间
+        List<Integer> usersInRoom = new LinkedList<>();
+        usersInRoom.add(a.getId());
+        usersInRoom.add(b.getId());
+        rooms.put(goGame.uuid, usersInRoom);
 
         goGame.start();
 
         GameTurn lastTurn = goGame.board.gameRecord.getLastTurn();
         respGame.put("black_id", blackId);
         respGame.put("white_id", whiteId);
+        respGame.put("room_id", goGame.uuid);
         respGame.put("board", lastTurn.boardState);
 
         // A回传B的信息

@@ -14,7 +14,7 @@ import static com.sdu.kob.consumer.WebSocketServer.goUsers;
 
 public class GoGame extends Thread {
 
-    public final UUID uuid;
+    public final String uuid;
     public final Player blackPlayer;
     public final Player whitePlayer;
     public final Board board;
@@ -29,7 +29,7 @@ public class GoGame extends Thread {
         this.blackPlayer = new Player(1, blackPlayerId, blackUser);
         this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
         this.board = new Board(rows + 1, cols + 1, 0);
-        this.uuid = UUID.randomUUID();
+        this.uuid = UUID.randomUUID().toString().substring(0, 6);
     }
 
     public Player getPlayer(int identifier) {
@@ -70,7 +70,6 @@ public class GoGame extends Thread {
         while(true) {
             try {
                 if (this.isInterrupted()) break;
-                Thread.sleep(20);
                 lock.lock();
                 try {
                     if (this.nextX != null && this.nextY != null) {
@@ -79,8 +78,8 @@ public class GoGame extends Thread {
                 } finally {
                     lock.unlock();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } finally {
+
             }
         }
         return false;
