@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.locks.ReentrantLock;
 import static com.sdu.kob.consumer.WebSocketServer.rooms;
 
 @Service("RoomService")
@@ -48,5 +47,14 @@ public class RoomServiceImpl implements RoomService {
         resp.put("board_state", room.getGoGame().board.gameRecord.getLastTurn().boardState);
         resp.put("items", items);
         return resp;
+    }
+
+    @Override
+    public String leaveRoom(String roomId, Integer userId) {
+        if (rooms.get(roomId).getUsers().remove(userId)) {
+            return "success";
+        } else {
+            return "fail";
+        }
     }
 }

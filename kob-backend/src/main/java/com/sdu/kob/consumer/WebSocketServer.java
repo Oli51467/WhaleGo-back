@@ -35,7 +35,6 @@ public class WebSocketServer {
 
     final public static ConcurrentHashMap<Integer, WebSocketServer> goUsers = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Integer, String> user2room = new ConcurrentHashMap<>();
-    //final public static ConcurrentHashMap<Integer, GoGame> games = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
     private User user;

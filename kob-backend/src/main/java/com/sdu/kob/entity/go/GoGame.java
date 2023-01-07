@@ -149,7 +149,7 @@ public class GoGame extends Thread {
         resp.put("loser", loser);
         save2Database();
         sendAllMessage(resp.toJSONString());
-        rooms.remove(this.uuid);
+        rooms.get(this.uuid).setState("已结束");
     }
 
     @Override

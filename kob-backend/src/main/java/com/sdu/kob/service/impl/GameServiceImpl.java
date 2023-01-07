@@ -38,7 +38,7 @@ public class GameServiceImpl implements GameService {
                 game.put("white_username", whitePlayer.getUser().getUserName());
                 game.put("white_avatar", whitePlayer.getUser().getAvatar());
                 game.put("white_level", RatingUtil.getRating2Level(whitePlayer.getUser().getRating()));
-                game.put("state", getState(gameItem.board.playCount));
+                game.put("state", room.getState());
                 game.put("id", gameItem.uuid);
                 resp.put("games", game);
             }

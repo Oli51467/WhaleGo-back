@@ -4,4 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 
 public interface RoomService {
     JSONObject getUsersInRoom(String roomId, Integer userId);
+
+    String leaveRoom(String roomId, Integer userId);
 }
