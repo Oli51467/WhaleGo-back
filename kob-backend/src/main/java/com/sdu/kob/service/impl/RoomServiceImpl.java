@@ -1,14 +1,18 @@
-package com.sdu.kob.service;
+package com.sdu.kob.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.UserDAO;
+import com.sdu.kob.service.RoomService;
 import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
-
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import static com.sdu.kob.consumer.WebSocketServer.rooms;
 
 @Service("RoomService")
@@ -26,8 +30,9 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public JSONObject getUsersInRoom(String roomId, Integer userId) {
         JSONObject resp = new JSONObject();
-        List<Integer> usersInRoom = rooms.get(roomId);
-        usersInRoom.add(userId);
+        if (!rooms.get(roomId).getUsers().contains(userId)) rooms.get(roomId).getUsers().add(userId);
+        CopyOnWriteArrayList<Integer> usersInRoom = rooms.get(roomId).getUsers();
+        List<JSONObject> items = new LinkedList<>();
         for (Integer uid : usersInRoom) {
             JSONObject item = new JSONObject();
             User user = userDAO.findById((int)uid);
@@ -37,8 +42,11 @@ public class RoomServiceImpl implements RoomService {
             item.put("user_level", RatingUtil.getRating2Level(user.getRating()));
             item.put("user_lose", user.getLose());
             item.put("user_win", user.getWin());
-            resp.put("items", item);
+            items.add(item);
         }
+        Room room = rooms.get(roomId);
+        resp.put("board_state", room.getGoGame().board.gameRecord.getLastTurn().boardState);
+        resp.put("items", items);
         return resp;
     }
 }

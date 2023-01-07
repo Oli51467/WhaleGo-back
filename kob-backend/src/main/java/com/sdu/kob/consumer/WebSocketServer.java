@@ -2,6 +2,7 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.entity.Room;
 import com.sdu.kob.entity.go.GameTurn;
 import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.repository.RecordDAO;
@@ -21,7 +22,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 @ServerEndpoint("/go/websocket/{token}")
@@ -31,8 +34,9 @@ public class WebSocketServer {
     public static final String removePlayerUrl = "http://127.0.0.1:3001/go/matching/remove/";
 
     final public static ConcurrentHashMap<Integer, WebSocketServer> goUsers = new ConcurrentHashMap<>();
-    final public static ConcurrentHashMap<Integer, GoGame> games = new ConcurrentHashMap<>();
-    final public static ConcurrentHashMap<String, List<Integer>> rooms = new ConcurrentHashMap<>();
+    final public static ConcurrentHashMap<Integer, String> user2room = new ConcurrentHashMap<>();
+    //final public static ConcurrentHashMap<Integer, GoGame> games = new ConcurrentHashMap<>();
+    final public static ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
     private User user;
     private Session session = null;
@@ -96,9 +100,9 @@ public class WebSocketServer {
             Integer x = data.getInteger("x"), y = data.getInteger("y");
             Integer userId = this.user.getId();
             if (x == -1 && y == -1) {
-                games.get(userId).setLoser(userId);
+                rooms.get(user2room.get(userId)).getGoGame().setLoser(userId);
             }
-            games.get(userId).setNextStep(x, y);
+            rooms.get(user2room.get(userId)).getGoGame().setNextStep(x, y);
         } else if ("request_play".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             Integer requestId = data.getInteger("request_id");
@@ -166,10 +170,8 @@ public class WebSocketServer {
         resp.put("loser", "draw");
         aClient.sendMessage(resp.toJSONString());
         bClient.sendMessage(resp.toJSONString());
-        games.get(aId).save2Database();
-        games.get(aId).stop();
-        games.remove(aId);
-        games.remove(bId);
+        rooms.get(user2room.get(aId)).getGoGame().save2Database();
+        rooms.get(user2room.get(aId)).getGoGame().stop();
     }
 
     private void sendRefuseMessage2Draw(Integer friendId) {
@@ -266,16 +268,16 @@ public class WebSocketServer {
 
         // 将同步的地图同步给两名玩家
         if (goUsers.get(a.getId()) != null) {
-            games.put(a.getId(), goGame);
+            user2room.put(a.getId(), goGame.uuid);
         }
         if (goUsers.get(b.getId()) != null) {
-            games.put(b.getId(), goGame);
+            user2room.put(b.getId(), goGame.uuid);
         }
         // 将用户加入到房间
-        List<Integer> usersInRoom = new LinkedList<>();
+        CopyOnWriteArrayList<Integer> usersInRoom = new CopyOnWriteArrayList<>();
         usersInRoom.add(a.getId());
         usersInRoom.add(b.getId());
-        rooms.put(goGame.uuid, usersInRoom);
+        rooms.put(goGame.uuid, new Room(goGame.uuid, usersInRoom, blackId, whiteId, "布局", goGame));
 
         goGame.start();
 

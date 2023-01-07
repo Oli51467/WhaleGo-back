@@ -1,6 +1,7 @@
 package com.sdu.kob.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.entity.Room;
 import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.entity.go.Player;
 import com.sdu.kob.service.GameService;
@@ -11,7 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.sdu.kob.consumer.WebSocketServer.games;
+import static com.sdu.kob.consumer.WebSocketServer.rooms;
 
 @Service("GameService")
 public class GameServiceImpl implements GameService {
@@ -20,11 +21,11 @@ public class GameServiceImpl implements GameService {
     public JSONObject getGamesInProcess() {
         JSONObject resp = new JSONObject();
         Set<Integer> usersId = new HashSet<>();
-        for (Map.Entry<Integer, GoGame> entry: games.entrySet()) {
-            Integer userId = entry.getKey();
+        for (Room room: rooms.values()) {
+            Integer userId = room.getBlackPlayer();
             if (!usersId.contains(userId)) {
                 usersId.add(userId);
-                GoGame gameItem = entry.getValue();
+                GoGame gameItem = room.getGoGame();
                 Player blackPlayer = gameItem.blackPlayer, whitePlayer = gameItem.whitePlayer;
                 Integer blackId = blackPlayer.getId();
                 Integer whiteId = whitePlayer.getId();

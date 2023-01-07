@@ -9,8 +9,7 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.sdu.kob.consumer.WebSocketServer.games;
-import static com.sdu.kob.consumer.WebSocketServer.goUsers;
+import static com.sdu.kob.consumer.WebSocketServer.*;
 
 public class GoGame extends Thread {
 
@@ -37,17 +36,14 @@ public class GoGame extends Thread {
     }
 
     private void sendAllMessage(String message) {
-        WebSocketServer clientA = goUsers.get(blackPlayer.getId());
-        if (clientA != null) {
-            clientA.sendMessage(message);
-        } else {
-            throw new NullPointerException("null user not found");
-        }
-        WebSocketServer clientB = goUsers.get(whitePlayer.getId());
-        if (clientB != null) {
-            clientB.sendMessage(message);
-        } else {
-            throw new NullPointerException("null user not found");
+        rooms.get(this.uuid).setGoGame(this);
+        for (Integer usersInRoom : rooms.get(this.uuid).getUsers()) {
+            WebSocketServer client = goUsers.get(usersInRoom);
+            if (client != null) {
+                client.sendMessage(message);
+            } else {
+                throw new NullPointerException("null user not found");
+            }
         }
     }
 
@@ -153,6 +149,7 @@ public class GoGame extends Thread {
         resp.put("loser", loser);
         save2Database();
         sendAllMessage(resp.toJSONString());
+        rooms.remove(this.uuid);
     }
 
     @Override
@@ -176,8 +173,7 @@ public class GoGame extends Thread {
                 sendResult();
 
                 // 对局结束 移除保存的棋盘信息
-                games.remove(blackPlayer.getId());
-                games.remove(whitePlayer.getId());
+
                 break;
             }
         }
