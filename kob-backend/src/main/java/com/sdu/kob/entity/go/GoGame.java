@@ -36,7 +36,6 @@ public class GoGame extends Thread {
     }
 
     private void sendAllMessage(String message) {
-        rooms.get(this.uuid).setGoGame(this);
         for (Integer usersInRoom : rooms.get(this.uuid).getUsers()) {
             WebSocketServer client = goUsers.get(usersInRoom);
             if (client != null) {

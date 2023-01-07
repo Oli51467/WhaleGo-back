@@ -19,10 +19,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -99,7 +96,10 @@ public class WebSocketServer {
             Integer x = data.getInteger("x"), y = data.getInteger("y");
             Integer userId = this.user.getId();
             if (x == -1 && y == -1) {
-                rooms.get(user2room.get(userId)).getGoGame().setLoser(userId);
+                int loser;
+                if (Objects.equals(userId, rooms.get(user2room.get(userId)).getGoGame().blackPlayer.getId())) loser = 1;
+                else loser = 2;
+                rooms.get(user2room.get(userId)).getGoGame().setLoser(loser);
             }
             rooms.get(user2room.get(userId)).getGoGame().setNextStep(x, y);
         } else if ("request_play".equals(event)) {
