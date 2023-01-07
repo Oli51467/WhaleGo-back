@@ -30,17 +30,11 @@ public class GameServiceImpl implements GameService {
             game.put("white_username", whitePlayer.getUser().getUserName());
             game.put("white_avatar", whitePlayer.getUser().getAvatar());
             game.put("white_level", RatingUtil.getRating2Level(whitePlayer.getUser().getRating()));
-            game.put("state", room.getState());
-            game.put("id", gameItem.uuid);
+            game.put("state", rooms.get(room.getId()).getGoGame().getStating());
+            game.put("id", room.getId());
             games.add(game);
         }
         resp.put("games", games);
         return resp;
-    }
-
-    private String getState(int count) {
-        if (count <= 50) return "布局";
-        else if (count <= 200) return "中盘";
-        else return "官子";
     }
 }

@@ -125,8 +125,8 @@ public class WebSocketServer {
             startGame(aId, bId);
         } else if ("accept_draw".equals(event)){
             Integer aId = data.getInteger("user_id");
-            Integer bId = data.getInteger("friend_id");
-            drawGame(aId, bId);
+            rooms.get(user2room.get(aId)).getGoGame().setLoser(-2);
+            rooms.get(user2room.get(aId)).getGoGame().setNextStep(-2, -2);
         }
     }
 
@@ -161,18 +161,7 @@ public class WebSocketServer {
         }
     }
 
-    private void drawGame(Integer aId, Integer bId) {
-        WebSocketServer aClient = goUsers.get(aId);
-        WebSocketServer bClient = goUsers.get(bId);
-        JSONObject resp = new JSONObject();
-        resp.put("event", "result");
-        resp.put("loser", "draw");
-        aClient.sendMessage(resp.toJSONString());
-        bClient.sendMessage(resp.toJSONString());
-        rooms.get(user2room.get(aId)).getGoGame().save2Database();
-        rooms.get(user2room.get(aId)).getGoGame().stop();
-    }
-
+    // 拒绝和棋
     private void sendRefuseMessage2Draw(Integer friendId) {
         WebSocketServer friendClient = goUsers.get(friendId);
         JSONObject resp = new JSONObject();
@@ -180,6 +169,7 @@ public class WebSocketServer {
         friendClient.sendMessage(resp.toJSONString());
     }
 
+    // 拒绝请求
     private void sendRefuseMessage(Integer friendId) {
         WebSocketServer friendClient = goUsers.get(friendId);
         JSONObject resp = new JSONObject();
@@ -187,6 +177,7 @@ public class WebSocketServer {
         friendClient.sendMessage(resp.toJSONString());
     }
 
+    // 取消发送请求
     private void sendRequest2Cancel(Integer friendId) {
         WebSocketServer friendClient = goUsers.get(friendId);
         JSONObject resp = new JSONObject();
@@ -194,6 +185,7 @@ public class WebSocketServer {
         friendClient.sendMessage(resp.toJSONString());
     }
 
+    // 请求和棋
     private void sendRequest2Draw(Integer opponentId) {
         WebSocketServer friendClient = goUsers.get(opponentId);
         JSONObject resp = new JSONObject();
@@ -245,6 +237,7 @@ public class WebSocketServer {
         restTemplate.postForObject(removePlayerUrl, cancelMatchData, String.class);
     }
 
+    // 开始下棋
     public static void startGame(Integer aId, Integer bId) {
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);
@@ -276,7 +269,7 @@ public class WebSocketServer {
         CopyOnWriteArrayList<Integer> usersInRoom = new CopyOnWriteArrayList<>();
         usersInRoom.add(a.getId());
         usersInRoom.add(b.getId());
-        rooms.put(goGame.uuid, new Room(goGame.uuid, usersInRoom, blackId, whiteId, "布局", goGame));
+        rooms.put(goGame.uuid, new Room(goGame.uuid, usersInRoom, blackId, whiteId, "", goGame));
 
         goGame.start();
 

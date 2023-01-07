@@ -12,7 +12,6 @@ public class Board {
 
     private final int width;
     private final int height;
-    public int playCount;
     public final Point[][] points;
     public List<Point> recordPoints;
     public Set<Point> capturedStones;
@@ -45,7 +44,6 @@ public class Board {
             }
         }
         handicap = 0;
-        playCount = 0;
     }
 
     public boolean isInBoard(int x, int y) {
@@ -137,7 +135,6 @@ public class Board {
             gameRecord.apply(currentTurn);
         }
         recordPoints.add(point);
-        playCount ++;
         return true;
     }
 
