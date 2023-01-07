@@ -12,7 +12,12 @@ public interface RecordDAO extends JpaRepository<Record, Integer> {
     @Query(value = "select * from record where black_id = :userId or white_id = :userId", nativeQuery = true)
     Page<Record> findMyRecords(@Param("userId") Integer Id, Pageable pageable);
 
-    @Query(value = "select * from record where black_id != :userId and white_id != :userId", nativeQuery = true,
-            countQuery = "select count(*) from record where black_id != :userId and white_id != :userId")
+    @Query(value = "select * from record where black_id != :userId and white_id != :userId", nativeQuery = true)
     Page<Record> findOthers(@Param("userId") Integer Id, Pageable pageable);
+
+    @Query(value = "select count(*) from record where black_id = :userId or white_id = :userId", nativeQuery = true)
+    int countByMyRecords(@Param("userId") Integer Id);
+
+    @Query(value = "select count(*) from record where black_id != :userId and white_id != :userId", nativeQuery = true)
+    int countOthers(@Param("userId") Integer Id);
 }

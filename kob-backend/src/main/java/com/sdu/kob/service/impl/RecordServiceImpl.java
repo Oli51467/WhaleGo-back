@@ -31,7 +31,7 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public JSONObject getAllRecords(Integer userId, Integer page) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(page, 10, sort);
+        Pageable pageable = PageRequest.of(page, 9, sort);
         Page<Record> recordsPage = recordDAO.findOthers(userId, pageable);
         List<Record> records = recordsPage.toList();
         JSONObject resp = new JSONObject();
@@ -51,14 +51,14 @@ public class RecordServiceImpl implements RecordService {
             items.add(item);
         }
         resp.put("records", items);
-        resp.put("records_count", recordDAO.count());    // 总页数
+        resp.put("records_count", recordDAO.countOthers(userId));    // 总页数
         return resp;
     }
 
     @Override
     public JSONObject getMyRecords(Integer userId, Integer page) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(page, 10, sort);
+        Pageable pageable = PageRequest.of(page, 9, sort);
         Page<Record> recordsPage = recordDAO.findMyRecords(userId, pageable);
         List<Record> records = recordsPage.toList();
         JSONObject resp = new JSONObject();
@@ -78,7 +78,7 @@ public class RecordServiceImpl implements RecordService {
             items.add(item);
         }
         resp.put("records", items);
-        resp.put("records_count", recordDAO.count());    // 总页数
+        resp.put("records_count", recordDAO.countByMyRecords(userId));    // 总页数
         return resp;
     }
 
