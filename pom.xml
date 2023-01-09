@@ -16,7 +16,6 @@
     <modules>
         <module>matching-system</module>
         <module>kob-backend</module>
-        <module>bot-system</module>
     </modules>
     <packaging>pom</packaging>
     <properties>

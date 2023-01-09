@@ -21,7 +21,9 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 @ServerEndpoint("/go/websocket/{token}")
@@ -266,7 +268,7 @@ public class WebSocketServer {
             user2room.put(b.getId(), goGame.uuid);
         }
         // 将用户加入到房间
-        CopyOnWriteArrayList<Integer> usersInRoom = new CopyOnWriteArrayList<>();
+        Set<Integer> usersInRoom = new HashSet<>();
         usersInRoom.add(a.getId());
         usersInRoom.add(b.getId());
         rooms.put(goGame.uuid, new Room(goGame.uuid, usersInRoom, blackId, whiteId, "", goGame));

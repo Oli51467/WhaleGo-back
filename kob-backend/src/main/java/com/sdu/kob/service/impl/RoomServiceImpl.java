@@ -9,9 +9,11 @@ import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+
 import static com.sdu.kob.consumer.WebSocketServer.rooms;
 
 @Service("RoomService")
@@ -29,8 +31,12 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public JSONObject getUsersInRoom(String roomId, Integer userId) {
         JSONObject resp = new JSONObject();
-        if (!rooms.get(roomId).getUsers().contains(userId)) rooms.get(roomId).getUsers().add(userId);
-        CopyOnWriteArrayList<Integer> usersInRoom = rooms.get(roomId).getUsers();
+        if (rooms.get(roomId) == null) {
+            resp.put("event", "empty_room");
+            return resp;
+        }
+        rooms.get(roomId).getUsers().add(userId);
+        Set<Integer> usersInRoom = rooms.get(roomId).getUsers();
         List<JSONObject> items = new LinkedList<>();
         for (Integer uid : usersInRoom) {
             JSONObject item = new JSONObject();
@@ -51,10 +57,13 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public String leaveRoom(String roomId, Integer userId) {
+        String msg = "";
         if (rooms.get(roomId).getUsers().remove(userId)) {
-            return "success";
+            msg = "success";
         } else {
-            return "fail";
+            msg =  "fail";
         }
+        System.out.println(Arrays.toString(rooms.get(roomId).getUsers().toArray()));
+        return msg;
     }
 }

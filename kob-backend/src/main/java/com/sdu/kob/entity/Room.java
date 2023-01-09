@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Room {
     String id;
 
-    CopyOnWriteArrayList<Integer> users;
+    Set<Integer> users;
 
     Integer blackPlayer;
 

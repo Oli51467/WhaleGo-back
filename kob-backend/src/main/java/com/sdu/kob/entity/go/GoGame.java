@@ -70,8 +70,8 @@ public class GoGame extends Thread {
         }
     }
 
-    public void setLoser(Integer id) {
-        this.loser = id;
+    public void setLoser(Integer loser) {
+        this.loser = loser;
     }
 
     // 等待玩家的下一步操作

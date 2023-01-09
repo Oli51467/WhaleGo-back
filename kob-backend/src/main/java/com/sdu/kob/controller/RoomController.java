@@ -27,6 +27,7 @@ public class RoomController {
     public String leaveRoom(@RequestParam Map<String, String> data) {
         String roomId = data.get("room_id");
         Integer userId = Integer.parseInt(data.get("user_id"));
+        System.out.println(roomId + " " + userId);
         return roomService.leaveRoom(roomId, userId);
     }
 }
