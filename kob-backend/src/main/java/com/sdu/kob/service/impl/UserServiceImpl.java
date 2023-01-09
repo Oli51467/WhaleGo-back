@@ -165,6 +165,7 @@ public class UserServiceImpl implements UserService {
                     item.put("username", u.getUserName());
                     item.put("avatar", u.getAvatar());
                     item.put("state", checkLogin(u.getId()));
+                    item.put("status", u.getStatus());
                     item.put("level", RatingUtil.getRating2Level(u.getRating()));
                     item.put("win", u.getWin());
                     item.put("lose", u.getLose());

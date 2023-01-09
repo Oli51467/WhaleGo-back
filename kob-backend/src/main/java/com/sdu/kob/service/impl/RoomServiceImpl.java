@@ -23,24 +23,21 @@ public class RoomServiceImpl implements RoomService {
     private UserDAO userDAO;
 
     /**
-     * 将userId的用户加入到 roomId的房间中 并返回该房间的所有用户
-     * @param userId 请求的用户id
+     * 返回roomId的房间中的所有用户
      * @param roomId 房间id
      * @return 房间的所有用户
      */
     @Override
-    public JSONObject getUsersInRoom(String roomId, Integer userId) {
+    public JSONObject getUsersInRoom(String roomId) {
         JSONObject resp = new JSONObject();
         if (rooms.get(roomId) == null) {
             resp.put("event", "empty_room");
             return resp;
         }
-        rooms.get(roomId).getUsers().add(userId);
-        Set<Integer> usersInRoom = rooms.get(roomId).getUsers();
         List<JSONObject> items = new LinkedList<>();
-        for (Integer uid : usersInRoom) {
+        for (Integer uid : rooms.get(roomId).users) {
             JSONObject item = new JSONObject();
-            User user = userDAO.findById((int)uid);
+            User user = userDAO.findById((int) uid);
             item.put("user_id", uid);
             item.put("user_name", user.getUserName());
             item.put("user_avatar", user.getAvatar());
@@ -49,21 +46,45 @@ public class RoomServiceImpl implements RoomService {
             item.put("user_win", user.getWin());
             items.add(item);
         }
-        Room room = rooms.get(roomId);
-        resp.put("board_state", room.getGoGame().board.gameRecord.getLastTurn().boardState);
         resp.put("items", items);
+        return resp;
+    }
+
+    @Override
+    public JSONObject getBoardInRoom(Integer userId, String roomId) {
+        JSONObject resp = new JSONObject();
+        if (rooms.get(roomId) == null) {
+            resp.put("event", "empty_room");
+            return resp;
+        }
+        rooms.get(roomId).users.add(userId);
+        Room room = rooms.get(roomId);
+        resp.put("black_username", room.blackPlayer.getUser().getUserName());
+        resp.put("black_id", room.blackPlayer.getId());
+        resp.put("black_avatar", room.blackPlayer.getUser().getAvatar());
+        resp.put("black_level", RatingUtil.getRating2Level(room.blackPlayer.getUser().getRating()));
+        resp.put("black_win", room.blackPlayer.getUser().getWin());
+        resp.put("black_lose", room.blackPlayer.getUser().getLose());
+
+        resp.put("white_username", room.whitePlayer.getUser().getUserName());
+        resp.put("white_id", room.whitePlayer.getId());
+        resp.put("white_avatar", room.whitePlayer.getUser().getAvatar());
+        resp.put("white_level", RatingUtil.getRating2Level(room.whitePlayer.getUser().getRating()));
+        resp.put("white_win", room.whitePlayer.getUser().getWin());
+        resp.put("white_lose", room.whitePlayer.getUser().getLose());
+        resp.put("board_state", room.board.gameRecord.getLastTurn().boardState);
         return resp;
     }
 
     @Override
     public String leaveRoom(String roomId, Integer userId) {
         String msg = "";
-        if (rooms.get(roomId).getUsers().remove(userId)) {
+        if (rooms.get(roomId).users.remove(userId)) {
             msg = "success";
         } else {
             msg =  "fail";
         }
-        System.out.println(Arrays.toString(rooms.get(roomId).getUsers().toArray()));
+        System.out.println(Arrays.toString(rooms.get(roomId).users.toArray()));
         return msg;
     }
 }

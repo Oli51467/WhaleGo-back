@@ -2,9 +2,8 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
-import com.sdu.kob.entity.Room;
 import com.sdu.kob.entity.go.GameTurn;
-import com.sdu.kob.entity.go.GoGame;
+import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
@@ -21,8 +20,6 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
@@ -35,6 +32,7 @@ public class WebSocketServer {
     final public static ConcurrentHashMap<Integer, WebSocketServer> goUsers = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Integer, String> user2room = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
+    final public static CopyOnWriteArraySet<Integer> matchingUsers = new CopyOnWriteArraySet<>();
 
     private User user;
     private Session session = null;
@@ -99,11 +97,11 @@ public class WebSocketServer {
             Integer userId = this.user.getId();
             if (x == -1 && y == -1) {
                 int loser;
-                if (Objects.equals(userId, rooms.get(user2room.get(userId)).getGoGame().blackPlayer.getId())) loser = 1;
+                if (Objects.equals(userId, rooms.get(user2room.get(userId)).blackPlayer.getId())) loser = 1;
                 else loser = 2;
-                rooms.get(user2room.get(userId)).getGoGame().setLoser(loser);
+                rooms.get(user2room.get(userId)).setLoser(loser);
             }
-            rooms.get(user2room.get(userId)).getGoGame().setNextStep(x, y);
+            rooms.get(user2room.get(userId)).setNextStep(x, y);
         } else if ("request_play".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             Integer requestId = data.getInteger("request_id");
@@ -127,8 +125,9 @@ public class WebSocketServer {
             startGame(aId, bId);
         } else if ("accept_draw".equals(event)){
             Integer aId = data.getInteger("user_id");
-            rooms.get(user2room.get(aId)).getGoGame().setLoser(-2);
-            rooms.get(user2room.get(aId)).getGoGame().setNextStep(-2, -2);
+
+            rooms.get(user2room.get(aId)).setLoser(-2);
+            rooms.get(user2room.get(aId)).setNextStep(-2, -2);
         }
     }
 
@@ -174,6 +173,8 @@ public class WebSocketServer {
     // 拒绝请求
     private void sendRefuseMessage(Integer friendId) {
         WebSocketServer friendClient = goUsers.get(friendId);
+        matchingUsers.remove(friendId);
+        matchingUsers.remove(this.user.getId());
         JSONObject resp = new JSONObject();
         resp.put("event", "friend_refuse");
         friendClient.sendMessage(resp.toJSONString());
@@ -182,6 +183,8 @@ public class WebSocketServer {
     // 取消发送请求
     private void sendRequest2Cancel(Integer friendId) {
         WebSocketServer friendClient = goUsers.get(friendId);
+        matchingUsers.remove(friendId);
+        matchingUsers.remove(this.user.getId());
         JSONObject resp = new JSONObject();
         resp.put("event", "request_cancel");
         friendClient.sendMessage(resp.toJSONString());
@@ -201,6 +204,8 @@ public class WebSocketServer {
      */
     private void sendRequest2play(Integer friendId, Integer requestId) {
         if (goUsers.get(friendId) != null) {
+            matchingUsers.add(requestId);
+            matchingUsers.add(friendId);
             WebSocketServer friendClient = goUsers.get(friendId);
             JSONObject resp = new JSONObject();
             JSONObject request_user = new JSONObject();
@@ -225,6 +230,7 @@ public class WebSocketServer {
         MultiValueMap<String, String> matchData = new LinkedMultiValueMap<>();
         matchData.add("user_id", this.user.getId().toString());
         matchData.add("rating", this.user.getRating().toString());
+        matchingUsers.add(this.user.getId());
         restTemplate.postForObject(addPlayerUrl, matchData, String.class);
     }
 
@@ -236,11 +242,14 @@ public class WebSocketServer {
         // 向matching Server发出一个请求取消匹配
         MultiValueMap<String, String> cancelMatchData = new LinkedMultiValueMap<>();
         cancelMatchData.add("user_id", this.user.getId().toString());
+        matchingUsers.remove(this.user.getId());
         restTemplate.postForObject(removePlayerUrl, cancelMatchData, String.class);
     }
 
     // 开始下棋
     public static void startGame(Integer aId, Integer bId) {
+        matchingUsers.remove(aId);
+        matchingUsers.remove(bId);
         User a = userDAO.findById((int) aId);
         User b = userDAO.findById((int) bId);
 
@@ -249,36 +258,32 @@ public class WebSocketServer {
         int seed = random.nextInt();
         // temp
         Integer blackId, whiteId;
-        GoGame goGame = null;
+        Room room;
         if (seed * 10 >= 5) {
             blackId = aId;
             whiteId = bId;
-            goGame = new GoGame(19, 19, blackId, a, whiteId, b);
+            room = new Room(19, 19, blackId, a, whiteId, b);
         } else {
             blackId = bId;
             whiteId = aId;
-            goGame = new GoGame(19, 19, blackId, b, whiteId, a);
+            room = new Room(19, 19, blackId, b, whiteId, a);
         }
 
         // 将同步的地图同步给两名玩家
         if (goUsers.get(a.getId()) != null) {
-            user2room.put(a.getId(), goGame.uuid);
+            user2room.put(a.getId(), room.uuid);
         }
         if (goUsers.get(b.getId()) != null) {
-            user2room.put(b.getId(), goGame.uuid);
+            user2room.put(b.getId(), room.uuid);
         }
-        // 将用户加入到房间
-        Set<Integer> usersInRoom = new HashSet<>();
-        usersInRoom.add(a.getId());
-        usersInRoom.add(b.getId());
-        rooms.put(goGame.uuid, new Room(goGame.uuid, usersInRoom, blackId, whiteId, "", goGame));
+        rooms.put(room.uuid, room);
 
-        goGame.start();
+        room.start();
 
-        GameTurn lastTurn = goGame.board.gameRecord.getLastTurn();
+        GameTurn lastTurn = room.board.gameRecord.getLastTurn();
         respGame.put("black_id", blackId);
         respGame.put("white_id", whiteId);
-        respGame.put("room_id", goGame.uuid);
+        respGame.put("room_id", room.uuid);
         respGame.put("board", lastTurn.boardState);
 
         // A回传B的信息

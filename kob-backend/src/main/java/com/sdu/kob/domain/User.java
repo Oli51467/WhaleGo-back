@@ -8,6 +8,10 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
+import static com.sdu.kob.consumer.WebSocketServer.user2room;
 
 @Entity
 @AllArgsConstructor
@@ -27,4 +31,15 @@ public class User extends BaseDomain {
     private Integer win;
 
     private Integer lose;
+
+    public String getStatus () {
+        if (matchingUsers.contains(this.getId())) {
+            return "matching";
+        }
+        else if (user2room.containsKey(this.getId())) {
+            return "playing";
+        } else {
+            return "stand";
+        }
+    }
 }

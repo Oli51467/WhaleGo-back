@@ -19,8 +19,7 @@ public class RoomController {
     @RequestMapping(value = "/api/room/getUsers/", method = RequestMethod.GET)
     public JSONObject getUsersInRoom(@RequestParam Map<String, String> data) {
         String roomId = data.get("room_id");
-        Integer userId = Integer.parseInt(data.get("user_id"));
-        return roomService.getUsersInRoom(roomId, userId);
+        return roomService.getUsersInRoom(roomId);
     }
 
     @RequestMapping(value = "/api/room/leave/", method = RequestMethod.GET)
@@ -29,5 +28,12 @@ public class RoomController {
         Integer userId = Integer.parseInt(data.get("user_id"));
         System.out.println(roomId + " " + userId);
         return roomService.leaveRoom(roomId, userId);
+    }
+
+    @RequestMapping(value = "/api/room/getBoard/", method = RequestMethod.GET)
+    public JSONObject getBoardInRoom(@RequestParam Map<String, String> data) {
+        String roomId = data.get("room_id");
+        Integer userId = Integer.parseInt(data.get("user_id"));
+        return roomService.getBoardInRoom(userId, roomId);
     }
 }

@@ -2,7 +2,6 @@ package com.sdu.kob.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.entity.Room;
-import com.sdu.kob.entity.go.GoGame;
 import com.sdu.kob.entity.go.Player;
 import com.sdu.kob.service.GameService;
 import com.sdu.kob.utils.RatingUtil;
@@ -21,8 +20,7 @@ public class GameServiceImpl implements GameService {
         JSONObject resp = new JSONObject();
         List<JSONObject> games = new LinkedList<>();
         for (Room room: rooms.values()) {
-            GoGame gameItem = room.getGoGame();
-            Player blackPlayer = gameItem.blackPlayer, whitePlayer = gameItem.whitePlayer;
+            Player blackPlayer = room.blackPlayer, whitePlayer = room.whitePlayer;
             JSONObject game = new JSONObject();
             game.put("black_username", blackPlayer.getUser().getUserName());
             game.put("black_avatar", blackPlayer.getUser().getAvatar());
@@ -30,8 +28,8 @@ public class GameServiceImpl implements GameService {
             game.put("white_username", whitePlayer.getUser().getUserName());
             game.put("white_avatar", whitePlayer.getUser().getAvatar());
             game.put("white_level", RatingUtil.getRating2Level(whitePlayer.getUser().getRating()));
-            game.put("state", rooms.get(room.getId()).getGoGame().getStating());
-            game.put("id", room.getId());
+            game.put("state", rooms.get(room.uuid).getStating());
+            game.put("id", room.uuid);
             games.add(game);
         }
         resp.put("games", games);
