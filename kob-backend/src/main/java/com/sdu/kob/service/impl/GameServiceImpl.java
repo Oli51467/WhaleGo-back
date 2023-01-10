@@ -22,12 +22,24 @@ public class GameServiceImpl implements GameService {
         for (Room room: rooms.values()) {
             Player blackPlayer = room.blackPlayer, whitePlayer = room.whitePlayer;
             JSONObject game = new JSONObject();
-            game.put("black_username", blackPlayer.getUser().getUserName());
-            game.put("black_avatar", blackPlayer.getUser().getAvatar());
-            game.put("black_level", RatingUtil.getRating2Level(blackPlayer.getUser().getRating()));
-            game.put("white_username", whitePlayer.getUser().getUserName());
-            game.put("white_avatar", whitePlayer.getUser().getAvatar());
-            game.put("white_level", RatingUtil.getRating2Level(whitePlayer.getUser().getRating()));
+            if (blackPlayer.getId() == -1 ){
+                game.put("black_username", "AI");
+                game.put("black_avatar", "");
+                game.put("black_level", "9段");
+            } else {
+                game.put("black_username", blackPlayer.getUser().getUserName());
+                game.put("black_avatar", blackPlayer.getUser().getAvatar());
+                game.put("black_level", RatingUtil.getRating2Level(blackPlayer.getUser().getRating()));
+            }
+            if (whitePlayer.getId() == -1) {
+                game.put("white_username", "AI");
+                game.put("white_avatar", "");
+                game.put("white_level", "9段");
+            } else {
+                game.put("white_username", whitePlayer.getUser().getUserName());
+                game.put("white_avatar", whitePlayer.getUser().getAvatar());
+                game.put("white_level", RatingUtil.getRating2Level(whitePlayer.getUser().getRating()));
+            }
             game.put("state", rooms.get(room.uuid).getStating());
             game.put("id", room.uuid);
             games.add(game);

@@ -7,9 +7,10 @@ import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.go.Board;
 import com.sdu.kob.entity.go.GameTurn;
 import com.sdu.kob.entity.go.Player;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -27,20 +28,32 @@ public class Room extends Thread {
     private String status = "playing";  // playing -> finished
     public String result = "";
     private Integer loser = null;
+    private Integer humanId = null;
+    public boolean isEngineTurn = true, hasEngine, isEngine;
     public int playCount;
     public CopyOnWriteArraySet<Integer> users;
     private ReentrantLock lock = new ReentrantLock();
+    private static final String requestEngineUrl = "http://127.0.0.1:3002/engine/request/";
 
     public Room(Integer rows, Integer cols,
                 Integer blackPlayerId, User blackUser,
-                Integer whitePlayerId, User whiteUser) {
-        this.blackPlayer = new Player(1, blackPlayerId, blackUser);
+                Integer whitePlayerId, User whiteUser, boolean hasEngine) {
+        this.blackPlayer = new Player(1, blackPlayerId, blackUser); // 如果是引擎 那么blackPlayerId是-1
         this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
         this.board = new Board(rows + 1, cols + 1, 0);
         this.uuid = UUID.randomUUID().toString().substring(0, 6);
         this.users = new CopyOnWriteArraySet<>();
-        this.users.add(blackPlayerId);
-        this.users.add(whitePlayerId);
+        this.hasEngine = hasEngine;
+        if (blackPlayerId != -1) {
+            this.users.add(blackPlayerId);
+        } else {
+            this.humanId = whitePlayerId;
+        }
+        if (whitePlayerId != -1) {
+            this.users.add(whitePlayerId);
+        } else {
+            this.humanId = blackPlayerId;
+        }
         this.playCount = 0;
     }
 
@@ -74,11 +87,13 @@ public class Room extends Thread {
         }
     }
 
-    public void setNextStep(Integer x, Integer y) {
+    public void setNextStep(Integer x, Integer y, boolean isEngine) {
         lock.lock();
         try {
             this.nextX = x;
             this.nextY = y;
+            this.isEngine = isEngine;
+            if (isEngine) isEngineTurn = false;
         } finally {
             lock.unlock();
         }
@@ -93,14 +108,22 @@ public class Room extends Thread {
         while(true) {
             try {
                 if (this.isInterrupted()) break;
-                lock.lock();
-                try {
-                    if (this.nextX != null && this.nextY != null) {
-                        playCount ++;
-                        return true;
+                if (isEngineTurn && hasEngine) {
+                    // 需要引擎来走这一步
+                    MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
+                    data.add("user_id", this.humanId.toString());
+                    data.add("room_id", this.uuid);
+                    WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, String.class);
+                } else {
+                    lock.lock();
+                    try {
+                        if (this.nextX != null && this.nextY != null) {
+                            playCount++;
+                            return true;
+                        }
+                    } finally {
+                        lock.unlock();
                     }
-                } finally {
-                    lock.unlock();
                 }
             } finally {
 
@@ -147,6 +170,12 @@ public class Room extends Thread {
             } else {
                 sendMove(false);
             }
+            // 该引擎走
+            if (this.isEngine) {
+                isEngineTurn = false;
+            } else {
+                isEngineTurn = true;
+            }
         } finally {
             lock.unlock();
         }
@@ -180,6 +209,8 @@ public class Room extends Thread {
         resp.put("loser", loser);
         save2Database();
         sendAllMessage(resp.toJSONString());
+        user2room.remove(this.blackPlayer.getId());
+        user2room.remove(this.whitePlayer.getId());
         this.playCount = -1;
     }
 

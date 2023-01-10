@@ -49,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/account/token/", "/api/account/register/").permitAll()
-                .antMatchers("/go/match/startGame/", "/bot/move/receive/").hasIpAddress("127.0.0.1") // 只允许本地
+                .antMatchers("/go/match/startGame/", "/engine/receive/").hasIpAddress("127.0.0.1") // 只允许本地
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest()
                 .authenticated();

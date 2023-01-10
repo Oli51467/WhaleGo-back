@@ -39,7 +39,7 @@ public class WebSocketServer {
 
     private static UserDAO userDAO;
     public static RecordDAO recordDAO;
-    private static RestTemplate restTemplate;
+    public static RestTemplate restTemplate;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -101,7 +101,7 @@ public class WebSocketServer {
                 else loser = 2;
                 rooms.get(user2room.get(userId)).setLoser(loser);
             }
-            rooms.get(user2room.get(userId)).setNextStep(x, y);
+            rooms.get(user2room.get(userId)).setNextStep(x, y, false);
         } else if ("request_play".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             Integer requestId = data.getInteger("request_id");
@@ -125,9 +125,12 @@ public class WebSocketServer {
             startGame(aId, bId);
         } else if ("accept_draw".equals(event)){
             Integer aId = data.getInteger("user_id");
-
             rooms.get(user2room.get(aId)).setLoser(-2);
-            rooms.get(user2room.get(aId)).setNextStep(-2, -2);
+            rooms.get(user2room.get(aId)).setNextStep(-2, -2, false);
+        } else if ("engine_play".equals(event)) {
+            Integer userId = data.getInteger("user_id");
+            Integer level = data.getInteger("level");
+            startAIPlaying(userId, level);
         }
     }
 
@@ -246,6 +249,38 @@ public class WebSocketServer {
         restTemplate.postForObject(removePlayerUrl, cancelMatchData, String.class);
     }
 
+    private void startAIPlaying(Integer userId, Integer level) {
+        JSONObject respGame = new JSONObject();
+        User human = userDAO.findById((int) userId);
+        User engine = new User("AI" + level, "", level * 300, "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg", 0, 0);
+        Room room = new Room(19, 19, -1, engine, userId, human, true);
+        user2room.put(userId, room.uuid);
+        rooms.put(room.uuid, room);
+
+        room.start();
+
+        GameTurn lastTurn = room.board.gameRecord.getLastTurn();
+        respGame.put("room_id", room.uuid);
+        respGame.put("black_id", -1);
+        respGame.put("white_id", userId);
+        respGame.put("board", lastTurn.boardState);
+
+        // A回传B的信息
+        JSONObject resp = new JSONObject();
+        resp.put("event", "start");
+        resp.put("opponent_username", "AI");
+        resp.put("opponent_avatar", "");
+        resp.put("opponent_userid", -1);
+        resp.put("game", respGame);
+        // 用users哈希表获取A是哪个用户
+        WebSocketServer user = goUsers.get(userId);
+        if (user != null) {
+            user.sendMessage(resp.toJSONString());
+        } else {
+            throw new NullPointerException("null user not found");
+        }
+    }
+
     // 开始下棋
     public static void startGame(Integer aId, Integer bId) {
         matchingUsers.remove(aId);
@@ -262,11 +297,11 @@ public class WebSocketServer {
         if (seed * 10 >= 5) {
             blackId = aId;
             whiteId = bId;
-            room = new Room(19, 19, blackId, a, whiteId, b);
+            room = new Room(19, 19, blackId, a, whiteId, b, false);
         } else {
             blackId = bId;
             whiteId = aId;
-            room = new Room(19, 19, blackId, b, whiteId, a);
+            room = new Room(19, 19, blackId, b, whiteId, a, false);
         }
 
         // 将同步的地图同步给两名玩家
