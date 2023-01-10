@@ -16,4 +16,6 @@ public interface UserService {
     JSONObject getAllFollowers(String userName);
 
     JSONObject getFriends(String userName);
+
+    JSONObject getFollowedAndFollowersCount(String userName);
 }

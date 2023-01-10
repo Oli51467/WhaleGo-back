@@ -29,7 +29,7 @@ public class RegisterServiceImpl implements RegisterService {
 
         String encodedPassword = passwordEncoder.encode(password); // 密码加密
         String avatar = "https://cdn.acwing.com/media/user/profile/photo/73457_lg_28f38d989d.jpeg";
-        User user = new User(userName, encodedPassword, 1500, avatar, 0, 0);
+        User user = new User(userName, encodedPassword, 1500, avatar, 0, 0, 0);
         userDAO.save(user);
         result.put("msg", "success");
         return result;

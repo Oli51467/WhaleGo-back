@@ -32,6 +32,8 @@ public class User extends BaseDomain {
 
     private Integer lose;
 
+    private Integer guests;
+
     public String getStatus () {
         if (matchingUsers.contains(this.getId())) {
             return "matching";

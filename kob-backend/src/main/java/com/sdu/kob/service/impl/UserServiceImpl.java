@@ -177,6 +177,21 @@ public class UserServiceImpl implements UserService {
         return resp;
     }
 
+    @Override
+    public JSONObject getFollowedAndFollowersCount(String userName) {
+        User user = userDAO.findByUserName(userName);
+        Integer userId = user.getId();
+        int followed = friendDAO.countByUserAAndFollowed(userId, "true");
+        int followers = friendDAO.countByUserBAndFollowed(userId, "true");
+        int guests = user.getGuests();
+        System.out.println(userId + " " + guests);
+        JSONObject resp = new JSONObject();
+        resp.put("followedCount", followed);
+        resp.put("followersCount", followers);
+        resp.put("guests", guests);
+        return resp;
+    }
+
     public int checkLogin(Integer id) {
         List<Object> list = sessionRegistry.getAllPrincipals();
         for (Object o : list) {

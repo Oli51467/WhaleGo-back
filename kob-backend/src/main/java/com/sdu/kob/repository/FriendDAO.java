@@ -23,4 +23,8 @@ public interface FriendDAO extends JpaRepository<Friend, Integer> {
     List<Friend> findByUserAAndFollowed(Integer userId, String followed);
 
     List<Friend> findByUserBAndFollowed(Integer userId, String followed);
+
+    int countByUserAAndFollowed(Integer userId, String followed);
+
+    int countByUserBAndFollowed(Integer userId, String followed);
 }
