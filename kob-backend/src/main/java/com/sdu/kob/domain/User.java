@@ -32,7 +32,11 @@ public class User extends BaseDomain {
 
     private Integer lose;
 
-    private Integer guests;
+    @Column(name = "guests_count")
+    private Integer guestsCount;
+
+    @Column(name = "recent_guests")
+    private String guests;
 
     public String getStatus () {
         if (matchingUsers.contains(this.getId())) {

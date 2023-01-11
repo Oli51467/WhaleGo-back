@@ -252,7 +252,7 @@ public class WebSocketServer {
     private void startAIPlaying(Integer userId, Integer level) {
         JSONObject respGame = new JSONObject();
         User human = userDAO.findById((int) userId);
-        User engine = new User("AI" + level, "", level * 300, "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg", 0, 0, 0);
+        User engine = new User("AI" + level, "", level * 300, "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg", 0, 0, 0, "");
         Room room = new Room(19, 19, -1, engine, userId, human, true);
         user2room.put(userId, room.uuid);
         rooms.put(room.uuid, room);

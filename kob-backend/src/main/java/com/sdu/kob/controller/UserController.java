@@ -56,9 +56,10 @@ public class UserController {
         return userService.getFriends(userName);
     }
 
-    @RequestMapping(value = "/api/user/getFollowedAndFollowersCount/", method = RequestMethod.GET)
-    public JSONObject getFollowedAndFollowersCount(Principal principal) {
-        String userName = principal.getName();
-        return userService.getFollowedAndFollowersCount(userName);
+    @RequestMapping(value = "/api/user/getFollowedAndFollowersCount/", method = RequestMethod.POST)
+    public JSONObject getFollowedAndFollowersCountAndGuests(@RequestParam Map<String, String> data, Principal principal) {
+        Integer userId = Integer.parseInt(data.get("user_id"));
+        String requestUserName = principal.getName();
+        return userService.getFollowedAndFollowersCountAndGuests(userId, requestUserName);
     }
 }

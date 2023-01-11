@@ -17,5 +17,5 @@ public interface UserService {
 
     JSONObject getFriends(String userName);
 
-    JSONObject getFollowedAndFollowersCount(String userName);
+    JSONObject getFollowedAndFollowersCountAndGuests(Integer userId, String userName);
 }

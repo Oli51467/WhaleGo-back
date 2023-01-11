@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -107,10 +108,10 @@ public class UserServiceImpl implements UserService {
         List<Friend> followed = friendDAO.findByUserAAndFollowed(userId, "true");
         JSONObject resp = new JSONObject();
         List<JSONObject> items = new LinkedList<>();
-        for (Friend friend: followed) {
+        for (Friend friend : followed) {
             JSONObject item = new JSONObject();
             Integer followedId = friend.getUserB();
-            User u = userDAO.findById((int)followedId);
+            User u = userDAO.findById((int) followedId);
             item.put("id", u.getId());
             item.put("username", u.getUserName());
             item.put("avatar", u.getAvatar());
@@ -130,10 +131,10 @@ public class UserServiceImpl implements UserService {
         List<Friend> followers = friendDAO.findByUserBAndFollowed(userId, "true");
         JSONObject resp = new JSONObject();
         List<JSONObject> items = new LinkedList<>();
-        for (Friend friend: followers) {
+        for (Friend friend : followers) {
             JSONObject item = new JSONObject();
             Integer followedId = friend.getUserA();
-            User u = userDAO.findById((int)followedId);
+            User u = userDAO.findById((int) followedId);
             item.put("id", u.getId());
             item.put("username", u.getUserName());
             item.put("avatar", u.getAvatar());
@@ -160,7 +161,7 @@ public class UserServiceImpl implements UserService {
             for (Friend b : followers) {
                 if (b.getUserA().equals(userAId)) {
                     JSONObject item = new JSONObject();
-                    User u = userDAO.findById((int)b.getUserA());
+                    User u = userDAO.findById((int) b.getUserA());
                     item.put("id", u.getId());
                     item.put("username", u.getUserName());
                     item.put("avatar", u.getAvatar());
@@ -178,17 +179,53 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JSONObject getFollowedAndFollowersCount(String userName) {
-        User user = userDAO.findByUserName(userName);
-        Integer userId = user.getId();
+    public JSONObject getFollowedAndFollowersCountAndGuests(Integer userId, String userName) {
+        User user = userDAO.findById((int) userId);
+        User me = userDAO.findByUserName(userName);
         int followed = friendDAO.countByUserAAndFollowed(userId, "true");
         int followers = friendDAO.countByUserBAndFollowed(userId, "true");
-        int guests = user.getGuests();
-        System.out.println(userId + " " + guests);
+        List<JSONObject> items = new LinkedList<>();
+        String guests = user.getGuests();
+        LinkedList<String> guestIds = new LinkedList<>(Arrays.asList(guests.split(";")));
+        for (int i = 0; i < guestIds.size(); i ++ ) {
+            if (guestIds.get(i).equals("")) guestIds.remove(i);
+        }
+        if (!userName.equals(user.getUserName())) {
+            userDAO.updateGuestsCount(userId);
+            for (int i = 0; i < guestIds.size(); i ++ ) {
+                if (Integer.parseInt(guestIds.get(i)) == me.getId()) {
+                    guestIds.remove(i);
+                    break;
+                }
+            }
+            if (guestIds.size() >= 12) {
+                guestIds.remove(guestIds.size() - 1);
+            }
+            guestIds.add(0, me.getId().toString());
+            StringBuffer sb = new StringBuffer();
+            for (String guestId : guestIds) {
+                sb.append(";").append(guestId);
+            }
+            userDAO.updateRecentGuests(userId, sb.toString());
+        }
+        for (String guestId : guestIds) {
+            System.out.println(guestId);
+            if (guestId.equals("")) continue;
+            JSONObject item = new JSONObject();
+            User guest = userDAO.findById(Integer.parseInt(guestId));
+            item.put("guests_id", guest.getId());
+            item.put("guests_username", guest.getUserName());
+            item.put("guests_avatar", guest.getAvatar());
+            items.add(item);
+        }
+        int guestsCount = user.getGuestsCount();
         JSONObject resp = new JSONObject();
-        resp.put("followedCount", followed);
-        resp.put("followersCount", followers);
-        resp.put("guests", guests);
+        resp.put("followed_count", followed);
+        resp.put("followers_count", followers);
+        resp.put("guests_count", guestsCount);
+        resp.put("username", user.getUserName());
+        resp.put("user_avatar", user.getAvatar());
+        resp.put("guests", items);
         return resp;
     }
 
