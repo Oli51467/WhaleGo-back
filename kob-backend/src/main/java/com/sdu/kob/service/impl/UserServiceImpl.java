@@ -184,11 +184,13 @@ public class UserServiceImpl implements UserService {
         User me = userDAO.findByUserName(userName);
         int followed = friendDAO.countByUserAAndFollowed(userId, "true");
         int followers = friendDAO.countByUserBAndFollowed(userId, "true");
-        List<JSONObject> items = new LinkedList<>();
+        List<JSONObject> itemsFront = new LinkedList<>();
+        List<JSONObject> itemsBack = new LinkedList<>();
         String guests = user.getGuests();
-        LinkedList<String> guestIds = new LinkedList<>(Arrays.asList(guests.split(";")));
-        for (int i = 0; i < guestIds.size(); i ++ ) {
-            if (guestIds.get(i).equals("")) guestIds.remove(i);
+        LinkedList<String> clearIdx = new LinkedList<>(Arrays.asList(guests.split(";")));
+        LinkedList<String> guestIds = new LinkedList<>();
+        for (String idx : clearIdx) {
+            if (idx != null && !idx.equals("")) guestIds.add(idx);
         }
         if (!userName.equals(user.getUserName())) {
             userDAO.updateGuestsCount(userId);
@@ -208,15 +210,18 @@ public class UserServiceImpl implements UserService {
             }
             userDAO.updateRecentGuests(userId, sb.toString());
         }
+        int cnt = 0;
         for (String guestId : guestIds) {
             System.out.println(guestId);
             if (guestId.equals("")) continue;
             JSONObject item = new JSONObject();
             User guest = userDAO.findById(Integer.parseInt(guestId));
-            item.put("guests_id", guest.getId());
+            item.put("guests_id", guest.getId().toString());
             item.put("guests_username", guest.getUserName());
             item.put("guests_avatar", guest.getAvatar());
-            items.add(item);
+            if (cnt <= 5) itemsFront.add(item);
+            else itemsBack.add(item);
+            cnt ++;
         }
         int guestsCount = user.getGuestsCount();
         JSONObject resp = new JSONObject();
@@ -225,7 +230,8 @@ public class UserServiceImpl implements UserService {
         resp.put("guests_count", guestsCount);
         resp.put("username", user.getUserName());
         resp.put("user_avatar", user.getAvatar());
-        resp.put("guests", items);
+        resp.put("guests_front", itemsFront);
+        resp.put("guests_back", itemsBack);
         return resp;
     }
 
