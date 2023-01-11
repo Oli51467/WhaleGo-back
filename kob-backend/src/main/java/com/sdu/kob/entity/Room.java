@@ -206,8 +206,8 @@ public class Room extends Thread {
         if (loser == -2) {
             resp.put("loser", "draw");
         }
-        resp.put("loser", loser);
         save2Database();
+        resp.put("loser", result);
         sendAllMessage(resp.toJSONString());
         user2room.remove(this.blackPlayer.getId());
         user2room.remove(this.whitePlayer.getId());

@@ -212,7 +212,6 @@ public class UserServiceImpl implements UserService {
         }
         int cnt = 0;
         for (String guestId : guestIds) {
-            System.out.println(guestId);
             if (guestId.equals("")) continue;
             JSONObject item = new JSONObject();
             User guest = userDAO.findById(Integer.parseInt(guestId));
