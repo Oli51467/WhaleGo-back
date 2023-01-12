@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface PostService {
-    List<Post> getAllPosts();
+    List<Post> getAllPosts(Integer userId);
 
     Map<String, String> addPost(Map<String, String> data);
 

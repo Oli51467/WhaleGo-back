@@ -22,8 +22,9 @@ public class PostController {
     }
 
     @RequestMapping(value = "/api/post/getPosts/", method = RequestMethod.GET)
-    public List<Post> getUserPosts() {
-        return postService.getAllPosts();
+    public List<Post> getUserPosts(@RequestParam Map<String, String> data) {
+        Integer userId = Integer.parseInt(data.get("user_id"));
+        return postService.getAllPosts(userId);
     }
 
     @RequestMapping(value = "/api/post/remove/", method = RequestMethod.POST)

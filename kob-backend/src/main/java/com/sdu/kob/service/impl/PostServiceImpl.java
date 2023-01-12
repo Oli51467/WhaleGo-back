@@ -3,6 +3,7 @@ package com.sdu.kob.service.impl;
 import com.sdu.kob.domain.Post;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.PostDAO;
+import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,12 +22,8 @@ public class PostServiceImpl implements PostService {
     PostDAO postDAO;
 
     @Override
-    public List<Post> getAllPosts() {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
-        User user = loginUser.getUser();
-        return postDAO.findByUserId(user.getId());
+    public List<Post> getAllPosts(Integer userId) {
+        return postDAO.findByUserId(userId);
     }
 
     @Override
