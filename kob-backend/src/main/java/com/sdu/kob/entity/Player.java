@@ -1,4 +1,4 @@
-package com.sdu.kob.entity.go;
+package com.sdu.kob.entity;
 
 import com.sdu.kob.domain.User;
 import lombok.AllArgsConstructor;

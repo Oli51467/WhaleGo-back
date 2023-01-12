@@ -1,4 +1,4 @@
-package com.sdu.kob.entity.go;
+package com.sdu.kob.entity;
 
 import java.util.HashSet;
 import java.util.Set;

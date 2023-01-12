@@ -4,9 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.domain.Record;
 import com.sdu.kob.domain.User;
-import com.sdu.kob.entity.go.Board;
-import com.sdu.kob.entity.go.GameTurn;
-import com.sdu.kob.entity.go.Player;
 
 import java.util.Date;
 import java.util.UUID;
