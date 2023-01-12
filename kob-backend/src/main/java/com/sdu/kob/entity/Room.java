@@ -7,16 +7,14 @@ import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.go.Board;
 import com.sdu.kob.entity.go.GameTurn;
 import com.sdu.kob.entity.go.Player;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.util.Date;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.sdu.kob.consumer.WebSocketServer.*;
+import static com.sdu.kob.utils.BoardUtil.getPositionByIndex;
 
 public class Room extends Thread {
 
@@ -29,11 +27,11 @@ public class Room extends Thread {
     public String result = "";
     private Integer loser = null;
     private Integer humanId = null;
-    public boolean isEngineTurn = true, hasEngine, isEngine;
+    public boolean isEngineTurn = false, hasEngine;
     public int playCount;
     public CopyOnWriteArraySet<Integer> users;
     private ReentrantLock lock = new ReentrantLock();
-    private static final String requestEngineUrl = "http://127.0.0.1:3002/engine/request/";
+    private static final String requestEngineUrl = "http://8.142.10.225:5002/go";
 
     public Room(Integer rows, Integer cols,
                 Integer blackPlayerId, User blackUser,
@@ -55,10 +53,6 @@ public class Room extends Thread {
             this.humanId = blackPlayerId;
         }
         this.playCount = 0;
-    }
-
-    public Set<Integer> getUsers() {
-        return users;
     }
 
     public String getStating() {
@@ -92,8 +86,7 @@ public class Room extends Thread {
         try {
             this.nextX = x;
             this.nextY = y;
-            this.isEngine = isEngine;
-            if (isEngine) isEngineTurn = false;
+            if (!isEngine) isEngineTurn = true;
         } finally {
             lock.unlock();
         }
@@ -105,25 +98,17 @@ public class Room extends Thread {
 
     // 等待玩家的下一步操作
     public boolean nextStep() {
-        while(true) {
+        while (true) {
             try {
                 if (this.isInterrupted()) break;
-                if (isEngineTurn && hasEngine) {
-                    // 需要引擎来走这一步
-                    MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
-                    data.add("user_id", this.humanId.toString());
-                    data.add("room_id", this.uuid);
-                    WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, String.class);
-                } else {
-                    lock.lock();
-                    try {
-                        if (this.nextX != null && this.nextY != null) {
-                            playCount++;
-                            return true;
-                        }
-                    } finally {
-                        lock.unlock();
+                lock.lock();
+                try {
+                    if (this.nextX != null && this.nextY != null) {
+                        playCount++;
+                        return true;
                     }
+                } finally {
+                    lock.unlock();
                 }
             } finally {
 
@@ -160,21 +145,45 @@ public class Room extends Thread {
     private void judge() {
         Player curPlayer = board.getPlayer();
         lock.lock();
+        String number;
+        int cnt;
         try {
             if (nextX == -1 && nextY == -1 || nextX == -2 && nextY == -2) {
                 this.status = "finished";
-            }
-            else if (board.play(nextX, nextY, curPlayer)) {
+            } else if (board.play(nextX, nextY, curPlayer)) {
                 board.nextPlayer();
+                Integer tmpX = nextX, tmpY = nextY;
                 sendMove(true);
+                // 需要引擎来走这一步
+                if (isEngineTurn) {
+                    isEngineTurn = false;
+                    JSONObject data = new JSONObject();
+                    data.put("user_id", this.humanId.toString());
+                    System.out.println(tmpX + " " + tmpY);
+                    data.put("board", getPositionByIndex(tmpX, tmpY));
+                    data.put("current_player", board.getPlayer().getIdentifier().toString());
+                    JSONObject resp = WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
+                    System.out.println(resp);
+                    System.out.println(resp.getObject("data", JSONObject.class));
+                    if (resp.getInteger("code") == 1000) {
+                        String indexes = resp.getObject("data", JSONObject.class).getString("move");
+                        if (!indexes.equals("pass")) {
+                            System.out.println(indexes);
+                            String alpha = indexes.substring(0, 1);
+                            number = indexes.substring(1);
+                            cnt = 1;
+                            for (char c = 'A'; c <= 'T'; c++) {
+                                if (c == 'I') continue;
+                                if (String.valueOf(c).equals(alpha)) break;
+                                cnt++;
+                            }
+                            this.nextX = 20 - Integer.parseInt(number);
+                            this.nextY = cnt;
+                        }
+                    }
+                }
             } else {
                 sendMove(false);
-            }
-            // 该引擎走
-            if (this.isEngine) {
-                isEngineTurn = false;
-            } else {
-                isEngineTurn = true;
             }
         } finally {
             lock.unlock();

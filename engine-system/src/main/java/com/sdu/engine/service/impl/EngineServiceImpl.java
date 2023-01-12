@@ -13,7 +13,7 @@ import java.util.Random;
 public class EngineServiceImpl implements EngineService {
 
     private static RestTemplate restTemplate;
-    private final static String receiveEnginePlayUrl = "http://127.0.0.1:3000/engine/receive/";
+    private final static String receiveEnginePlayUrl = "http://8.142.10.1:3000/engine/receive/";
 
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {

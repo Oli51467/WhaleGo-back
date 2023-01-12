@@ -28,6 +28,7 @@ public class WebSocketServer {
 
     public static final String addPlayerUrl = "http://127.0.0.1:3001/go/matching/add/";
     public static final String removePlayerUrl = "http://127.0.0.1:3001/go/matching/remove/";
+    private static final String setEngineUrl = "http://8.142.10.225:5002/set";
 
     final public static ConcurrentHashMap<Integer, WebSocketServer> goUsers = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Integer, String> user2room = new ConcurrentHashMap<>();
@@ -253,7 +254,7 @@ public class WebSocketServer {
         JSONObject respGame = new JSONObject();
         User human = userDAO.findById((int) userId);
         User engine = new User("AI" + level, "", level * 300, "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg", 0, 0, 0, "");
-        Room room = new Room(19, 19, -1, engine, userId, human, true);
+        Room room = new Room(19, 19, userId, human, -1, engine, true);
         user2room.put(userId, room.uuid);
         rooms.put(room.uuid, room);
 
@@ -261,8 +262,8 @@ public class WebSocketServer {
 
         GameTurn lastTurn = room.board.gameRecord.getLastTurn();
         respGame.put("room_id", room.uuid);
-        respGame.put("black_id", -1);
-        respGame.put("white_id", userId);
+        respGame.put("black_id", userId);
+        respGame.put("white_id", -1);
         respGame.put("board", lastTurn.boardState);
 
         // A回传B的信息
@@ -279,6 +280,16 @@ public class WebSocketServer {
         } else {
             throw new NullPointerException("null user not found");
         }
+        JSONObject request = new JSONObject();
+        request.put("user_id", userId);
+        request.put("rules", "");
+        request.put("play", 1);
+        request.put("komi", "");
+        request.put("level", "p");
+        request.put("boardsize", "19");
+        request.put("initialStones", new ArrayList[20]);
+        JSONObject jsonObject = restTemplate.postForObject(setEngineUrl, request, JSONObject.class);
+        System.out.println(jsonObject);
     }
 
     // 开始下棋
