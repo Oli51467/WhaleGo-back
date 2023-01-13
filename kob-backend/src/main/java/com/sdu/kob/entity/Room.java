@@ -152,7 +152,7 @@ public class Room extends Thread {
                 Integer tmpX = nextX, tmpY = nextY;
                 sendMove(true);
                 // 需要引擎来走这一步
-                if (isEngineTurn) {
+                if (hasEngine && isEngineTurn) {
                     isEngineTurn = false;
                     JSONObject data = new JSONObject();
                     data.put("user_id", this.humanId.toString());
