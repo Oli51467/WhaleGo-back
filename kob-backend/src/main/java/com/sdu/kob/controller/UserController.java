@@ -31,9 +31,9 @@ public class UserController {
         return userService.getFollowedAndFollowersCountAndGuests(userId, requestUserName);
     }
 
-    @RequestMapping(value = "/api/user/updateUsername/", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/user/updateInfo/", method = RequestMethod.POST)
     Map<String, String> updateUserUsername(@RequestParam Map<String, String> data) {
-        return userService.updateUserUsername(data);
+        return userService.updateUserInfo(data);
     }
 
     @RequestMapping(value = "/api/user/updatePassword/", method = RequestMethod.POST)

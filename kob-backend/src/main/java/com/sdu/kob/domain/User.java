@@ -24,6 +24,8 @@ public class User extends BaseDomain {
 
     private String password;
 
+    private String profile;
+
     private Integer rating;
 
     private String avatar;
@@ -38,14 +40,25 @@ public class User extends BaseDomain {
     @Column(name = "recent_guests")
     private String guests;
 
-    public String getStatus () {
+    public String getStatus() {
         if (matchingUsers.contains(this.getId())) {
             return "matching";
-        }
-        else if (user2room.containsKey(this.getId())) {
+        } else if (user2room.containsKey(this.getId())) {
             return "playing";
         } else {
             return "stand";
         }
+    }
+
+    public User(Integer level) {
+        this.userName = "AI" + level;
+        this.password = "123";
+        this.profile = "";
+        this.rating = 1500;
+        this.avatar = "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg";
+        this.win = 0;
+        this.lose = 0;
+        this.guestsCount = 0;
+        this.guests = "";
     }
 }

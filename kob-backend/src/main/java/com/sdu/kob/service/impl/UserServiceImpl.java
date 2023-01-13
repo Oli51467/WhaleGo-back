@@ -126,19 +126,20 @@ public class UserServiceImpl implements UserService {
         resp.put("guests_count", guestsCount);
         resp.put("username", user.getUserName());
         resp.put("user_avatar", user.getAvatar());
+        resp.put("profile", user.getProfile());
         resp.put("guests_front", itemsFront);
         resp.put("guests_back", itemsBack);
         return resp;
     }
 
     @Override
-    public Map<String, String> updateUserUsername(Map<String, String> data) {
+    public Map<String, String> updateUserInfo(Map<String, String> data) {
         UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authenticationToken.getPrincipal();
         User user = userDetails.getUser();
 
         String username = data.get("username");
-        //String description = data.get("description");
+        String profile = data.get("profile");
 
         Map<String, String> map = new HashMap<>();
 
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService {
             map.put("msg", "用户名不能为空");
             return map;
         }
-        userDAO.updateUserInfo(user.getId(), username, userDetails.getPassword());
+        userDAO.updateUserInfo(user.getId(), username, profile);
         map.put("msg", "success");
         return map;
     }

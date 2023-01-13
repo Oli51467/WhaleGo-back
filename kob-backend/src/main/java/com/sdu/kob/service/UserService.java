@@ -9,7 +9,7 @@ public interface UserService {
 
     JSONObject getFollowedAndFollowersCountAndGuests(Integer userId, String userName);
 
-    Map<String, String> updateUserUsername(Map<String, String> data);
+    Map<String, String> updateUserInfo(Map<String, String> data);
 
     Map<String, String> updateUserPassword(String oldPassword, String newPassword, String confirmPassword);
 
