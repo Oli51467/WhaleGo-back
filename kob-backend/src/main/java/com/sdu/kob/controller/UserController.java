@@ -24,42 +24,23 @@ public class UserController {
         return userService.searchUser(searchName, userName);
     }
 
-    @RequestMapping(value = "/api/user/follow/", method = RequestMethod.POST)
-    public String follow(@RequestParam Map<String, String> data, Principal principal) {
-        String searchName = data.get("username");
-        String userName = principal.getName();
-        return userService.follow(searchName, userName);
-    }
-
-    @RequestMapping(value = "/api/user/unfollow/", method = RequestMethod.POST)
-    public String unfollow(@RequestParam Map<String, String> data, Principal principal) {
-        String searchName = data.get("username");
-        String userName = principal.getName();
-        return userService.unfollow(searchName, userName);
-    }
-
-    @RequestMapping(value = "/api/user/getFollowed/", method = RequestMethod.GET)
-    public JSONObject getUserFollowed(Principal principal) {
-        String userName = principal.getName();
-        return userService.getUserFollowed(userName);
-    }
-
-    @RequestMapping(value = "/api/user/getFollowers/", method = RequestMethod.GET)
-    public JSONObject getAllFollowers(Principal principal) {
-        String userName = principal.getName();
-        return userService.getAllFollowers(userName);
-    }
-
-    @RequestMapping(value = "/api/user/getFriends/", method = RequestMethod.GET)
-    public JSONObject getFriends(Principal principal) {
-        String userName = principal.getName();
-        return userService.getFriends(userName);
-    }
-
     @RequestMapping(value = "/api/user/getFollowedAndFollowersCount/", method = RequestMethod.POST)
     public JSONObject getFollowedAndFollowersCountAndGuests(@RequestParam Map<String, String> data, Principal principal) {
         Integer userId = Integer.parseInt(data.get("user_id"));
         String requestUserName = principal.getName();
         return userService.getFollowedAndFollowersCountAndGuests(userId, requestUserName);
+    }
+
+    @RequestMapping(value = "/api/user/updateUsername/", method = RequestMethod.POST)
+    Map<String, String> updateUserUsername(@RequestParam Map<String, String> data) {
+        return userService.updateUserUsername(data);
+    }
+
+    @RequestMapping(value = "/api/user/updatePassword/", method = RequestMethod.POST)
+    Map<String, String> updateUserPassword(@RequestParam Map<String, String> data) {
+        String oldPassword = data.get("oldPassword");
+        String newPassword = data.get("newPassword");
+        String confirmPassword = data.get("confirmPassword");
+        return userService.updateUserPassword(oldPassword, newPassword, confirmPassword);
     }
 }

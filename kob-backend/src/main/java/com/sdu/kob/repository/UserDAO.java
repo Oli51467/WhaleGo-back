@@ -25,4 +25,9 @@ public interface UserDAO extends JpaRepository<User, Integer> {
     @Transactional
     @Query(value = "update user set recent_guests = ?2 where id = ?1", nativeQuery = true)
     void updateRecentGuests(int userId, String guests);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update user set username = ?2, password = ?3 where id = ?1", nativeQuery = true)
+    void updateUserInfo(int userId, String userName, String password);
 }

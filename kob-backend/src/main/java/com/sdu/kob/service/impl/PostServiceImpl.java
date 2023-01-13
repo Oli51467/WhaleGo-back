@@ -43,8 +43,8 @@ public class PostServiceImpl implements PostService {
             return map;
         }
 
-        if (title.length() > 100) {
-            map.put("msg", "标题长度不能大于100");
+        if (title.length() > 15) {
+            map.put("msg", "标题长度不能大于15");
             return map;
         }
 
@@ -112,8 +112,8 @@ public class PostServiceImpl implements PostService {
             return map;
         }
 
-        if (title.length() > 100) {
-            map.put("msg", "标题长度不能大于100");
+        if (title.length() > 15) {
+            map.put("msg", "标题长度不能大于15");
             return map;
         }
 
