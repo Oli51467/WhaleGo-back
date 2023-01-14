@@ -127,11 +127,15 @@ public class Room extends Thread {
             resp.put("event", "play");
             resp.put("valid", valid);
             resp.put("board", gameTurn.boardState);
+            resp.put("last_x", nextX);
+            resp.put("last_y", nextY);
             resp.put("current", board.getPlayer().getIdentifier());
         } else {
             resp.put("event", "play");
             resp.put("valid", "no");
             resp.put("current", board.getPlayer().getIdentifier());
+            resp.put("last_x", -1);
+            resp.put("last_y", -1);
         }
         resp.put("room_id", uuid);
         nextX = nextY = null;
