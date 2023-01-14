@@ -130,6 +130,40 @@ public class FriendServiceImpl implements FriendService {
         return resp;
     }
 
+    @Override
+    public JSONObject getRelationship(Integer searchId, Integer userId) {
+        JSONObject resp = new JSONObject();
+        Friend relationshipA = friendDAO.findByUserAAndUserB(userId, searchId);
+        Friend relationshipB = friendDAO.findByUserAAndUserB(searchId, userId);
+        if (relationshipA == null && relationshipB == null) {
+            resp.put("relation", "stranger");
+        } else if (relationshipA == null) {
+            if (relationshipB.getFollowed().equals("false")) {
+                resp.put("relation", "stranger");
+            } else if (relationshipB.getFollowed().equals("true")) {
+                resp.put("relation", "follower");
+            }
+        } else if (relationshipB == null) {
+            if (relationshipA.getFollowed().equals("false")) {
+                resp.put("relation", "stranger");
+            } else if (relationshipA.getFollowed().equals("true")) {
+                resp.put("relation", "followed");
+            }
+        } else {
+            String ra = relationshipA.getFollowed(), rb = relationshipB.getFollowed();
+            if (ra.equals("true") && rb.equals("true")) {
+                resp.put("relation", "friend");
+            } else if (ra.equals("false") && rb.equals("true")) {
+                resp.put("relation", "follower");
+            } else if (ra.equals("true") && rb.equals("false")) {
+                resp.put("relation", "followed");
+            } else {
+                resp.put("relation", "stranger");
+            }
+        }
+        return resp;
+    }
+
     public int checkLogin(Integer id) {
         List<Object> list = sessionRegistry.getAllPrincipals();
         for (Object o : list) {

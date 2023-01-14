@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject searchUser(String searchName, String userName) {
         User searchUser = userDAO.findByUserName(searchName);
-        Integer userId = userDAO.findByUserName(userName).getId();
+        Integer userId = userDAO.findByUserName(userName).getId();  // 自己的id
         JSONObject resp = new JSONObject();
         if (searchUser == null) {
             resp.put("user", "none");
@@ -125,6 +125,7 @@ public class UserServiceImpl implements UserService {
         resp.put("followers_count", followers);
         resp.put("guests_count", guestsCount);
         resp.put("username", user.getUserName());
+        resp.put("id", user.getId());
         resp.put("user_avatar", user.getAvatar());
         resp.put("profile", user.getProfile());
         resp.put("guests_front", itemsFront);
