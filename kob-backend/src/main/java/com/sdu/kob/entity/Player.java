@@ -1,7 +1,6 @@
 package com.sdu.kob.entity;
 
 import com.sdu.kob.domain.User;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
@@ -17,9 +16,5 @@ public class Player {
         this.identifier = identifier;
         this.id = id;
         this.user = user;
-    }
-
-    public Player(Integer identifier) {
-        this.identifier = identifier;
     }
 }

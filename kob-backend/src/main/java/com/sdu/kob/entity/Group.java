@@ -3,60 +3,75 @@ package com.sdu.kob.entity;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.sdu.kob.entity.Board.*;
+
 public class Group {
-    private final Set<Point> stones;
-    private final Set<Point> liberties;
-    private final Player owner;
 
-    public Group(Set<Point> stones, Set<Point> liberties, Player owner) {
-        this.stones = stones;
-        this.liberties = liberties;
-        this.owner = owner;
-    }
+    private int liberties;
 
-    public Group(Point point, Player owner) {
+    private int length;
+
+    public Set<Point> stones;
+
+    private boolean[][] st;
+
+    public Group(int x, int y, int color) {
+        this.liberties = 0;
+        this.length = 1;
         stones = new HashSet<>();
+        st = new boolean[20][20];
+        reset();
+        add2Group(x, y, color);
+    }
+
+    private void add2Group(int x, int y, int color) {
+        Point point = new Point(x, y);
         stones.add(point);
-        this.owner = owner;
-        liberties = new HashSet<>(point.getEmptyNeighbors());
     }
 
-    public Group(Group group) {
-        this.stones = new HashSet<>(group.stones);
-        this.liberties = new HashSet<>(group.liberties);
-        this.owner = group.owner;
+    private void reset() {
+        for (int x = 1; x <= 19; x++) {
+            for (int y = 1; y <= 19; y++) {
+                st[x][y] = false;
+            }
+        }
     }
 
-    public Player getOwner() {
-        return owner;
+    public boolean isInBoard(int x, int y) {
+        return (x > 0 && x <= 19 && y > 0 && y <= 19);
     }
 
-    public Set<Point> getLiberties() {
+    private void getGroupLength(int x, int y, int color, int[][] board) {
+        for (int i = 0; i < 4; i ++ ) {
+            int nx = x + dx[i], ny = y + dy[i];
+            if (!isInBoard(nx, ny) || st[nx][ny]) continue;
+            if (board[nx][ny] == EMPTY) {
+                this.liberties ++;
+                st[nx][ny] = true;
+                continue;
+            }
+            if (board[nx][ny] != color) {
+                st[nx][ny] = true;
+                continue;
+            }
+            st[nx][ny] = true;
+            this.length ++;
+            add2Group(nx, ny, color);
+            getGroupLength(nx, ny, color, board);
+        }
+    }
+
+    // 从一个点开始 遍历从这个点延伸出去的组的长度和气
+    public void getGroupLengthAndLiberty(int x, int y, int color, int[][] board) {
+        reset();
+        getGroupLength(x, y, color, board);
+    }
+
+    public int getLiberties() {
         return liberties;
     }
 
-    public Set<Point> getStones() {
-        return stones;
-    }
-
-    public void add(Group group, Point playedStone) {
-        this.stones.addAll(group.stones);
-        this.liberties.addAll(group.liberties);
-        this.liberties.remove(playedStone);
-    }
-
-    public void removeLiberty(Point playedStone) {
-        Group newGroup = new Group(stones, liberties, owner);
-        newGroup.liberties.remove(playedStone);
-    }
-
-    public void die() {
-        for (Point rollingStone : this.stones) {
-            rollingStone.setGroup(null);
-            Set<Group> adjacentGroups = rollingStone.getAdjacentGroups();
-            for (Group group : adjacentGroups) {
-                group.liberties.add(rollingStone);
-            }
-        }
+    public int getLength() {
+        return length;
     }
 }

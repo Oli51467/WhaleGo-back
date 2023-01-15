@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import static com.sdu.kob.consumer.WebSocketServer.rooms;
 
@@ -72,7 +71,7 @@ public class RoomServiceImpl implements RoomService {
         resp.put("white_level", RatingUtil.getRating2Level(room.whitePlayer.getUser().getRating()));
         resp.put("white_win", room.whitePlayer.getUser().getWin());
         resp.put("white_lose", room.whitePlayer.getUser().getLose());
-        resp.put("board_state", room.board.gameRecord.getLastTurn().boardState);
+        resp.put("board_state", room.playBoard.board);
         return resp;
     }
 

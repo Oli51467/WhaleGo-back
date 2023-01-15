@@ -18,7 +18,7 @@ public class Room extends Thread {
     public final String uuid;
     public final Player blackPlayer;
     public final Player whitePlayer;
-    public final Board board;
+    public final Board playBoard;
     public Integer nextX = null, nextY = null;
     private String status = "playing";  // playing -> finished
     public String result = "";
@@ -35,7 +35,7 @@ public class Room extends Thread {
                 Integer whitePlayerId, User whiteUser, boolean hasEngine) {
         this.blackPlayer = new Player(1, blackPlayerId, blackUser); // 如果是引擎 那么blackPlayerId是-1
         this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
-        this.board = new Board(rows + 1, cols + 1, 0);
+        this.playBoard = new Board(rows, cols, 0);
         this.uuid = UUID.randomUUID().toString().substring(0, 6);
         this.users = new CopyOnWriteArraySet<>();
         this.hasEngine = hasEngine;
@@ -123,17 +123,16 @@ public class Room extends Thread {
         else valid = "no";
         JSONObject resp = new JSONObject();
         if (isValid) {
-            GameTurn gameTurn = board.gameRecord.getLastTurn();
             resp.put("event", "play");
             resp.put("valid", valid);
-            resp.put("board", gameTurn.boardState);
+            resp.put("board", playBoard.board);
             resp.put("last_x", nextX);
             resp.put("last_y", nextY);
-            resp.put("current", board.getPlayer().getIdentifier());
+            resp.put("current", playBoard.player);
         } else {
             resp.put("event", "play");
             resp.put("valid", "no");
-            resp.put("current", board.getPlayer().getIdentifier());
+            resp.put("current", playBoard.player);
             resp.put("last_x", -1);
             resp.put("last_y", -1);
         }
@@ -144,15 +143,13 @@ public class Room extends Thread {
 
     // 判断落子是否合法
     private void judge() {
-        Player curPlayer = board.getPlayer();
         lock.lock();
         String number;
         int cnt;
         try {
             if (nextX == -1 && nextY == -1 || nextX == -2 && nextY == -2) {
                 this.status = "finished";
-            } else if (board.play(nextX, nextY, curPlayer)) {
-                board.nextPlayer();
+            } else if (playBoard.play(nextX, nextY)) {
                 Integer tmpX = nextX, tmpY = nextY;
                 sendMove(true);
                 // 需要引擎来走这一步
@@ -162,7 +159,7 @@ public class Room extends Thread {
                     data.put("user_id", this.humanId.toString());
                     System.out.println(tmpX + " " + tmpY);
                     data.put("board", getPositionByIndex(tmpX, tmpY));
-                    data.put("current_player", board.getPlayer().getIdentifier().toString());
+                    data.put("current_player", playBoard.player);
                     JSONObject resp = WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
                     System.out.println(resp);
                     System.out.println(resp.getObject("data", JSONObject.class));
@@ -200,7 +197,7 @@ public class Room extends Thread {
                 blackPlayer.getId(),
                 whitePlayer.getId(),
                 result,
-                board.getSteps2Sgf(),
+                playBoard.getSgf(),
                 null,
                 new Date()
         );
@@ -236,8 +233,7 @@ public class Room extends Thread {
                 }
             } else {        // 给定时间内没有检测到落子
                 status = "finished";
-                Player player = board.getPlayer();
-                if (player.getIdentifier() == 1) {
+                if (playBoard.player == 1) {
                     loser = blackPlayer.getId();
                 } else {
                     loser = whitePlayer.getId();

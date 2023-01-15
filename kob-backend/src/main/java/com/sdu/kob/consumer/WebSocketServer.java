@@ -2,7 +2,6 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
-import com.sdu.kob.entity.GameTurn;
 import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
@@ -260,11 +259,10 @@ public class WebSocketServer {
 
         room.start();
 
-        GameTurn lastTurn = room.board.gameRecord.getLastTurn();
         respGame.put("room_id", room.uuid);
         respGame.put("black_id", userId);
         respGame.put("white_id", -1);
-        respGame.put("board", lastTurn.boardState);
+        respGame.put("board", room.playBoard.board);
 
         // A回传B的信息
         JSONObject resp = new JSONObject();
@@ -326,11 +324,10 @@ public class WebSocketServer {
 
         room.start();
 
-        GameTurn lastTurn = room.board.gameRecord.getLastTurn();
         respGame.put("black_id", blackId);
         respGame.put("white_id", whiteId);
         respGame.put("room_id", room.uuid);
-        respGame.put("board", lastTurn.boardState);
+        respGame.put("board", room.playBoard.board);
 
         // A回传B的信息
         JSONObject respA = new JSONObject();
