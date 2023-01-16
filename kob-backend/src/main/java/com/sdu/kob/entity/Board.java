@@ -2,15 +2,17 @@ package com.sdu.kob.entity;
 
 // 棋盘
 public class Board {
+
     public final static int EMPTY = 0;
     public final static int BLACK = 1;
     public final static int WHITE = 2;
+    public final static int[] dx = {-1, 0, 1, 0};
+    public final static int[] dy = {0, 1, 0, -1};
 
     private final int height;
     private final int width;
+
     public int[][] board;
-    public final static int[] dx = {-1, 0, 1, 0};
-    public final static int[] dy = {0, 1, 0, -1};
     private boolean[][] st;
     public int player;
     public StringBuilder sgfRecord;
@@ -53,7 +55,7 @@ public class Board {
         return (x > 0 && x <= width && y > 0 && y <= height);
     }
 
-    private void resetst() {
+    private void reset() {
         for (int i = 1; i <= this.height; i++) {
             for (int j = 1; j <= this.width; j++) {
                 st[i][j] = false;
@@ -70,7 +72,7 @@ public class Board {
                 if (st[x][y] || board[x][y] == EMPTY) continue;
                 st[x][y] = true;
                 // 这里的（x, y）一定是一个新的group
-                Group group = new Group(x, y, board[x][y]);
+                Group group = new Group(x, y);
                 group.getGroupLengthAndLiberty(x, y, board[x][y], board);
                 for (Point stone : group.stones) {
                     st[stone.getX()][stone.getY()] = true;
@@ -116,8 +118,8 @@ public class Board {
             }
         }
         board[x][y] = player;
-        resetst();
-        Group curGroup = new Group(x, y, player);
+        reset();
+        Group curGroup = new Group(x, y);
         curGroup.getGroupLengthAndLiberty(x, y, player, board);
         int selfCount = 0;
         for (Point stone : curGroup.stones) {
@@ -131,16 +133,13 @@ public class Board {
             return false;
         } else {
             if (player == WHITE) {
+                sgfRecord.append('W');
                 whiteForbidden.setX(-1);
                 whiteForbidden.setY(-1);
             } else {
+                sgfRecord.append('B');
                 blackForbidden.setX(-1);
                 blackForbidden.setY(-1);
-            }
-            if (player == BLACK) {
-                sgfRecord.append('B');
-            } else {
-                sgfRecord.append('W');
             }
             sgfRecord.append('[').append(x).append(',').append(y).append(']');
             changePlayer();
