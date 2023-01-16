@@ -33,12 +33,12 @@ public class Board {
         st = new boolean[this.width + 1][this.height + 1];
         blackForbidden = new Point(-1, -1);
         whiteForbidden = new Point(-1, -1);
-        sgfRecord = new StringBuilder();
-        gameRecord = new Stack<>();
-        forbiddenList = new Stack<>();
-        steps = new Stack<>();
-        steps.push(blackForbidden);
-        forbiddenList.push(blackForbidden);
+        sgfRecord = new StringBuilder();    // 这步棋走完后的局面
+        gameRecord = new Stack<>();         // 每一步棋走完后的局面
+        forbiddenList = new Stack<>();      // 每一步走完后对方的禁入点
+        steps = new Stack<>();              // 记录每一步
+        steps.push(blackForbidden);         // 初始为空
+        forbiddenList.push(blackForbidden); // 初始黑棋没有打劫禁入点
         playCount = 0;
         // 初始化棋盘
         StringBuilder tmp = new StringBuilder();
@@ -99,6 +99,7 @@ public class Board {
                     // 把死子移除
                     for (Point stone : group.stones) {
                         board[stone.getX()][stone.getY()] = EMPTY;
+                        // 设置一下禁入点 预判形成劫争
                         if (group.getLength() == 1) {
                             koX = stone.getX();
                             koY = stone.getY();
@@ -108,6 +109,7 @@ public class Board {
                 }
             }
         }
+        //  形成打劫 设置对方的禁入点
         if (count == 1 && selfCount == 1) {
             if (player == BLACK) {
                 whiteForbidden.setX(koX);
@@ -150,7 +152,7 @@ public class Board {
                 sgfRecord.append('W');
                 whiteForbidden.setX(-1);
                 whiteForbidden.setY(-1);
-                forbiddenList.push(new Point(blackForbidden.getX(), blackForbidden.getY()));
+                forbiddenList.push(new Point(blackForbidden.getX(), blackForbidden.getY()));    // 这里一定要new新的 否则传进去的值会被修改
             } else {
                 sgfRecord.append('B');
                 blackForbidden.setX(-1);
@@ -183,10 +185,17 @@ public class Board {
     public boolean regretPlay(Integer player) {
         if (playCount == 0) return false;
         if (playCount == 1 && player == WHITE) return false;
-        // 1. 恢复棋盘状态
         this.gameRecord.pop();
         this.steps.pop();
         this.forbiddenList.pop();
+        // 1. 恢复棋盘状态
+        String curState = gameRecord.peek();
+        for (int i = 1; i <= this.height; i++) {
+            for (int j = 1; j <= this.width; j++) {
+                board[i][j] = Integer.parseInt(curState.substring((i - 1) * this.width + j - 1, (i - 1) * this.width + j));
+            }
+        }
+        // 2.恢复禁入点
         Point curForbidden = this.forbiddenList.peek();     // 存的是自己的禁入点
         if (player == BLACK) {
             this.blackForbidden = curForbidden;
@@ -194,12 +203,6 @@ public class Board {
         } else {
             this.whiteForbidden = curForbidden;
             this.blackForbidden = new Point(-1, -1);
-        }
-        String curState = gameRecord.peek();
-        for (int i = 1; i <= this.height; i++) {
-            for (int j = 1; j <= this.width; j++) {
-                board[i][j] = Integer.parseInt(curState.substring((i - 1) * this.width + j - 1, (i - 1) * this.width + j));
-            }
         }
         // 3. 还原落子方
         this.player = player;
