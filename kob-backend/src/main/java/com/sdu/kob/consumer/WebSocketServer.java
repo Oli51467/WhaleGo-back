@@ -108,10 +108,7 @@ public class WebSocketServer {
             sendRequest2play(friendId, requestId);
         } else if ("request_draw".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
-            sendRequest2Draw(friendId);
-        } else if ("refuse_draw".equals(event)) {
-            Integer friendId = data.getInteger("friend_id");
-            sendRefuseMessage2Draw(friendId);
+            sendRequest2DrawOrRegret(friendId, 1);
         } else if ("request_cancel".equals(event)) {
             Integer friendId = data.getInteger("friend_id");
             sendRequest2Cancel(friendId);
@@ -131,6 +128,13 @@ public class WebSocketServer {
             Integer userId = data.getInteger("user_id");
             Integer level = data.getInteger("level");
             startAIPlaying(userId, level);
+        } else if ("request_regret".equals(event)) {
+            Integer friendId = data.getInteger("friend_id");
+            sendRequest2DrawOrRegret(friendId, 2);
+        } else if ("accept_regret".equals(event)) {
+            Integer aId = data.getInteger("user_id");
+            Integer which = data.getInteger("which");
+            rooms.get(user2room.get(aId)).regretPlay(which);
         }
     }
 
@@ -166,10 +170,11 @@ public class WebSocketServer {
     }
 
     // 拒绝和棋
-    private void sendRefuseMessage2Draw(Integer friendId) {
+    private void sendRefuseMessage2DrawOrRegret(Integer friendId, int type) {
         WebSocketServer friendClient = goUsers.get(friendId);
         JSONObject resp = new JSONObject();
-        resp.put("event", "refuse_draw");
+        if (type == 1) resp.put("event", "refuse_draw");
+        else if (type == 2) resp.put("event", "refuse_regret");
         friendClient.sendMessage(resp.toJSONString());
     }
 
@@ -194,10 +199,11 @@ public class WebSocketServer {
     }
 
     // 请求和棋
-    private void sendRequest2Draw(Integer opponentId) {
+    private void sendRequest2DrawOrRegret(Integer opponentId, int type) {
         WebSocketServer friendClient = goUsers.get(opponentId);
         JSONObject resp = new JSONObject();
-        resp.put("event", "request_draw");
+        if (type == 1) resp.put("event", "request_draw");
+        else if (type == 2) resp.put("event", "request_regret");
         friendClient.sendMessage(resp.toJSONString());
     }
 

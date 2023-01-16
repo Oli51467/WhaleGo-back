@@ -141,6 +141,23 @@ public class Room extends Thread {
         sendAllMessage(resp.toJSONString());
     }
 
+    public void regretPlay(Integer player) {
+        JSONObject resp = new JSONObject();
+        if (!this.playBoard.regretPlay(player)) {
+            resp.put("event", "invalid_regret");
+            sendAllMessage(resp.toJSONString());
+            return;
+        }
+        resp.put("event", "regret_success");
+        resp.put("valid", "yes");
+        resp.put("board", playBoard.board);
+        resp.put("last_x", playBoard.steps.peek().getX());
+        resp.put("last_y", playBoard.steps.peek().getY());
+        resp.put("current", playBoard.player);
+        resp.put("room_id", uuid);
+        sendAllMessage(resp.toJSONString());
+    }
+
     // 判断落子是否合法
     private void judge() {
         lock.lock();

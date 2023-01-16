@@ -1,5 +1,7 @@
 package com.sdu.kob.entity;
 
+import java.util.Stack;
+
 // 棋盘
 public class Board {
 
@@ -15,9 +17,14 @@ public class Board {
     public int[][] board;
     private boolean[][] st;
     public int player;
+    public int playCount;
     public StringBuilder sgfRecord;
     private Point blackForbidden;
     private Point whiteForbidden;
+
+    public Stack<String> gameRecord;
+    public Stack<Point> forbiddenList;
+    public Stack<Point> steps;
 
     public Board(int width, int height, int handicap) {
         this.width = width;
@@ -27,13 +34,22 @@ public class Board {
         blackForbidden = new Point(-1, -1);
         whiteForbidden = new Point(-1, -1);
         sgfRecord = new StringBuilder();
+        gameRecord = new Stack<>();
+        forbiddenList = new Stack<>();
+        steps = new Stack<>();
+        steps.push(blackForbidden);
+        forbiddenList.push(blackForbidden);
+        playCount = 0;
         // 初始化棋盘
+        StringBuilder tmp = new StringBuilder();
         for (int x = 1; x <= this.width; x++) {
             for (int y = 1; y <= this.height; y++) {
                 board[x][y] = EMPTY;
                 st[x][y] = false;
+                tmp.append(EMPTY);
             }
         }
+        gameRecord.push(tmp.toString());
         if (handicap == 0) player = BLACK;
         else player = WHITE;
         for (int x = 4; x <= 16; x += 6) {
@@ -83,12 +99,10 @@ public class Board {
                     // 把死子移除
                     for (Point stone : group.stones) {
                         board[stone.getX()][stone.getY()] = EMPTY;
-                    }
-                    if (group.getLength() == 1) {
-                        count++;
-                        for (Point stone : group.stones) {
+                        if (group.getLength() == 1) {
                             koX = stone.getX();
                             koY = stone.getY();
+                            count++;
                         }
                     }
                 }
@@ -124,7 +138,7 @@ public class Board {
         int selfCount = 0;
         for (Point stone : curGroup.stones) {
             st[stone.getX()][stone.getY()] = true;
-            selfCount ++;
+            selfCount++;
         }
         int eatOppoGroups = getAllGroupsLengthAndLiberty(selfCount);
         // 如果自己没气了 并且也没有吃掉对方 则是自杀 落子无效
@@ -136,18 +150,59 @@ public class Board {
                 sgfRecord.append('W');
                 whiteForbidden.setX(-1);
                 whiteForbidden.setY(-1);
+                forbiddenList.push(new Point(blackForbidden.getX(), blackForbidden.getY()));
             } else {
                 sgfRecord.append('B');
                 blackForbidden.setX(-1);
                 blackForbidden.setY(-1);
+                forbiddenList.push(new Point(whiteForbidden.getX(), whiteForbidden.getY()));
             }
             sgfRecord.append('[').append(x).append(',').append(y).append(']');
+            steps.push(new Point(x, y));
+            playCount++;
             changePlayer();
+            saveState();
             return true;
         }
     }
 
+    private void saveState() {
+        StringBuilder res = new StringBuilder();
+        for (int i = 1; i <= this.width; i++) {
+            for (int j = 1; j <= this.height; j++) {
+                res.append(board[i][j]);
+            }
+        }
+        this.gameRecord.push(res.toString());
+    }
+
     public String getSgf() {
         return sgfRecord.toString();
+    }
+
+    public boolean regretPlay(Integer player) {
+        if (playCount == 0) return false;
+        if (playCount == 1 && player == WHITE) return false;
+        // 1. 恢复棋盘状态
+        this.gameRecord.pop();
+        this.steps.pop();
+        this.forbiddenList.pop();
+        Point curForbidden = this.forbiddenList.peek();     // 存的是自己的禁入点
+        if (player == BLACK) {
+            this.blackForbidden = curForbidden;
+            this.whiteForbidden = new Point(-1, -1);
+        } else {
+            this.whiteForbidden = curForbidden;
+            this.blackForbidden = new Point(-1, -1);
+        }
+        String curState = gameRecord.peek();
+        for (int i = 1; i <= this.height; i++) {
+            for (int j = 1; j <= this.width; j++) {
+                board[i][j] = Integer.parseInt(curState.substring((i - 1) * this.width + j - 1, (i - 1) * this.width + j));
+            }
+        }
+        // 3. 还原落子方
+        this.player = player;
+        return true;
     }
 }
