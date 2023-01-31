@@ -3,7 +3,6 @@ package com.sdu.kob.service.impl;
 import com.sdu.kob.domain.Post;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.PostDAO;
-import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,7 +57,7 @@ public class PostServiceImpl implements PostService {
             return map;
         }
         Date now = new Date();
-        Post post = new Post(user.getId(), title, content, now, now);
+        Post post = new Post(user.getId(), user.getUserName(), user.getAvatar(), title, content, now, now);
 
         postDAO.save(post);
         map.put("msg", "success");
@@ -144,5 +143,10 @@ public class PostServiceImpl implements PostService {
         map.put("msg", "success");
 
         return map;
+    }
+
+    @Override
+    public List<Post> getAllPosts() {
+        return postDAO.findAll();
     }
 }

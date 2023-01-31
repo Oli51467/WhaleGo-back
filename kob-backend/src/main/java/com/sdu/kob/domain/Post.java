@@ -18,6 +18,12 @@ public class Post extends BaseDomain {
     @Column(name = "user_id")
     private Integer userId;
 
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "user_avatar")
+    private String userAvatar;
+
     private String title;
 
     private String content;

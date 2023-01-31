@@ -13,4 +13,6 @@ public interface PostService {
     Map<String, String> removePost(Map<String, String> data);
 
     Map<String, String> updatePost(Map<String, String> data);
+
+    List<Post> getAllPosts();
 }

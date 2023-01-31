@@ -37,4 +37,8 @@ public class PostController {
         return postService.updatePost(data);
     }
 
+    @RequestMapping(value = "/api/post/getAllPosts/", method = RequestMethod.GET)
+    public List<Post> getAllPosts() {
+        return postService.getAllPosts();
+    }
 }
