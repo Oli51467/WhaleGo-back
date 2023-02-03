@@ -169,15 +169,6 @@ public class WebSocketServer {
         }
     }
 
-    // 拒绝和棋
-    private void sendRefuseMessage2DrawOrRegret(Integer friendId, int type) {
-        WebSocketServer friendClient = goUsers.get(friendId);
-        JSONObject resp = new JSONObject();
-        if (type == 1) resp.put("event", "refuse_draw");
-        else if (type == 2) resp.put("event", "refuse_regret");
-        friendClient.sendMessage(resp.toJSONString());
-    }
-
     // 拒绝请求
     private void sendRefuseMessage(Integer friendId) {
         WebSocketServer friendClient = goUsers.get(friendId);

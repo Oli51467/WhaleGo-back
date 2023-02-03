@@ -1,14 +1,17 @@
 package com.sdu.kob.service.impl;
 
 import com.sdu.kob.domain.Post;
+import com.sdu.kob.domain.StarPost;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.PostDAO;
+import com.sdu.kob.repository.StarPostDAO;
 import com.sdu.kob.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +21,30 @@ import java.util.Map;
 public class PostServiceImpl implements PostService {
 
     @Autowired
-    PostDAO postDAO;
+    private PostDAO postDAO;
+
+    @Autowired
+    private StarPostDAO starPostDAO;
 
     @Override
     public List<Post> getAllPosts(Integer userId) {
-        return postDAO.findByUserId(userId);
+        List<Post> posts = postDAO.findByUserId(userId);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
+        Integer curUserId = loginUser.getUser().getId();
+        for (Post post : posts) {
+            Integer stars = starPostDAO.countByIsStar("true");
+            post.setStars(stars);
+            StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());
+            if (null == starPost || starPost.getIsStar().equals("false")) {
+                post.setLiked("false");
+            }
+            else if (starPost.getIsStar().equals("true")) {
+                post.setLiked("true");
+            }
+        }
+        return posts;
     }
 
     @Override
@@ -57,7 +79,7 @@ public class PostServiceImpl implements PostService {
             return map;
         }
         Date now = new Date();
-        Post post = new Post(user.getId(), user.getUserName(), user.getAvatar(), title, content, now, now);
+        Post post = new Post(user.getId(), user.getUserName(), user.getAvatar(), title, content,  now, now);
 
         postDAO.save(post);
         map.put("msg", "success");
