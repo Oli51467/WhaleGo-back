@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
         resp.put("username", user.getUserName());
         resp.put("id", user.getId());
         resp.put("user_avatar", user.getAvatar());
+        resp.put("user_level", RatingUtil.getRating2Level(user.getRating()));
         resp.put("profile", user.getProfile());
         resp.put("guests_front", itemsFront);
         resp.put("guests_back", itemsBack);
