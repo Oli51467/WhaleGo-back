@@ -3,12 +3,9 @@ package com.sdu.kob.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
 import static com.sdu.kob.consumer.WebSocketServer.user2room;
@@ -26,7 +23,7 @@ public class User extends BaseDomain {
 
     private String profile;
 
-    private Integer rating;
+    private String rating;
 
     private String avatar;
 
@@ -39,6 +36,9 @@ public class User extends BaseDomain {
 
     @Column(name = "recent_guests")
     private String guests;
+
+    @Column(name = "recent_records")
+    private String recentRecords;
 
     public String getStatus() {
         if (matchingUsers.contains(this.getId())) {
@@ -54,11 +54,12 @@ public class User extends BaseDomain {
         this.userName = "AI" + level;
         this.password = "123";
         this.profile = "";
-        this.rating = 1500;
+        this.rating = "3段";
         this.avatar = "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg";
         this.win = 0;
         this.lose = 0;
         this.guestsCount = 0;
         this.guests = "";
+        this.recentRecords = "";
     }
 }

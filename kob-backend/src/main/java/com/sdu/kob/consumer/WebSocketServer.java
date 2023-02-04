@@ -214,7 +214,7 @@ public class WebSocketServer {
             request_user.put("id", requestUser.getId());
             request_user.put("username", requestUser.getUserName());
             request_user.put("avatar", requestUser.getAvatar());
-            request_user.put("level", RatingUtil.getRating2Level(requestUser.getRating()));
+            request_user.put("level", requestUser.getRating());
             request_user.put("win", requestUser.getWin());
             request_user.put("lose", requestUser.getLose());
             resp.put("request_user", request_user);

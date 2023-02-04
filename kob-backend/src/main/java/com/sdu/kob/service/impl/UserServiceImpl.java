@@ -7,7 +7,6 @@ import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.UserService;
 import com.sdu.kob.utils.JwtUtil;
-import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,7 +68,7 @@ public class UserServiceImpl implements UserService {
             item.put("id", searchUser.getId());
             item.put("username", searchUser.getUserName());
             item.put("avatar", searchUser.getAvatar());
-            item.put("level", RatingUtil.getRating2Level(searchUser.getRating()));
+            item.put("level", searchUser.getRating());
             resp.put("info", item);
         }
         return resp;
@@ -126,8 +125,9 @@ public class UserServiceImpl implements UserService {
         resp.put("guests_count", guestsCount);
         resp.put("username", user.getUserName());
         resp.put("id", user.getId());
+        resp.put("recent_records", user.getRecentRecords());
         resp.put("user_avatar", user.getAvatar());
-        resp.put("user_level", RatingUtil.getRating2Level(user.getRating()));
+        resp.put("user_level", user.getRating());
         resp.put("profile", user.getProfile());
         resp.put("guests_front", itemsFront);
         resp.put("guests_back", itemsBack);

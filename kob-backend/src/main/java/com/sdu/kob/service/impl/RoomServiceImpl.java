@@ -40,7 +40,7 @@ public class RoomServiceImpl implements RoomService {
             item.put("user_id", uid);
             item.put("user_name", user.getUserName());
             item.put("user_avatar", user.getAvatar());
-            item.put("user_level", RatingUtil.getRating2Level(user.getRating()));
+            item.put("user_level", user.getRating());
             item.put("user_lose", user.getLose());
             item.put("user_win", user.getWin());
             items.add(item);
@@ -61,14 +61,14 @@ public class RoomServiceImpl implements RoomService {
         resp.put("black_username", room.blackPlayer.getUser().getUserName());
         resp.put("black_id", room.blackPlayer.getId());
         resp.put("black_avatar", room.blackPlayer.getUser().getAvatar());
-        resp.put("black_level", RatingUtil.getRating2Level(room.blackPlayer.getUser().getRating()));
+        resp.put("black_level", room.blackPlayer.getUser().getRating());
         resp.put("black_win", room.blackPlayer.getUser().getWin());
         resp.put("black_lose", room.blackPlayer.getUser().getLose());
 
         resp.put("white_username", room.whitePlayer.getUser().getUserName());
         resp.put("white_id", room.whitePlayer.getId());
         resp.put("white_avatar", room.whitePlayer.getUser().getAvatar());
-        resp.put("white_level", RatingUtil.getRating2Level(room.whitePlayer.getUser().getRating()));
+        resp.put("white_level", room.whitePlayer.getUser().getRating());
         resp.put("white_win", room.whitePlayer.getUser().getWin());
         resp.put("white_lose", room.whitePlayer.getUser().getLose());
         resp.put("board_state", room.playBoard.board);

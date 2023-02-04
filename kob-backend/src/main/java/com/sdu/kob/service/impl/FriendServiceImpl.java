@@ -6,7 +6,6 @@ import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.FriendService;
-import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
@@ -67,7 +66,7 @@ public class FriendServiceImpl implements FriendService {
             item.put("id", u.getId());
             item.put("username", u.getUserName());
             item.put("avatar", u.getAvatar());
-            item.put("level", RatingUtil.getRating2Level(u.getRating()));
+            item.put("level", u.getRating());
             item.put("win", u.getWin());
             item.put("lose", u.getLose());
             items.add(item);
@@ -90,7 +89,7 @@ public class FriendServiceImpl implements FriendService {
             item.put("id", u.getId());
             item.put("username", u.getUserName());
             item.put("avatar", u.getAvatar());
-            item.put("level", RatingUtil.getRating2Level(u.getRating()));
+            item.put("level", u.getRating());
             item.put("win", u.getWin());
             item.put("lose", u.getLose());
             items.add(item);
@@ -119,7 +118,7 @@ public class FriendServiceImpl implements FriendService {
                     item.put("avatar", u.getAvatar());
                     item.put("state", checkLogin(u.getId()));
                     item.put("status", u.getStatus());
-                    item.put("level", RatingUtil.getRating2Level(u.getRating()));
+                    item.put("level", u.getRating());
                     item.put("win", u.getWin());
                     item.put("lose", u.getLose());
                     items.add(item);

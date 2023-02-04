@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.entity.Player;
 import com.sdu.kob.entity.Room;
 import com.sdu.kob.service.GameService;
-import com.sdu.kob.utils.RatingUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -29,7 +28,7 @@ public class GameServiceImpl implements GameService {
             } else {
                 game.put("black_username", blackPlayer.getUser().getUserName());
                 game.put("black_avatar", blackPlayer.getUser().getAvatar());
-                game.put("black_level", RatingUtil.getRating2Level(blackPlayer.getUser().getRating()));
+                game.put("black_level", blackPlayer.getUser().getRating());
             }
             if (whitePlayer.getId() == -1) {
                 game.put("white_username", "AI");
@@ -38,7 +37,7 @@ public class GameServiceImpl implements GameService {
             } else {
                 game.put("white_username", whitePlayer.getUser().getUserName());
                 game.put("white_avatar", whitePlayer.getUser().getAvatar());
-                game.put("white_level", RatingUtil.getRating2Level(whitePlayer.getUser().getRating()));
+                game.put("white_level", whitePlayer.getUser().getRating());
             }
             game.put("state", rooms.get(room.uuid).getStating());
             game.put("id", room.uuid);
