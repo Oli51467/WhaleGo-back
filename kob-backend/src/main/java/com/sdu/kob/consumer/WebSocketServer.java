@@ -37,7 +37,7 @@ public class WebSocketServer {
     private User user;
     private Session session = null;
 
-    private static UserDAO userDAO;
+    public static UserDAO userDAO;
     public static RecordDAO recordDAO;
     public static RestTemplate restTemplate;
 

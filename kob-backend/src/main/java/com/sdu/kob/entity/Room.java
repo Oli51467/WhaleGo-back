@@ -205,10 +205,23 @@ public class Room extends Thread {
         }
     }
 
+    private void updateUserRecord(Player winner, Player loser) {
+        User winnerUser = userDAO.findById((int)winner.getId());
+        User loserUser = userDAO.findById((int)loser.getId());
+        Integer win = winnerUser.getWin() + 1;
+        Integer lose = loserUser.getLose() + 1;
+        userDAO.updateWin(winner.getId(), win);
+        userDAO.updateLose(loser.getId(), lose);
+    }
+
     public void save2Database() {
         if (blackPlayer.getIdentifier().equals(loser)) {
             this.result = "白中盘胜";
-        } else if (whitePlayer.getIdentifier().equals(loser)) this.result = "黑中盘胜";
+            updateUserRecord(whitePlayer, blackPlayer);
+        } else if (whitePlayer.getIdentifier().equals(loser)) {
+            this.result = "黑中盘胜";
+            updateUserRecord(blackPlayer, whitePlayer);
+        }
         else this.result = "和棋";
         Record record = new Record(
                 blackPlayer.getId(),
