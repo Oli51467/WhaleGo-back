@@ -5,7 +5,6 @@ import com.sdu.kob.domain.User;
 import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.RoomService;
-import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -6,7 +6,6 @@ import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
-import com.sdu.kob.utils.RatingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -229,7 +228,7 @@ public class WebSocketServer {
         System.out.println("start go matching");
         MultiValueMap<String, String> matchData = new LinkedMultiValueMap<>();
         matchData.add("user_id", this.user.getId().toString());
-        matchData.add("rating", this.user.getRating().toString());
+        matchData.add("rating", this.user.getRating());
         matchingUsers.add(this.user.getId());
         restTemplate.postForObject(addPlayerUrl, matchData, String.class);
     }
