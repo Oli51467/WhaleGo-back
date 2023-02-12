@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import java.util.Date;
 
 @Entity
@@ -26,6 +27,9 @@ public class Record extends BaseDomain {
     private String steps;
 
     private String level;
+//
+//    @ManyToOne
+//    private User user;
 
     @Column(name = "create_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

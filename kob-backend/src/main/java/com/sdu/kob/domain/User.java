@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
+import java.util.List;
 
 import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
 import static com.sdu.kob.consumer.WebSocketServer.user2room;
@@ -40,6 +44,10 @@ public class User extends BaseDomain {
     @Column(name = "recent_records")
     private String recentRecords;
 
+//    @OneToMany(mappedBy = "user")
+//    @Transient
+//    private List<Record> records;
+
     public String getStatus() {
         if (matchingUsers.contains(this.getId())) {
             return "matching";
@@ -61,5 +69,18 @@ public class User extends BaseDomain {
         this.guestsCount = 0;
         this.guests = "";
         this.recentRecords = "";
+    }
+
+    public User(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+        this.avatar = "https://cdn.acwing.com/media/user/profile/photo/73457_lg_28f38d989d.jpeg";
+        this.profile = "";
+        this.win = 0;
+        this.lose = 0;
+        this.rating = "";
+        this.recentRecords = "";
+        this.guestsCount = 0;
+        this.guests = "";
     }
 }

@@ -170,6 +170,10 @@ public class WebSocketServer {
 
     // 拒绝请求
     private void sendRefuseMessage(Integer friendId) {
+        if (goUsers.get(friendId) == null) {
+            matchingUsers.remove(this.user.getId());
+            return;
+        }
         WebSocketServer friendClient = goUsers.get(friendId);
         matchingUsers.remove(friendId);
         matchingUsers.remove(this.user.getId());
@@ -180,6 +184,10 @@ public class WebSocketServer {
 
     // 取消发送请求
     private void sendRequest2Cancel(Integer friendId) {
+        if (goUsers.get(friendId) == null) {
+            matchingUsers.remove(this.user.getId());
+            return;
+        }
         WebSocketServer friendClient = goUsers.get(friendId);
         matchingUsers.remove(friendId);
         matchingUsers.remove(this.user.getId());
@@ -190,6 +198,9 @@ public class WebSocketServer {
 
     // 请求和棋
     private void sendRequest2DrawOrRegret(Integer opponentId, int type) {
+        if (goUsers.get(opponentId) == null) {
+            return;
+        }
         WebSocketServer friendClient = goUsers.get(opponentId);
         JSONObject resp = new JSONObject();
         if (type == 1) resp.put("event", "request_draw");
