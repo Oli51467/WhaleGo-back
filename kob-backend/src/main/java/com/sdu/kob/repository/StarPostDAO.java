@@ -15,5 +15,5 @@ public interface StarPostDAO  extends JpaRepository<StarPost, Integer> {
     @Query(value = "update star_post set is_star = ?3 where user_id = ?1 and post_id = ?2", nativeQuery = true)
     void update(int userId, int postId, String isStar);
 
-    int countByIsStar(String isStar);
+    int countByIsStarAndPostId(String isStar, Integer postId);
 }

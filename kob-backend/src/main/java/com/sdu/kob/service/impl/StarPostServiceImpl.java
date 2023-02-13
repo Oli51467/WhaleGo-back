@@ -1,6 +1,5 @@
 package com.sdu.kob.service.impl;
 
-import com.sdu.kob.domain.Friend;
 import com.sdu.kob.domain.Post;
 import com.sdu.kob.domain.StarPost;
 import com.sdu.kob.repository.PostDAO;

@@ -33,7 +33,7 @@ public class PostServiceImpl implements PostService {
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         Integer curUserId = loginUser.getUser().getId();
         for (Post post : posts) {
-            Integer stars = starPostDAO.countByIsStar("true");
+            Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);
             StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());
             if (null == starPost || starPost.getIsStar().equals("false")) {
@@ -174,7 +174,7 @@ public class PostServiceImpl implements PostService {
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         Integer curUserId = loginUser.getUser().getId();
         for (Post post : posts) {
-            Integer stars = starPostDAO.countByIsStar("true");
+            Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);
             StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());
             if (null == starPost || starPost.getIsStar().equals("false")) {
