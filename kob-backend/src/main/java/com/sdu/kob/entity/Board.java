@@ -72,6 +72,11 @@ public class Board {
         else player = BLACK;
     }
 
+    public int getOpponentPlayer() {
+        if (player == BLACK) return WHITE;
+        else return BLACK;
+    }
+
     public boolean isInBoard(int x, int y) {
         return (x > 0 && x <= width && y > 0 && y <= height);
     }

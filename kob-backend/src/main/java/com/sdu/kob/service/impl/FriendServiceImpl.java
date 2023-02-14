@@ -7,7 +7,6 @@ import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
@@ -23,9 +22,6 @@ public class FriendServiceImpl implements FriendService {
 
     @Autowired
     private FriendDAO friendDAO;
-
-    @Autowired
-    private SessionRegistry sessionRegistry;
 
     // userId 关注 follower 叫followed，follower关注userId叫follower
     @Override
@@ -67,6 +63,7 @@ public class FriendServiceImpl implements FriendService {
             User u = userDAO.findById((int) followedId);
             item.put("id", u.getId());
             item.put("username", u.getUserName());
+            item.put("state", checkLogin(u.getId()));
             item.put("avatar", u.getAvatar());
             item.put("level", u.getRating());
             item.put("win", u.getWin());
@@ -90,6 +87,7 @@ public class FriendServiceImpl implements FriendService {
             User u = userDAO.findById((int) followedId);
             item.put("id", u.getId());
             item.put("username", u.getUserName());
+            item.put("state", checkLogin(u.getId()));
             item.put("avatar", u.getAvatar());
             item.put("level", u.getRating());
             item.put("win", u.getWin());

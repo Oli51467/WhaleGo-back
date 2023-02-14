@@ -28,13 +28,13 @@ public class Room extends Thread {
     public int playCount;
     public CopyOnWriteArraySet<Integer> users;
     private ReentrantLock lock = new ReentrantLock();
-    private static final String requestEngineUrl = "http://8.142.10.225:5002/go";
-    private static final String resignEngineUrl = "http://8.142.10.225:5002/finish";
+    private static final String requestEngineUrl = "http://8.142.10.225:5001/go";
+    private static final String resignEngineUrl = "http://8.142.10.225:5001/finish";
 
     public Room(Integer rows, Integer cols,
                 Integer blackPlayerId, User blackUser,
                 Integer whitePlayerId, User whiteUser, boolean hasEngine) {
-        this.blackPlayer = new Player(1, blackPlayerId, blackUser); // 如果是引擎 那么blackPlayerId是-1
+        this.blackPlayer = new Player(1, blackPlayerId, blackUser); // 如果是引擎 那么whitePlayerId是-1
         this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
         this.playBoard = new Board(rows, cols, 0);
         this.uuid = UUID.randomUUID().toString().substring(0, 6);
@@ -186,7 +186,8 @@ public class Room extends Thread {
                     JSONObject data = new JSONObject();
                     data.put("user_id", this.humanId.toString());
                     data.put("board", getPositionByIndex(tmpX, tmpY));
-                    data.put("current_player", String.valueOf(playBoard.player));
+                    data.put("current_player", playBoard.player);
+                    System.out.println(this.humanId.toString() + " " + getPositionByIndex(tmpX, tmpY) + " " + playBoard.getOpponentPlayer());
                     JSONObject resp = WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
                     System.out.println(resp);
                     if (resp.getInteger("code") == 1000) {
