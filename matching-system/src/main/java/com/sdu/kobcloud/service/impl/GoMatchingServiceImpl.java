@@ -10,7 +10,7 @@ public class GoMatchingServiceImpl implements MatchingService {
     public final static GoMatchingPool goMatchingPool = new GoMatchingPool();
 
     @Override
-    public String addPlayer(Integer userId, Integer rating) {
+    public String addPlayer(Integer userId, String rating) {
         System.out.println("add player:" + userId + " " + rating);
         goMatchingPool.addPlayer(userId, rating);
         return "add player success";

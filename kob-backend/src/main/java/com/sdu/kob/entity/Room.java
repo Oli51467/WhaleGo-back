@@ -29,6 +29,7 @@ public class Room extends Thread {
     public CopyOnWriteArraySet<Integer> users;
     private ReentrantLock lock = new ReentrantLock();
     private static final String requestEngineUrl = "http://8.142.10.225:5002/go";
+    private static final String resignEngineUrl = "http://8.142.10.225:5002/finish";
 
     public Room(Integer rows, Integer cols,
                 Integer blackPlayerId, User blackUser,
@@ -158,6 +159,13 @@ public class Room extends Thread {
         sendAllMessage(resp.toJSONString());
     }
 
+    private void resign() {
+        JSONObject data = new JSONObject();
+        data.put("user_id", this.humanId.toString());
+        JSONObject resp = WebSocketServer.restTemplate.postForObject(resignEngineUrl, data, JSONObject.class);
+        System.out.println("resign:" + resp);
+    }
+
     // 判断落子是否合法
     private void judge() {
         lock.lock();
@@ -166,6 +174,9 @@ public class Room extends Thread {
         try {
             if (nextX == -1 && nextY == -1 || nextX == -2 && nextY == -2) {
                 this.status = "finished";
+                if (hasEngine){
+                    resign();
+                }
             } else if (playBoard.play(nextX, nextY)) {
                 Integer tmpX = nextX, tmpY = nextY;
                 sendMove(true);
@@ -174,12 +185,10 @@ public class Room extends Thread {
                     isEngineTurn = false;
                     JSONObject data = new JSONObject();
                     data.put("user_id", this.humanId.toString());
-                    System.out.println(tmpX + " " + tmpY);
                     data.put("board", getPositionByIndex(tmpX, tmpY));
-                    data.put("current_player", playBoard.player);
+                    data.put("current_player", String.valueOf(playBoard.player));
                     JSONObject resp = WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
                     System.out.println(resp);
-                    // System.out.println(resp.getObject("data", JSONObject.class));
                     if (resp.getInteger("code") == 1000) {
                         String indexes = resp.getObject("data", JSONObject.class).getString("move");
                         if (!indexes.equals("pass")) {

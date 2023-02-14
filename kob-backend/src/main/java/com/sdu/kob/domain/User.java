@@ -6,10 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
-
-import java.util.List;
 
 import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
 import static com.sdu.kob.consumer.WebSocketServer.user2room;
@@ -43,10 +39,6 @@ public class User extends BaseDomain {
 
     @Column(name = "recent_records")
     private String recentRecords;
-
-//    @OneToMany(mappedBy = "user")
-//    @Transient
-//    private List<Record> records;
 
     public String getStatus() {
         if (matchingUsers.contains(this.getId())) {

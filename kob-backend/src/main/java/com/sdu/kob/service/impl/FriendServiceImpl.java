@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.sdu.kob.consumer.WebSocketServer.goUsers;
+
 @Service("FriendService")
 public class FriendServiceImpl implements FriendService {
 
@@ -164,14 +166,7 @@ public class FriendServiceImpl implements FriendService {
     }
 
     public int checkLogin(Integer id) {
-        List<Object> list = sessionRegistry.getAllPrincipals();
-        for (Object o : list) {
-            if (o instanceof UserDetailsImpl) {
-                if (((UserDetailsImpl) o).getUser().getId().equals(id)) {
-                    return 1;
-                }
-            }
-        }
+        if (goUsers.containsKey(id)) return 1;
         return 0;
     }
 }

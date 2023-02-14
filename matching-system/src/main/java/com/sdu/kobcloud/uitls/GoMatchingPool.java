@@ -27,10 +27,10 @@ public class GoMatchingPool extends Thread {
         GoMatchingPool.restTemplate = restTemplate;
     }
 
-    public void addPlayer(Integer userId, Integer rating) {
+    public void addPlayer(Integer userId, String rating) {
         lock.lock();
         try {
-            players.add(new Player(userId, rating, 0));
+            players.add(new Player(userId, RatingUtil.getRating(rating), 0));
         } finally {
             lock.unlock();
         }

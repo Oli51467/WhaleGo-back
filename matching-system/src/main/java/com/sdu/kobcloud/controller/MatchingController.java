@@ -22,7 +22,7 @@ public class MatchingController {
     @RequestMapping(value = "/go/matching/add/", method = RequestMethod.POST)
     public String addGoPlayer(@RequestParam MultiValueMap<String, String> data) {
         Integer userId = Integer.parseInt(Objects.requireNonNull(data.getFirst("user_id")));
-        Integer rating = Integer.parseInt(Objects.requireNonNull(data.getFirst("rating")));
+        String rating = Objects.requireNonNull(data.getFirst("rating"));
         return goMatchingService.addPlayer(userId, rating);
     }
 

@@ -1,5 +1,7 @@
 package com.sdu.kob.entity;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 // 棋盘
@@ -25,6 +27,7 @@ public class Board {
     public Stack<String> gameRecord;
     public Stack<Point> forbiddenList;
     public Stack<Point> steps;
+    public Set<Point> capturedStones, tmpCaptured;
 
     public Board(int width, int height, int handicap) {
         this.width = width;
@@ -33,6 +36,8 @@ public class Board {
         st = new boolean[this.width + 1][this.height + 1];
         blackForbidden = new Point(-1, -1);
         whiteForbidden = new Point(-1, -1);
+        capturedStones = new HashSet<>();
+        tmpCaptured = new HashSet<>();
         sgfRecord = new StringBuilder();    // 这步棋走完后的局面
         gameRecord = new Stack<>();         // 每一步棋走完后的局面
         forbiddenList = new Stack<>();      // 每一步走完后对方的禁入点
@@ -98,6 +103,7 @@ public class Board {
                     countEat++;
                     // 把死子移除
                     for (Point stone : group.stones) {
+                        tmpCaptured.add(stone);
                         board[stone.getX()][stone.getY()] = EMPTY;
                         // 设置一下禁入点 预判形成劫争
                         if (group.getLength() == 1) {
@@ -162,6 +168,8 @@ public class Board {
             sgfRecord.append('[').append(x).append(',').append(y).append(']');
             steps.push(new Point(x, y));
             playCount++;
+            capturedStones.addAll(tmpCaptured);
+            tmpCaptured.clear();
             changePlayer();
             saveState();
             return true;

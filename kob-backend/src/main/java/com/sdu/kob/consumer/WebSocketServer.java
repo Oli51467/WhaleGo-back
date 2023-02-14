@@ -106,6 +106,13 @@ public class WebSocketServer {
             Integer requestId = data.getInteger("request_id");
             sendRequest2play(friendId, requestId);
         } else if ("request_draw".equals(event)) {
+            String roomId = user2room.get(user.getId());
+            Room playRoom = rooms.get(roomId);
+            if (playRoom != null && playRoom.hasEngine) {
+                playRoom.setLoser(-2);
+                playRoom.setNextStep(-2, -2, false);
+                return;
+            }
             Integer friendId = data.getInteger("friend_id");
             sendRequest2DrawOrRegret(friendId, 1);
         } else if ("request_cancel".equals(event)) {
@@ -128,6 +135,12 @@ public class WebSocketServer {
             Integer level = data.getInteger("level");
             startAIPlaying(userId, level);
         } else if ("request_regret".equals(event)) {
+            String roomId = user2room.get(user.getId());
+            Room playRoom = rooms.get(roomId);
+            if (playRoom != null && playRoom.hasEngine) {
+                playRoom.regretPlay(data.getInteger("which"));
+                return;
+            }
             Integer friendId = data.getInteger("friend_id");
             sendRequest2DrawOrRegret(friendId, 2);
         } else if ("accept_regret".equals(event)) {
@@ -168,7 +181,10 @@ public class WebSocketServer {
         }
     }
 
-    // 拒绝请求
+    /**
+     * 拒绝请求
+     * @param friendId 被拒绝的用户id
+     */
     private void sendRefuseMessage(Integer friendId) {
         if (goUsers.get(friendId) == null) {
             matchingUsers.remove(this.user.getId());
@@ -196,7 +212,11 @@ public class WebSocketServer {
         friendClient.sendMessage(resp.toJSONString());
     }
 
-    // 请求和棋
+    /**
+     * 请求悔棋或和棋
+     * @param opponentId 对手的id
+     * @param type 类型：1和棋 2悔棋
+     */
     private void sendRequest2DrawOrRegret(Integer opponentId, int type) {
         if (goUsers.get(opponentId) == null) {
             return;
@@ -286,9 +306,9 @@ public class WebSocketServer {
             throw new NullPointerException("null user not found");
         }
         JSONObject request = new JSONObject();
-        request.put("user_id", userId);
+        request.put("user_id", String.valueOf(userId));
         request.put("rules", "");
-        request.put("play", 1);
+        request.put("play", "1");
         request.put("komi", "");
         request.put("level", "p");
         request.put("boardsize", "19");
