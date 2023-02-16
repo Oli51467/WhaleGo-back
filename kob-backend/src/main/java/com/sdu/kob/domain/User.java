@@ -66,11 +66,11 @@ public class User extends BaseDomain {
     public User(String userName, String password) {
         this.userName = userName;
         this.password = password;
-        this.avatar = "https://cdn.acwing.com/media/user/profile/photo/73457_lg_28f38d989d.jpeg";
+        this.avatar = "https://cdn.acwing.com/media/user/profile/photo/277786_lg_a289122cac.jpg";
         this.profile = "";
         this.win = 0;
         this.lose = 0;
-        this.rating = "";
+        this.rating = "3段";
         this.recentRecords = "";
         this.guestsCount = 0;
         this.guests = "";

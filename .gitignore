@@ -35,4 +35,6 @@ build/
 mvnw
 mvnw.cmd
 .DS_Store
+aliyun_upload.sh
 upload.sh
+kob-backend/src/main/resources/application.properties

@@ -66,7 +66,7 @@ public class WebSocketServer {
         // 3. 将用户存下来
         if (this.user != null) {
             goUsers.put(userId, this);
-            System.out.println("Connected! " + user.getUserName());
+            //System.out.println("Connected! " + user.getUserName());
         } else {
             this.session.close();
         }
@@ -75,7 +75,7 @@ public class WebSocketServer {
     @OnClose
     public void onClose() {
         // 关闭连接
-        System.out.println("Closed!");
+        //System.out.println("Closed!");
         if (this.user != null) {
             Integer userId = this.user.getId();
             goUsers.remove(userId);
