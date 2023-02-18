@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.sdu.kob.consumer.WebSocketServer.userDAO;
 
 @Component
-@ServerEndpoint("/websocket/{token}")
+@ServerEndpoint("/websocket/{userid}")
 public class WebSocketMessageServer {
 
     final public static ConcurrentHashMap<Integer, WebSocketMessageServer> users = new ConcurrentHashMap<>();
@@ -23,16 +23,16 @@ public class WebSocketMessageServer {
     private User user;
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("token") String token) throws IOException {
+    public void onOpen(Session session, @PathParam("userid") String userId) throws IOException {
         // 建立连接 所有与连接相关的信息都会存到这个类中
         this.session = session;
         // 1. 从token中读取建立连接的用户是谁 拿到id
-        int userId = JwtUtil.JWTAuthentication(token);
-        // 2. 根据id查找用户
-        this.user = userDAO.findById(userId);
+//        int userId = JwtUtil.JWTAuthentication(token);
+//        // 2. 根据id查找用户
+        this.user = userDAO.findById(Integer.parseInt(userId));
         // 3. 将用户存下来
         if (this.user != null) {
-            users.put(userId, this);
+            users.put(Integer.valueOf(userId), this);
             System.out.println("WsMessage Connected! " + user.getUserName());
         } else {
             this.session.close();

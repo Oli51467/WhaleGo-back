@@ -169,7 +169,9 @@ public class WebSocketServer {
         }
     }
 
-    // 从后端向前端发送信息
+    /**
+     * 从后端向前端给一个用户发送信息
+     */
     public void sendMessage(String message) {
         // 每个连接用Session维护
         synchronized (this.session) {
@@ -178,6 +180,16 @@ public class WebSocketServer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 群发消息 维护心跳
+     * @param message 消息
+     */
+    public static void sendGroupMessage(String message) {
+        for (Map.Entry<Integer, WebSocketServer> entry : goUsers.entrySet()) {
+            entry.getValue().sendMessage(message);
         }
     }
 
