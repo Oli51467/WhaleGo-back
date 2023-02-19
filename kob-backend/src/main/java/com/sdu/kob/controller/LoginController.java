@@ -15,7 +15,7 @@ public class LoginController {
     @CrossOrigin
     @RequestMapping(value = "/api/account/token/", method = RequestMethod.POST)
     public Map<String, String> getToken(@RequestParam Map<String, String> map) {
-        String userName = map.get("userName");
+        String userName = map.get("username");
         String password = map.get("password");
         return loginService.getToken(userName, password);
     }
