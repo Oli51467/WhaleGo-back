@@ -20,6 +20,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static com.sdu.kob.entity.Board.BLACK;
+import static com.sdu.kob.entity.Board.WHITE;
+
 @Component
 @ServerEndpoint("/go/websocket/{token}")
 public class WebSocketServer {
@@ -66,7 +69,7 @@ public class WebSocketServer {
         // 3. 将用户存下来
         if (this.user != null) {
             goUsers.put(userId, this);
-            //System.out.println("Connected! " + user.getUserName());
+            System.out.println("Connected! " + user.getUserName());
         } else {
             this.session.close();
         }
@@ -74,11 +77,10 @@ public class WebSocketServer {
 
     @OnClose
     public void onClose() {
-        // 关闭连接
-        //System.out.println("Closed!");
         if (this.user != null) {
             Integer userId = this.user.getId();
             goUsers.remove(userId);
+            System.out.println("Closed!");
         }
     }
 
@@ -95,10 +97,10 @@ public class WebSocketServer {
             Integer x = data.getInteger("x"), y = data.getInteger("y");
             Integer userId = this.user.getId();
             if (x == -1 && y == -1) {
-                int loser;
-                if (Objects.equals(userId, rooms.get(user2room.get(userId)).blackPlayer.getId())) loser = 1;
-                else loser = 2;
-                rooms.get(user2room.get(userId)).setLoser(loser);
+                if (Objects.equals(userId, rooms.get(user2room.get(userId)).blackPlayer.getId())) {
+                    rooms.get(user2room.get(userId)).setLoser(BLACK);
+                }
+                else rooms.get(user2room.get(userId)).setLoser(WHITE);
             }
             rooms.get(user2room.get(userId)).setNextStep(x, y, false);
         } else if ("request_play".equals(event)) {
