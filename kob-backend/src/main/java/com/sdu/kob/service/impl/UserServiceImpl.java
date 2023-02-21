@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public JSONObject searchUser(String searchName, String userName) {
         User searchUser = userDAO.findByUserName(searchName);
-        Integer userId = userDAO.findByUserName(userName).getId();  // 自己的id
+        Long userId = userDAO.findByUserName(userName).getId();  // 自己的id
         JSONObject resp = new JSONObject();
         if (searchUser == null) {
             resp.put("user", "none");
@@ -75,8 +75,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JSONObject getFollowedAndFollowersCountAndGuests(Integer userId, String userName) {
-        User user = userDAO.findById((int) userId);
+    public JSONObject getFollowedAndFollowersCountAndGuests(Long userId, String userName) {
+        User user = userDAO.findById((long) userId);
         User me = userDAO.findByUserName(userName);
         int followed = friendDAO.countByUserAAndFollowed(userId, "true");
         int followers = friendDAO.countByUserBAndFollowed(userId, "true");
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         if (!userName.equals(user.getUserName())) {
             userDAO.updateGuestsCount(userId);
             for (int i = 0; i < guestIds.size(); i ++ ) {
-                if (Integer.parseInt(guestIds.get(i)) == me.getId()) {
+                if (Long.parseLong(guestIds.get(i)) == me.getId()) {
                     guestIds.remove(i);
                     break;
                 }
@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         for (String guestId : guestIds) {
             if (guestId.equals("")) continue;
             JSONObject item = new JSONObject();
-            User guest = userDAO.findById(Integer.parseInt(guestId));
+            User guest = userDAO.findById(Long.parseLong(guestId));
             item.put("guests_id", guest.getId().toString());
             item.put("guests_username", guest.getUserName());
             item.put("guests_avatar", guest.getAvatar());

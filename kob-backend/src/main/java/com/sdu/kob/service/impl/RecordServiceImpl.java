@@ -28,7 +28,7 @@ public class RecordServiceImpl implements RecordService {
     private UserDAO userDAO;
 
     @Override
-    public JSONObject getAllRecords(Integer userId, Integer page) {
+    public JSONObject getAllRecords(Long userId, Integer page) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         Pageable pageable = PageRequest.of(page, 9, sort);
         Page<Record> recordsPage = recordDAO.findOthers(userId, pageable);
@@ -36,8 +36,8 @@ public class RecordServiceImpl implements RecordService {
         JSONObject resp = new JSONObject();
         List<JSONObject> items = new LinkedList<>();
         for (Record record: records) {
-            User userBlack = userDAO.findById((int) record.getBlackId());
-            User userWhite = userDAO.findById((int) record.getWhiteId());
+            User userBlack = userDAO.findById((long) record.getBlackId());
+            User userWhite = userDAO.findById((long) record.getWhiteId());
             JSONObject item = new JSONObject();
             item.put("black_avatar", userBlack.getAvatar());
             item.put("black_username", userBlack.getUserName());
@@ -55,7 +55,7 @@ public class RecordServiceImpl implements RecordService {
     }
 
     @Override
-    public JSONObject getMyRecords(Integer userId, Integer page) {
+    public JSONObject getMyRecords(Long userId, Integer page) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         Pageable pageable = PageRequest.of(page, 9, sort);
         Page<Record> recordsPage = recordDAO.findMyRecords(userId, pageable);
@@ -63,8 +63,8 @@ public class RecordServiceImpl implements RecordService {
         JSONObject resp = new JSONObject();
         List<JSONObject> items = new LinkedList<>();
         for (Record record: records) {
-            User userBlack = userDAO.findById((int) record.getBlackId());
-            User userWhite = userDAO.findById((int) record.getWhiteId());
+            User userBlack = userDAO.findById((long) record.getBlackId());
+            User userWhite = userDAO.findById((long) record.getWhiteId());
             JSONObject item = new JSONObject();
             item.put("black_avatar", userBlack.getAvatar());
             item.put("black_username", userBlack.getUserName());

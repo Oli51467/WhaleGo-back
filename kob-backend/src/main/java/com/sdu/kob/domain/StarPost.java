@@ -13,10 +13,10 @@ import javax.persistence.Entity;
 @Data
 public class StarPost extends BaseDomain {
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "post_id")
-    private Integer postId;
+    private Long postId;
 
     @Column(name = "is_star")
     private String isStar;

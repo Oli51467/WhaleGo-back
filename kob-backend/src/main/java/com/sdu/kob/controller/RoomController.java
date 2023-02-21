@@ -25,7 +25,7 @@ public class RoomController {
     @RequestMapping(value = "/api/room/leave/", method = RequestMethod.GET)
     public String leaveRoom(@RequestParam Map<String, String> data) {
         String roomId = data.get("room_id");
-        Integer userId = Integer.parseInt(data.get("user_id"));
+        Long userId = Long.parseLong(data.get("user_id"));
         System.out.println(roomId + " " + userId);
         return roomService.leaveRoom(roomId, userId);
     }
@@ -33,7 +33,7 @@ public class RoomController {
     @RequestMapping(value = "/api/room/getBoard/", method = RequestMethod.GET)
     public JSONObject getBoardInRoom(@RequestParam Map<String, String> data) {
         String roomId = data.get("room_id");
-        Integer userId = Integer.parseInt(data.get("user_id"));
+        Long userId = Long.parseLong(data.get("user_id"));
         return roomService.getBoardInRoom(userId, roomId);
     }
 }

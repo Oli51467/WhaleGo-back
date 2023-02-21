@@ -23,17 +23,17 @@ public class Room extends Thread {
     private String status = "playing";  // playing -> finished
     public String result = "";
     private Integer loser = null;
-    private Integer humanId = null;
+    private Long humanId = null;
     public boolean isEngineTurn = false, hasEngine;
     public int playCount;
-    public CopyOnWriteArraySet<Integer> users;
+    public CopyOnWriteArraySet<Long> users;
     private ReentrantLock lock = new ReentrantLock();
     private static final String requestEngineUrl = "http://8.142.10.225:5001/go";
     private static final String resignEngineUrl = "http://8.142.10.225:5001/finish";
 
     public Room(Integer rows, Integer cols,
-                Integer blackPlayerId, User blackUser,
-                Integer whitePlayerId, User whiteUser, boolean hasEngine) {
+                Long blackPlayerId, User blackUser,
+                Long whitePlayerId, User whiteUser, boolean hasEngine) {
         this.blackPlayer = new Player(1, blackPlayerId, blackUser); // 如果是引擎 那么whitePlayerId是-1
         this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
         this.playBoard = new Board(rows, cols, 0);
@@ -69,7 +69,7 @@ public class Room extends Thread {
     }
 
     private void sendAllMessage(String message) {
-        for (Integer usersInRoom : this.users) {
+        for (Long usersInRoom : this.users) {
             WebSocketServer client = goUsers.get(usersInRoom);
             if (client != null) {
                 client.sendMessage(message);
@@ -216,8 +216,8 @@ public class Room extends Thread {
     }
 
     private void updateUserRecord(Player winner, Player loser) {
-        User winnerUser = userDAO.findById((int)winner.getId());
-        User loserUser = userDAO.findById((int)loser.getId());
+        User winnerUser = userDAO.findById((long)winner.getId());
+        User loserUser = userDAO.findById((long)loser.getId());
         Integer win = winnerUser.getWin() + 1;
         Integer lose = loserUser.getLose() + 1;
         String winnerRecentRecords = winnerUser.getRecentRecords();
@@ -306,9 +306,9 @@ public class Room extends Thread {
             } else {        // 给定时间内没有检测到落子
                 status = "finished";
                 if (playBoard.player == 1) {
-                    loser = blackPlayer.getId();
+                    loser = blackPlayer.getIdentifier();
                 } else {
-                    loser = whitePlayer.getId();
+                    loser = whitePlayer.getIdentifier();
                 }
                 sendResult();
 

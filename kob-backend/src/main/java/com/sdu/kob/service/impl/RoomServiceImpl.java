@@ -33,9 +33,9 @@ public class RoomServiceImpl implements RoomService {
             return resp;
         }
         List<JSONObject> items = new LinkedList<>();
-        for (Integer uid : rooms.get(roomId).users) {
+        for (Long uid : rooms.get(roomId).users) {
             JSONObject item = new JSONObject();
-            User user = userDAO.findById((int) uid);
+            User user = userDAO.findById((long) uid);
             item.put("user_id", uid);
             item.put("user_name", user.getUserName());
             item.put("user_avatar", user.getAvatar());
@@ -49,7 +49,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public JSONObject getBoardInRoom(Integer userId, String roomId) {
+    public JSONObject getBoardInRoom(Long userId, String roomId) {
         JSONObject resp = new JSONObject();
         if (rooms.get(roomId) == null) {
             resp.put("event", "empty_room");
@@ -75,7 +75,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public String leaveRoom(String roomId, Integer userId) {
+    public String leaveRoom(String roomId, Long userId) {
         String msg = "";
         if (rooms.get(roomId).users.remove(userId)) {
             msg = "success";

@@ -6,39 +6,39 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface UserDAO extends JpaRepository<User, Integer> {
+public interface UserDAO extends JpaRepository<User, Long> {
     User findByUserName(String userName);
 
-    User findById(int id);
+    User findById(long id);
 
     @Modifying
     @Transactional
     @Query(value = "update user set state = ?2 where id = ?1", nativeQuery = true)
-    void updateState(int userId, Integer state);
+    void updateState(long userId, Integer state);
 
     @Modifying
     @Transactional
     @Query(value = "update user set guests_count = guests_count + 1 where id = ?1", nativeQuery = true)
-    void updateGuestsCount(int userId);
+    void updateGuestsCount(long userId);
 
     @Modifying
     @Transactional
     @Query(value = "update user set recent_guests = ?2 where id = ?1", nativeQuery = true)
-    void updateRecentGuests(int userId, String guests);
+    void updateRecentGuests(long userId, String guests);
 
     @Modifying
     @Transactional
     @Query(value = "update user set username = ?2, profile = ?3 where id = ?1", nativeQuery = true)
-    void updateUserInfo(int userId, String userName, String profile);
+    void updateUserInfo(long userId, String userName, String profile);
 
     @Modifying
     @Transactional
     @Query(value = "update user set win = ?2, recent_records = ?3, rating = ?4 where id = ?1", nativeQuery = true)
-    void updateWin(int userId, Integer win, String recentRecords, String rating);
+    void updateWin(long userId, Integer win, String recentRecords, String rating);
 
     @Modifying
     @Transactional
     @Query(value = "update user set lose = ?2, recent_records = ?3, rating = ?4 where id = ?1", nativeQuery = true)
-    void updateLose(int userId, Integer lose, String recentRecords, String rating);
+    void updateLose(long userId, Integer lose, String recentRecords, String rating);
 
 }

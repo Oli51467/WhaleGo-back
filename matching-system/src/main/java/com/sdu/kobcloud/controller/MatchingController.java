@@ -21,14 +21,14 @@ public class MatchingController {
 
     @RequestMapping(value = "/go/matching/add/", method = RequestMethod.POST)
     public String addGoPlayer(@RequestParam MultiValueMap<String, String> data) {
-        Integer userId = Integer.parseInt(Objects.requireNonNull(data.getFirst("user_id")));
+        Long userId = Long.parseLong(Objects.requireNonNull(data.getFirst("user_id")));
         String rating = Objects.requireNonNull(data.getFirst("rating"));
         return goMatchingService.addPlayer(userId, rating);
     }
 
     @RequestMapping(value = "/go/matching/remove/", method = RequestMethod.POST)
     public String removeGoPlayer(@RequestParam MultiValueMap<String, String> data) {
-        Integer userId = Integer.parseInt(Objects.requireNonNull(data.getFirst("user_id")));
+        Long userId = Long.parseLong(Objects.requireNonNull(data.getFirst("user_id")));
         return goMatchingService.removePlayer(userId);
     }
 }

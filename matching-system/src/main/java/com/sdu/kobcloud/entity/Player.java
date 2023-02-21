@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
-    private Integer userId;
+    private Long userId;
 
     private Integer rating;
 

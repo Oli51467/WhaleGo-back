@@ -7,7 +7,7 @@ import java.util.Map;
 public interface UserService {
     JSONObject searchUser(String searchName, String userName);
 
-    JSONObject getFollowedAndFollowersCountAndGuests(Integer userId, String userName);
+    JSONObject getFollowedAndFollowersCountAndGuests(Long userId, String userName);
 
     Map<String, String> updateUserInfo(Map<String, String> data);
 

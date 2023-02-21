@@ -17,15 +17,15 @@ public class StarPostController {
 
     @RequestMapping(value = "/api/post/star/", method = RequestMethod.POST)
     public String starPost(@RequestParam Map<String, String> data) {
-        Integer userId = Integer.valueOf(data.get("user_id"));
-        Integer postId = Integer.valueOf(data.get("post_id"));
+        Long userId = Long.valueOf(data.get("user_id"));
+        Long postId = Long.valueOf(data.get("post_id"));
         return starPostService.starPost(userId, postId);
     }
 
     @RequestMapping(value = "/api/post/unstar/", method = RequestMethod.POST)
     public String unstarPost(@RequestParam Map<String, String> data) {
-        Integer userId = Integer.valueOf(data.get("user_id"));
-        Integer postId = Integer.valueOf(data.get("post_id"));
+        Long userId = Long.valueOf(data.get("user_id"));
+        Long postId = Long.valueOf(data.get("post_id"));
         return starPostService.unstarPost(userId, postId);
     }
 }

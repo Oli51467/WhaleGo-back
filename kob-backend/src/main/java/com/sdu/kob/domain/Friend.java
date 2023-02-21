@@ -14,10 +14,10 @@ import javax.persistence.Entity;
 public class Friend extends BaseDomain {
 
     @Column(name = "user_a")
-    Integer userA;
+    Long userA;
 
     @Column(name = "user_b")
-    Integer userB;
+    Long userB;
 
     String followed;
 }

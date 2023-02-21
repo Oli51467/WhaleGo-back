@@ -8,17 +8,17 @@ import java.io.Serializable;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class BaseDomain implements Serializable {
-    private static final int serialVersionUID = 1;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Integer id;
+    protected Long id;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 }

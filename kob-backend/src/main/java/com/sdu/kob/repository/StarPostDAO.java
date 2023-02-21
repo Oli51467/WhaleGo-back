@@ -6,14 +6,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface StarPostDAO  extends JpaRepository<StarPost, Integer> {
+public interface StarPostDAO  extends JpaRepository<StarPost, Long> {
 
-    StarPost findByUserIdAndPostId(Integer userId, Integer postId);
+    StarPost findByUserIdAndPostId(Long userId, Long postId);
 
     @Modifying
     @Transactional
     @Query(value = "update star_post set is_star = ?3 where user_id = ?1 and post_id = ?2", nativeQuery = true)
-    void update(int userId, int postId, String isStar);
+    void update(long userId, long postId, String isStar);
 
-    int countByIsStarAndPostId(String isStar, Integer postId);
+    int countByIsStarAndPostId(String isStar, Long postId);
 }

@@ -43,7 +43,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             throw new RuntimeException(e);
         }
 
-        User user = userDAO.findById(Integer.parseInt(userid));
+        User user = userDAO.findById(Long.parseLong(userid));
 
         if (user == null) {
             throw new RuntimeException("用户名未登录");

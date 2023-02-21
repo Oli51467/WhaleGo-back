@@ -26,12 +26,12 @@ public class PostServiceImpl implements PostService {
     private StarPostDAO starPostDAO;
 
     @Override
-    public List<Post> getAllPosts(Integer userId) {
+    public List<Post> getAllPosts(Long userId) {
         List<Post> posts = postDAO.findByUserId(userId);
         UsernamePasswordAuthenticationToken authenticationToken =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
-        Integer curUserId = loginUser.getUser().getId();
+        Long curUserId = loginUser.getUser().getId();
         for (Post post : posts) {
             Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);
@@ -93,7 +93,7 @@ public class PostServiceImpl implements PostService {
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         User user = loginUser.getUser();
 
-        int postId = Integer.parseInt(data.get("post_id"));
+        long postId = Long.parseLong(data.get("post_id"));
         Post bot = postDAO.findById(postId);
         Map<String, String> map = new HashMap<>();
 
@@ -120,7 +120,7 @@ public class PostServiceImpl implements PostService {
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         User user = loginUser.getUser();
 
-        int postId = Integer.parseInt(data.get("post_id"));
+        long postId = Long.parseLong(data.get("post_id"));
 
         String title = data.get("title");
         String content = data.get("content");
@@ -172,7 +172,7 @@ public class PostServiceImpl implements PostService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
-        Integer curUserId = loginUser.getUser().getId();
+        Long curUserId = loginUser.getUser().getId();
         for (Post post : posts) {
             Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);

@@ -18,8 +18,8 @@ public class MatchController {
 
     @RequestMapping(value = "/go/match/startGame/", method = RequestMethod.POST)
     public String startGoGame(@RequestParam MultiValueMap<String, String> data) {
-        Integer aId = Integer.parseInt(Objects.requireNonNull(data.getFirst("a_id")));
-        Integer bId = Integer.parseInt(Objects.requireNonNull(data.getFirst("b_id")));
+        Long aId = Long.parseLong(Objects.requireNonNull(data.getFirst("a_id")));
+        Long bId = Long.parseLong(Objects.requireNonNull(data.getFirst("b_id")));
         return goMatchService.startGame(aId, bId);
     }
 }

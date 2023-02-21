@@ -15,7 +15,7 @@ import java.util.Date;
 public class Post extends BaseDomain {
 
     @Column(name = "user_id")
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "username")
     private String username;
@@ -41,7 +41,7 @@ public class Post extends BaseDomain {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private Date modifyTime;
 
-    public Post(Integer userId, String username, String userAvatar, String title, String content, Date createTime, Date modifyTime) {
+    public Post(Long userId, String username, String userAvatar, String title, String content, Date createTime, Date modifyTime) {
         this.userId = userId;
         this.username = username;
         this.userAvatar = userAvatar;

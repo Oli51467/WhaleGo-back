@@ -17,19 +17,16 @@ import java.util.Date;
 public class Record extends BaseDomain {
 
     @Column(name = "black_id")
-    private Integer blackId;
+    private Long blackId;
 
     @Column(name = "white_id")
-    private Integer whiteId;
+    private Long whiteId;
 
     private String result;
 
     private String steps;
 
     private String level;
-//
-//    @ManyToOne
-//    private User user;
 
     @Column(name = "create_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

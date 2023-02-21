@@ -27,7 +27,7 @@ public class GoMatchingPool extends Thread {
         GoMatchingPool.restTemplate = restTemplate;
     }
 
-    public void addPlayer(Integer userId, String rating) {
+    public void addPlayer(Long userId, String rating) {
         lock.lock();
         try {
             players.add(new Player(userId, RatingUtil.getRating(rating), 0));
@@ -36,7 +36,7 @@ public class GoMatchingPool extends Thread {
         }
     }
 
-    public void removePlayer(Integer userId) {
+    public void removePlayer(Long userId) {
         lock.lock();
         try {
             List<Player> dummyPlayers = new ArrayList<>();

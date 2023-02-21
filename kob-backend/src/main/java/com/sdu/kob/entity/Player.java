@@ -8,11 +8,11 @@ public class Player {
 
     private Integer identifier;     // 1: 黑方 2:白方
 
-    private Integer id;
+    private Long id;
 
     private User user;
 
-    public Player(Integer identifier, Integer id, User user) {
+    public Player(Integer identifier, Long id, User user) {
         this.identifier = identifier;
         this.id = id;
         this.user = user;

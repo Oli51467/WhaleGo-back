@@ -9,22 +9,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-public interface FriendDAO extends JpaRepository<Friend, Integer> {
+public interface FriendDAO extends JpaRepository<Friend, Long> {
 
-    Friend findByUserAAndUserB(Integer userA, Integer userB);
+    Friend findByUserAAndUserB(Long userA, Long userB);
 
-    Friend findByUserAOrUserB(Integer userA, Integer userB);
+    Friend findByUserAOrUserB(Long userA, Long userB);
 
     @Modifying
     @Transactional
     @Query(value = "update friend set followed = ?3 where user_a = ?1 and user_b = ?2", nativeQuery = true)
-    void update(int userId, int followerId, String relation);
+    void update(long userId, long followerId, String relation);
 
-    List<Friend> findByUserAAndFollowed(Integer userId, String followed);
+    List<Friend> findByUserAAndFollowed(Long userId, String followed);
 
-    List<Friend> findByUserBAndFollowed(Integer userId, String followed);
+    List<Friend> findByUserBAndFollowed(Long userId, String followed);
 
-    int countByUserAAndFollowed(Integer userId, String followed);
+    int countByUserAAndFollowed(Long userId, String followed);
 
-    int countByUserBAndFollowed(Integer userId, String followed);
+    int countByUserBAndFollowed(Long userId, String followed);
 }

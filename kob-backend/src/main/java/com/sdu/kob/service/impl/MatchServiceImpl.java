@@ -9,7 +9,7 @@ public class MatchServiceImpl implements MatchService {
 
     // 匹配系统返回结果的Service
     @Override
-    public String startGame(Integer aId, Integer bId) {
+    public String startGame(Long aId, Long bId) {
         System.out.println("start game:" + aId + " " + bId);
         WebSocketServer.startGame(aId, bId);
         return "begin game success";

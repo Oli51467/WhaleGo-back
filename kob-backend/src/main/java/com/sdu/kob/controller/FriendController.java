@@ -51,8 +51,8 @@ public class FriendController {
 
     @RequestMapping(value = "/api/friend/getRelationship/", method = RequestMethod.GET)
     public JSONObject getUserRelationship(@RequestParam Map<String, String> data) {
-        Integer searchId = Integer.valueOf(data.get("search_id"));
-        Integer userId = Integer.valueOf(data.get("user_id"));
+        Long searchId = Long.valueOf(data.get("search_id"));
+        Long userId = Long.valueOf(data.get("user_id"));
         return friendService.getRelationship(searchId, userId);
     }
 }

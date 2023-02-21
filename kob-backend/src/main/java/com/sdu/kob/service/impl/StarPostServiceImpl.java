@@ -18,8 +18,8 @@ public class StarPostServiceImpl implements StarPostService {
     private PostDAO postDAO;
 
     @Override
-    public String starPost(Integer userId, Integer postId) {
-        Post post = postDAO.findById((int)postId);
+    public String starPost(Long userId, Long postId) {
+        Post post = postDAO.findById((long)postId);
         if (null == post) {
             return "该帖子不存在";
         }
@@ -34,8 +34,8 @@ public class StarPostServiceImpl implements StarPostService {
     }
 
     @Override
-    public String unstarPost(Integer userId, Integer postId) {
-        Post post = postDAO.findById((int)postId);
+    public String unstarPost(Long userId, Long postId) {
+        Post post = postDAO.findById((long)postId);
         if (null == post) {
             return "该帖子不存在";
         }

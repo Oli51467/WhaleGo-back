@@ -27,7 +27,7 @@ public class RecordController {
         Integer page = Integer.parseInt(data.get("page"));
         String userName = principal.getName();
         User user = userDAO.findByUserName(userName);
-        Integer userId = user.getId();
+        Long userId = user.getId();
         return recordService.getAllRecords(userId, page);
     }
 
@@ -36,7 +36,7 @@ public class RecordController {
         Integer page = Integer.parseInt(data.get("page"));
         String userName = principal.getName();
         User user = userDAO.findByUserName(userName);
-        Integer userId = user.getId();
+        Long userId = user.getId();
         return recordService.getMyRecords(userId, page);
     }
 }

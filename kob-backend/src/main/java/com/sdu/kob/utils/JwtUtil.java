@@ -60,11 +60,11 @@ public class JwtUtil {
                 .getBody();
     }
 
-    public static int JWTAuthentication(String token) {
-        int userid = -1;
+    public static long JWTAuthentication(String token) {
+        long userid = -1;
         try {
             Claims claims = parseJWT(token);
-            userid = Integer.parseInt(claims.getSubject());
+            userid = Long.parseLong(claims.getSubject());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
