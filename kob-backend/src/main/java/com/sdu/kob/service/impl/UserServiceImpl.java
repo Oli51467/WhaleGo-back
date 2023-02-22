@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.sdu.kob.utils.StringUtil.isValidPhoneNumber;
+
 @Service("UserService")
 public class UserServiceImpl implements UserService {
 
@@ -142,14 +144,18 @@ public class UserServiceImpl implements UserService {
 
         String username = data.get("username");
         String profile = data.get("profile");
+        String phone = data.get("phone");
 
         Map<String, String> map = new HashMap<>();
 
         if (username == null || username.equals("")) {
             map.put("msg", "用户名不能为空");
             return map;
+        } else if (!isValidPhoneNumber(phone)) {
+            map.put("msg", "手机号格式错误");
+            return map;
         }
-        userDAO.updateUserInfo(user.getId(), username, profile);
+        userDAO.updateUserInfo(user.getId(), username, phone, profile);
         map.put("msg", "success");
         return map;
     }
@@ -180,7 +186,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String passwordEncode = passwordEncoder.encode(newPassword);
-        userDAO.updateUserInfo(user.getId(), user.getUserName(), passwordEncode);
+        userDAO.updateUserInfo(user.getId(), user.getUserName(), user.getPhone(), passwordEncode);
         String jwt = JwtUtil.createJWT(user.getId().toString());
         map.put("msg", "success");
         map.put("token", jwt);

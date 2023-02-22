@@ -21,6 +21,8 @@ public class User extends BaseDomain {
 
     private String password;
 
+    private String phone;
+
     private String profile;
 
     private String rating;
@@ -53,6 +55,7 @@ public class User extends BaseDomain {
     public User(Integer level) {
         this.userName = "AI" + level;
         this.password = "123";
+        this.phone = "";
         this.profile = "";
         this.rating = "3段";
         this.avatar = "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg";
@@ -66,6 +69,7 @@ public class User extends BaseDomain {
     public User(String userName, String password) {
         this.userName = userName;
         this.password = password;
+        this.phone = "";
         this.avatar = "https://cdn.acwing.com/media/user/profile/photo/277786_lg_a289122cac.jpg";
         this.profile = "";
         this.win = 0;

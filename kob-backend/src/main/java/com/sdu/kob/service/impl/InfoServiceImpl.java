@@ -25,6 +25,7 @@ public class InfoServiceImpl implements InfoService {
         result.put("username", user.getUserName());
         result.put("avatar", user.getAvatar());
         result.put("profile", user.getProfile());
+        result.put("phone", user.getPhone());
         return result;
     }
 }
