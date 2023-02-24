@@ -12,7 +12,7 @@ public class EngineRequest {
     private static String requestEngineUrl;
     private static String initEngineUrl;
     private static String resignEngineUrl;
-    public static RestTemplate restTemplate;
+    private static RestTemplate restTemplate;
 
     @Value("${url.engine.request}")
     private void setRequestEngineUrl(String requestEngineUrl) {

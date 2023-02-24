@@ -1,6 +1,7 @@
 package com.sdu.kob.entity;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.common.GameStatus;
 import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.domain.Record;
 import com.sdu.kob.domain.User;
@@ -13,6 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static com.sdu.kob.consumer.WebSocketServer.*;
 import static com.sdu.kob.engine.EngineRequest.resign;
+import static com.sdu.kob.entity.Board.BLACK;
+import static com.sdu.kob.entity.Board.WHITE;
 import static com.sdu.kob.utils.BoardUtil.getNext;
 import static com.sdu.kob.utils.BoardUtil.getPositionByIndex;
 import static com.sdu.kob.utils.RecordUtil.updateUserRecord;
@@ -23,8 +26,9 @@ public class Room extends Thread {
     public final Player blackPlayer;
     public final Player whitePlayer;
     public final Board playBoard;
+
     public Integer nextX = null, nextY = null;
-    private String status = "playing";  // playing -> finished
+    private GameStatus status = GameStatus.PLAYING;  // playing -> finished
     public String result = "";
     private Integer loser = null;
     private Long humanId = null;
@@ -36,8 +40,8 @@ public class Room extends Thread {
     public Room(Integer rows, Integer cols,
                 Long blackPlayerId, User blackUser,
                 Long whitePlayerId, User whiteUser, boolean hasEngine) {
-        this.blackPlayer = new Player(1, blackPlayerId, blackUser); // 如果是引擎 那么whitePlayerId是-1
-        this.whitePlayer = new Player(2, whitePlayerId, whiteUser);
+        this.blackPlayer = new Player(BLACK, blackPlayerId, blackUser); // 如果是引擎 那么whitePlayerId是-1
+        this.whitePlayer = new Player(WHITE, whitePlayerId, whiteUser);
         this.playBoard = new Board(rows, cols, 0);
         this.uuid = UUID.randomUUID().toString().substring(0, 6);
         this.users = new CopyOnWriteArraySet<>();
@@ -166,7 +170,7 @@ public class Room extends Thread {
         lock.lock();
         try {
             if (nextX == -1 && nextY == -1 || nextX == -2 && nextY == -2) {
-                this.status = "finished";
+                this.status = GameStatus.FINISHED;
                 if (hasEngine) {
                     resign(this.humanId.toString());
                 }
@@ -236,12 +240,12 @@ public class Room extends Thread {
             if (this.isInterrupted()) break;
             if (nextStep()) {
                 judge();
-                if (this.status.equals("finished")) {
+                if (status == GameStatus.FINISHED) {
                     sendResult();
                     break;
                 }
             } else {        // 给定时间内没有检测到落子
-                status = "finished";
+                status = GameStatus.FINISHED;
                 if (playBoard.player == 1) {
                     loser = blackPlayer.getIdentifier();
                 } else {

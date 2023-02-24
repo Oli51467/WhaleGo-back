@@ -8,6 +8,7 @@ import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -28,20 +29,19 @@ import static com.sdu.kob.entity.Board.WHITE;
 @ServerEndpoint("/go/websocket/{token}")
 public class WebSocketServer {
 
-    public static final String addPlayerUrl = "http://127.0.0.1:3001/go/matching/add/";
-    public static final String removePlayerUrl = "http://127.0.0.1:3001/go/matching/remove/";
-
     final public static ConcurrentHashMap<Long, WebSocketServer> goUsers = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Long, String> user2room = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     final public static CopyOnWriteArraySet<Long> matchingUsers = new CopyOnWriteArraySet<>();
 
-    private User user;
-    private Session session = null;
-
+    public static String addPlayerUrl;
+    public static String removePlayerUrl;
     public static UserDAO userDAO;
     public static RecordDAO recordDAO;
     public static RestTemplate restTemplate;
+
+    private User user;
+    private Session session = null;
 
     @Autowired
     public void setUserMapper(UserDAO userDAO) {
@@ -56,6 +56,16 @@ public class WebSocketServer {
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
         WebSocketServer.restTemplate = restTemplate;
+    }
+
+    @Value("${url.matching.add}")
+    private void setAddPlayerUrl(String addPlayerUrl) {
+        WebSocketServer.addPlayerUrl = addPlayerUrl;
+    }
+
+    @Value("${url.matching.remove}")
+    private void setRemovePlayerUrl(String removePlayerUrl) {
+        WebSocketServer.removePlayerUrl = removePlayerUrl;
     }
 
     @OnOpen
