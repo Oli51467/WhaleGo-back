@@ -2,6 +2,7 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.engine.EngineRequest;
 import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
@@ -29,7 +30,6 @@ public class WebSocketServer {
 
     public static final String addPlayerUrl = "http://127.0.0.1:3001/go/matching/add/";
     public static final String removePlayerUrl = "http://127.0.0.1:3001/go/matching/remove/";
-    private static final String setEngineUrl = "http://8.142.10.225:5001/set";
 
     final public static ConcurrentHashMap<Long, WebSocketServer> goUsers = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Long, String> user2room = new ConcurrentHashMap<>();
@@ -319,16 +319,7 @@ public class WebSocketServer {
         } else {
             throw new NullPointerException("null user not found");
         }
-        JSONObject request = new JSONObject();
-        request.put("user_id", String.valueOf(userId));
-        request.put("rules", "");
-        request.put("play", "1");
-        request.put("komi", "");
-        request.put("level", "p");
-        request.put("boardsize", "13");
-        request.put("initialStones", "[]");
-        JSONObject jsonObject = restTemplate.postForObject(setEngineUrl, request, JSONObject.class);
-        System.out.println(jsonObject);
+        EngineRequest.initEngine(String.valueOf(userId));
     }
 
     // 开始下棋

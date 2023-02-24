@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.domain.Record;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.engine.EngineRequest;
 
 import java.util.Date;
 import java.util.UUID;
@@ -11,7 +12,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.sdu.kob.consumer.WebSocketServer.*;
+import static com.sdu.kob.engine.EngineRequest.resign;
+import static com.sdu.kob.utils.BoardUtil.getNext;
 import static com.sdu.kob.utils.BoardUtil.getPositionByIndex;
+import static com.sdu.kob.utils.RecordUtil.updateUserRecord;
 
 public class Room extends Thread {
 
@@ -28,8 +32,6 @@ public class Room extends Thread {
     public int playCount;
     public CopyOnWriteArraySet<Long> users;
     private ReentrantLock lock = new ReentrantLock();
-    private static final String requestEngineUrl = "http://8.142.10.225:5001/go";
-    private static final String resignEngineUrl = "http://8.142.10.225:5001/finish";
 
     public Room(Integer rows, Integer cols,
                 Long blackPlayerId, User blackUser,
@@ -159,23 +161,14 @@ public class Room extends Thread {
         sendAllMessage(resp.toJSONString());
     }
 
-    private void resign() {
-        JSONObject data = new JSONObject();
-        data.put("user_id", this.humanId.toString());
-        JSONObject resp = WebSocketServer.restTemplate.postForObject(resignEngineUrl, data, JSONObject.class);
-        System.out.println("resign:" + resp);
-    }
-
     // 判断落子是否合法
     private void judge() {
         lock.lock();
-        String number;
-        int cnt;
         try {
             if (nextX == -1 && nextY == -1 || nextX == -2 && nextY == -2) {
                 this.status = "finished";
-                if (hasEngine){
-                    resign();
+                if (hasEngine) {
+                    resign(this.humanId.toString());
                 }
             } else if (playBoard.play(nextX, nextY)) {
                 Integer tmpX = nextX, tmpY = nextY;
@@ -183,27 +176,13 @@ public class Room extends Thread {
                 // 需要引擎来走这一步
                 if (hasEngine && isEngineTurn) {
                     isEngineTurn = false;
-                    JSONObject data = new JSONObject();
-                    data.put("user_id", this.humanId.toString());
-                    data.put("board", getPositionByIndex(tmpX, tmpY));
-                    data.put("current_player", playBoard.player);
-                    System.out.println(this.humanId.toString() + " " + getPositionByIndex(tmpX, tmpY) + " " + playBoard.getOpponentPlayer());
-                    JSONObject resp = WebSocketServer.restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
+                    JSONObject resp = EngineRequest.requestNextStep(this.humanId.toString(), getPositionByIndex(tmpX, tmpY), playBoard.player);
                     System.out.println(resp);
-                    if (resp.getInteger("code") == 1000) {
+                    if (resp != null && resp.getInteger("code") == 1000) {
                         String indexes = resp.getObject("data", JSONObject.class).getString("move");
                         if (!indexes.equals("pass")) {
-                            System.out.println(indexes);
-                            String alpha = indexes.substring(0, 1);
-                            number = indexes.substring(1);
-                            cnt = 1;
-                            for (char c = 'A'; c <= 'T'; c++) {
-                                if (c == 'I') continue;
-                                if (String.valueOf(c).equals(alpha)) break;
-                                cnt++;
-                            }
-                            this.nextX = 20 - Integer.parseInt(number);
-                            this.nextY = cnt;
+                            this.nextX = getNext(indexes.substring(0, 1), indexes.substring(1))[0];
+                            this.nextY = getNext(indexes.substring(0, 1), indexes.substring(1))[1];
                         }
                     }
                 }
@@ -215,47 +194,6 @@ public class Room extends Thread {
         }
     }
 
-    private void updateUserRecord(Player winner, Player loser) {
-        User winnerUser = userDAO.findById((long)winner.getId());
-        User loserUser = userDAO.findById((long)loser.getId());
-        Integer win = winnerUser.getWin() + 1;
-        Integer lose = loserUser.getLose() + 1;
-        String winnerRecentRecords = winnerUser.getRecentRecords();
-        String loserRecentRecords = loserUser.getRecentRecords();
-        String winLevel = winnerUser.getRating();
-        String loseLevel = loserUser.getRating();
-        if (winnerRecentRecords.length() > 15) {
-            winnerRecentRecords = winnerRecentRecords.substring(0, 14);
-        }
-        winnerRecentRecords = "胜" + winnerRecentRecords;
-        int winCnt = 0, loseCnt = 0;
-        if (winnerRecentRecords.contains("胜")) {
-            winCnt = winnerRecentRecords.length() - winnerRecentRecords.replaceAll("胜", "").length();
-        }
-        if (winCnt >= 12) {
-            winnerRecentRecords = "";
-            int l = Integer.parseInt(winLevel.substring(0, 1));
-            l ++;
-            winLevel = l + "段";
-        }
-
-        if (loserRecentRecords.length() > 15) {
-            loserRecentRecords = loserRecentRecords.substring(0, 14);
-        }
-        loserRecentRecords = "负" + loserRecentRecords;
-        if (loserRecentRecords.contains("负")) {
-            loseCnt = loserRecentRecords.length() - loserRecentRecords.replaceAll("负", "").length();
-        }
-        if (loseCnt >= 10) {
-            loserRecentRecords = "";
-            int l = Integer.parseInt(loseLevel.substring(0, 1));
-            l --;
-            loseLevel = l + "段";
-        }
-        userDAO.updateWin(winner.getId(), win, winnerRecentRecords, winLevel);
-        userDAO.updateLose(loser.getId(), lose, loserRecentRecords, loseLevel);
-    }
-
     public void save2Database() {
         if (blackPlayer.getIdentifier().equals(loser)) {
             this.result = "白中盘胜";
@@ -263,8 +201,7 @@ public class Room extends Thread {
         } else if (whitePlayer.getIdentifier().equals(loser)) {
             this.result = "黑中盘胜";
             updateUserRecord(blackPlayer, whitePlayer);
-        }
-        else this.result = "和棋";
+        } else this.result = "和棋";
         Record record = new Record(
                 blackPlayer.getId(),
                 whitePlayer.getId(),
@@ -317,7 +254,7 @@ public class Room extends Thread {
             }
         }
         try {
-            Thread.sleep(1000 * 60 * 10);
+            Thread.sleep(1000 * 60 * 60);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {

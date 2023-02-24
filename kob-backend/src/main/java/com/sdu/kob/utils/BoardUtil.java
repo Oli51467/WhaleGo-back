@@ -34,4 +34,17 @@ public class BoardUtil {
         position += 20 - x;
         return position;
     }
+
+    public static int[] getNext(String alpha, String number) {
+        int[] res = new int[2];
+        res[0] = 20 - Integer.parseInt(number);
+        int cnt = 1;
+        for (char c = 'A'; c <= 'T'; c++) {
+            if (c == 'I') continue;
+            if (String.valueOf(c).equals(alpha)) break;
+            cnt++;
+        }
+        res[1] = cnt;
+        return res;
+    }
 }
