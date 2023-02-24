@@ -94,15 +94,15 @@ public class PostServiceImpl implements PostService {
         User user = loginUser.getUser();
 
         long postId = Long.parseLong(data.get("post_id"));
-        Post bot = postDAO.findById(postId);
+        Post post = postDAO.findById(postId);
         Map<String, String> map = new HashMap<>();
 
-        if (bot == null) {
+        if (post == null) {
             map.put("msg", "帖子不存在或已被删除");
             return map;
         }
 
-        if (!bot.getUserId().equals(user.getId())) {
+        if (!post.getUserId().equals(user.getId())) {
             map.put("msg", "没有权限删除该帖子");
             return map;
         }

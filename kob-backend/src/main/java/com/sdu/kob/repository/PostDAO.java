@@ -1,6 +1,5 @@
 package com.sdu.kob.repository;
 
-import com.sdu.kob.domain.Friend;
 import com.sdu.kob.domain.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
