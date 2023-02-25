@@ -1,4 +1,4 @@
-package com.sdu.kob.config.filter;
+package com.sdu.kob.filter;
 
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.domain.User;

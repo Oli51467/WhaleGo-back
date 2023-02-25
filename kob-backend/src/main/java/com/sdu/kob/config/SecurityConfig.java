@@ -1,6 +1,6 @@
 package com.sdu.kob.config;
 
-import com.sdu.kob.config.filter.JwtAuthenticationTokenFilter;
+import com.sdu.kob.filter.JwtAuthenticationTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
