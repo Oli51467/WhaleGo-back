@@ -12,10 +12,11 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.sdu.kob.common.SystemConstants.JWT_KEY;
+
 @Component
 public class JwtUtil {
     public static final long JWT_TTL = 60 * 60 * 1000L * 24 * 14;  // 有效期14天
-    public static final String JWT_KEY = "SDFGjhdsfalshdfHFdsjkdsfds121232131afasdfac";
 
     public static String getUUID() {
         return UUID.randomUUID().toString().replaceAll("-", "");
@@ -47,7 +48,7 @@ public class JwtUtil {
     }
 
     public static SecretKey generalKey() {
-        byte[] encodeKey = Base64.getDecoder().decode(JwtUtil.JWT_KEY);
+        byte[] encodeKey = Base64.getDecoder().decode(JWT_KEY);
         return new SecretKeySpec(encodeKey, 0, encodeKey.length, "HmacSHA256");
     }
 

@@ -9,6 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import static com.sdu.kob.common.SystemConstants.WEB_IP;
 import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
 import static com.sdu.kob.consumer.WebSocketServer.user2room;
 
@@ -55,7 +56,7 @@ public class User extends BaseDomain {
     }
 
     public String getAvatar() {
-        return "http://39.98.80.11:3000/" + avatar;
+        return WEB_IP + avatar;
     }
 
     public User(Integer level) {
