@@ -33,31 +33,13 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> getAllPosts(Long userId) {
         List<Post> posts = postDAO.findByUserId(userId);
-        UsernamePasswordAuthenticationToken authenticationToken =
-                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
-        Long curUserId = loginUser.getUser().getId();
-        // 取出post里面的userid
-        List<Long> userIds = posts.stream().map(Post::getUserId).collect(Collectors.toList());
-        List<User> users = userDAO.findAllById(userIds);
-        HashMap<Long, User> id2user = new HashMap<>();
-        for (User user : users) {
-            id2user.put(user.getId(), user);
-        }
-        for (Post post : posts) {
-            post.setUsername(id2user.get(post.getUserId()).getUserName());
-            post.setUserAvatar(id2user.get(post.getUserId()).getAvatar());
-            Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
-            post.setStars(stars);
-            StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());
-            if (null == starPost || starPost.getIsStar().equals("false")) {
-                post.setLiked("false");
-            }
-            else if (starPost.getIsStar().equals("true")) {
-                post.setLiked("true");
-            }
-        }
-        return posts;
+        return filterPost(posts);
+    }
+
+    @Override
+    public List<Post> getAllPosts() {
+        List<Post> posts = postDAO.findAll();
+        return filterPost(posts);
     }
 
     @Override
@@ -180,9 +162,7 @@ public class PostServiceImpl implements PostService {
         return map;
     }
 
-    @Override
-    public List<Post> getAllPosts() {
-        List<Post> posts = postDAO.findAll();
+    List<Post> filterPost(List<Post> posts) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
