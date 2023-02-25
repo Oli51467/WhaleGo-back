@@ -1,4 +1,4 @@
-package com.sdu.kobcloud.uitls;
+package com.sdu.kobcloud.utils;
 
 import com.sdu.kobcloud.entity.Player;
 import org.springframework.beans.factory.annotation.Autowired;

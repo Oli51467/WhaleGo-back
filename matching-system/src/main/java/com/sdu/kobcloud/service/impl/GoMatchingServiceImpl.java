@@ -1,7 +1,7 @@
 package com.sdu.kobcloud.service.impl;
 
 import com.sdu.kobcloud.service.MatchingService;
-import com.sdu.kobcloud.uitls.GoMatchingPool;
+import com.sdu.kobcloud.utils.GoMatchingPool;
 import org.springframework.stereotype.Service;
 
 @Service("GoMatchingService")

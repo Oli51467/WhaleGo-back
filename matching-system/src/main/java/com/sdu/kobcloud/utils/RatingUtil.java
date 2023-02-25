@@ -1,4 +1,4 @@
-package com.sdu.kobcloud.uitls;
+package com.sdu.kobcloud.utils;
 
 public class RatingUtil {
     public static Integer getRating(String level) {
