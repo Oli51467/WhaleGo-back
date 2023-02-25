@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/account/token/", "/api/account/register/").permitAll()
+                .antMatchers("/api/account/token/", "/api/account/register/", "/images/**").permitAll()
                 .antMatchers("/go/match/startGame/", "/engine/receive/").hasIpAddress("127.0.0.1") // 只允许本地
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest()

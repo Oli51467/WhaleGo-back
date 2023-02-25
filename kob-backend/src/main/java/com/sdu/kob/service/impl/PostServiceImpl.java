@@ -5,6 +5,7 @@ import com.sdu.kob.domain.StarPost;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.PostDAO;
 import com.sdu.kob.repository.StarPostDAO;
+import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,12 +16,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service("PostService")
 public class PostServiceImpl implements PostService {
 
     @Autowired
     private PostDAO postDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private StarPostDAO starPostDAO;
@@ -32,7 +37,16 @@ public class PostServiceImpl implements PostService {
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         Long curUserId = loginUser.getUser().getId();
+        // 取出post里面的userid
+        List<Long> userIds = posts.stream().map(Post::getUserId).collect(Collectors.toList());
+        List<User> users = userDAO.findAllById(userIds);
+        HashMap<Long, User> id2user = new HashMap<>();
+        for (User user : users) {
+            id2user.put(user.getId(), user);
+        }
         for (Post post : posts) {
+            post.setUsername(id2user.get(post.getUserId()).getUserName());
+            post.setUserAvatar(id2user.get(post.getUserId()).getAvatar());
             Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);
             StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());
@@ -78,7 +92,7 @@ public class PostServiceImpl implements PostService {
             return map;
         }
         Date now = new Date();
-        Post post = new Post(user.getId(), user.getUserName(), user.getAvatar(), title, content,  now, now);
+        Post post = new Post(user.getId(), title, content, now, now);
 
         postDAO.save(post);
         map.put("msg", "success");
@@ -173,7 +187,16 @@ public class PostServiceImpl implements PostService {
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl loginUser = (UserDetailsImpl) authenticationToken.getPrincipal();
         Long curUserId = loginUser.getUser().getId();
+        // 取出post里面的userid
+        List<Long> userIds = posts.stream().map(Post::getUserId).collect(Collectors.toList());
+        List<User> users = userDAO.findAllById(userIds);
+        HashMap<Long, User> id2user = new HashMap<>();
+        for (User user : users) {
+            id2user.put(user.getId(), user);
+        }
         for (Post post : posts) {
+            post.setUsername(id2user.get(post.getUserId()).getUserName());
+            post.setUserAvatar(id2user.get(post.getUserId()).getAvatar());
             Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);
             StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());

@@ -3,9 +3,11 @@ package com.sdu.kob.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
 import static com.sdu.kob.consumer.WebSocketServer.user2room;
@@ -50,6 +52,10 @@ public class User extends BaseDomain {
         } else {
             return "stand";
         }
+    }
+
+    public String getAvatar() {
+        return "http://39.98.80.11:3000/" + avatar;
     }
 
     public User(Integer level) {

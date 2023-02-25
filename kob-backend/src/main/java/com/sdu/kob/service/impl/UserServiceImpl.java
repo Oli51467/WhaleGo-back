@@ -192,4 +192,9 @@ public class UserServiceImpl implements UserService {
         map.put("token", jwt);
         return map;
     }
+
+    @Override
+    public JSONObject updateUserAvatar(String fileName) {
+        return null;
+    }
 }

@@ -13,4 +13,6 @@ public interface UserService {
 
     Map<String, String> updateUserPassword(String oldPassword, String newPassword, String confirmPassword);
 
+    JSONObject updateUserAvatar(String fileName);
+
 }

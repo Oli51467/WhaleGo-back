@@ -15,10 +15,10 @@ public class Post extends BaseDomain {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "username")
+    @Transient
     private String username;
 
-    @Column(name = "user_avatar")
+    @Transient
     private String userAvatar;
 
     private String title;
@@ -39,10 +39,8 @@ public class Post extends BaseDomain {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private Date modifyTime;
 
-    public Post(Long userId, String username, String userAvatar, String title, String content, Date createTime, Date modifyTime) {
+    public Post(Long userId, String title, String content, Date createTime, Date modifyTime) {
         this.userId = userId;
-        this.username = username;
-        this.userAvatar = userAvatar;
         this.title = title;
         this.content = content;
         this.createTime = createTime;
