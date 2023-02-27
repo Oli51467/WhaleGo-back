@@ -65,7 +65,7 @@ public class User extends BaseDomain {
         this.phone = "";
         this.profile = "";
         this.rating = "3段";
-        this.avatar = "https://cdn.acwing.com/media/user/profile/photo/221601_md_b93784dc2c.jpg";
+        this.avatar = "images/34cc8f419c2d44c2b1207e6677e7ece1.jpeg";
         this.win = 0;
         this.lose = 0;
         this.guestsCount = 0;
@@ -77,7 +77,7 @@ public class User extends BaseDomain {
         this.userName = userName;
         this.password = password;
         this.phone = "";
-        this.avatar = "https://cdn.acwing.com/media/user/profile/photo/277786_lg_a289122cac.jpg";
+        this.avatar = "images/34cc8f419c2d44c2b1207e6677e7ece1.jpeg";
         this.profile = "";
         this.win = 0;
         this.lose = 0;
