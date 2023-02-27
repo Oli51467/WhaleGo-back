@@ -1,6 +1,8 @@
 package com.sdu.kob.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.response.ResponseResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -13,6 +15,6 @@ public interface UserService {
 
     Map<String, String> updateUserPassword(String oldPassword, String newPassword, String confirmPassword);
 
-    JSONObject updateUserAvatar(String fileName);
+    ResponseResult updateUserAvatar(MultipartFile[] file);
 
 }

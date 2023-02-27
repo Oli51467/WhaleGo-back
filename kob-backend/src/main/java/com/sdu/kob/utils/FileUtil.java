@@ -4,18 +4,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.UUID;
 
 public class FileUtil {
     /**
-     * @param file 要上传的文件
+     * @param file          要上传的文件
      * @param targetDirPath 存放文件的文件夹路径
      * @return 文件路径
      */
-    public static String saveMultipartFile(MultipartFile file, String targetDirPath){
+    public static String saveMultipartFile(MultipartFile file, String targetDirPath, String username) {
 
-        File toFile = null;
-        if (file.equals("") || file.getSize() <= 0) {
+        File toFile;
+        if (file == null || file.getSize() <= 0) {
             return null;
         } else {
             /*获取文件原名称*/
@@ -23,8 +22,8 @@ public class FileUtil {
             /*获取文件格式*/
             String fileFormat = originalFilename.substring(originalFilename.lastIndexOf("."));
 
-            String uuid = UUID.randomUUID().toString().trim().replaceAll("-", "");
-            toFile = new File(targetDirPath + File.separator + uuid + fileFormat);
+            deleteSamePrefixFile(targetDirPath + File.separator + username + fileFormat);
+            toFile = new File(targetDirPath + File.separator + username + fileFormat);
 
             String absolutePath = null;
             try {
@@ -53,7 +52,7 @@ public class FileUtil {
     private static void inputStreamToFile(InputStream ins, File file) {
         try {
             OutputStream os = Files.newOutputStream(file.toPath());
-            int bytesRead = 0;
+            int bytesRead;
             byte[] buffer = new byte[8192];
             while ((bytesRead = ins.read(buffer, 0, 8192)) != -1) {
                 os.write(buffer, 0, bytesRead);
@@ -62,6 +61,21 @@ public class FileUtil {
             ins.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void deleteSamePrefixFile(String deepPath) {
+        String subPath = deepPath.substring(0, deepPath.lastIndexOf("/"));
+        File file = new File(subPath);
+        File[] files = file.listFiles();
+        if (null == files) return;
+        String name = deepPath.substring(deepPath.lastIndexOf("/") + 1).split("/.")[0];
+        for (File f : files) {
+            String fName = f.getName().substring(f.getName().lastIndexOf("/") + 1).split("/.")[0];
+            if (fName.equals(name)) {
+                f.delete();
+                break;
+            }
         }
     }
 }

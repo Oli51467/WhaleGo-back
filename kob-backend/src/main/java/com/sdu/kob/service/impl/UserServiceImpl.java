@@ -5,14 +5,20 @@ import com.sdu.kob.domain.Friend;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.UserDAO;
+import com.sdu.kob.response.ResponseCode;
+import com.sdu.kob.response.ResponseResult;
 import com.sdu.kob.service.UserService;
+import com.sdu.kob.utils.FileUtil;
 import com.sdu.kob.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.sdu.kob.utils.StringUtil.isValidPhoneNumber;
@@ -28,6 +34,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${file.images-path}")
+    private String imagePath;
+
+    @Value("${file.root-path}")
+    private String rootPath;
+
+    @Value("${web-ip}")
+    private String webIp;
 
     @Override
     public JSONObject searchUser(String searchName, String userName) {
@@ -194,7 +209,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JSONObject updateUserAvatar(String fileName) {
-        return null;
+    public ResponseResult updateUserAvatar(MultipartFile[] file) {
+        //获取文件在服务器的储存位置
+        // 0.获取当前用户信息
+        UsernamePasswordAuthenticationToken authentication =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl loginUser = (UserDetailsImpl) authentication.getPrincipal();
+        User user = loginUser.getUser();
+
+        // 1.存储文件，并设置用户头像地址信息
+        if (file != null && file.length != 0) {
+            // 1.1.用户头像只有一个
+            MultipartFile avatarFile = file[0];
+            // 1.2.组织头像文件的存储路径
+            String targetPath = Paths.get(imagePath).toString();
+            // 1.3.存储文件并返回绝对路径
+            String avatarUrlAbs = FileUtil.saveMultipartFile(avatarFile, targetPath, user.getUserName());
+            // /opt/web-folder/images/xxx.jpg
+            // 1.4.设置用户头像地址(imagePath中去除rootPath的部分)
+//            if (StrUtil.isBlank(avatarUrlAbs)) return new ResponseResult(ResponseCode.PATH_NOT_EXIST.getCode(),
+//                                                        ResponseCode.PATH_NOT_EXIST.getMsg(),
+//                                                            avatarFile.getOriginalFilename());
+            // 1.4.1.去掉/images/...最前面的斜杠
+            String avatarUrl = avatarUrlAbs.replace(Paths.get(rootPath).toString(), "");
+            // 2.更新数据库用户信息
+            userDAO.updateAvatar(user.getId(), avatarUrl.substring(1));
+            return new ResponseResult(ResponseCode.UPLOAD_SUCCESS.getCode(), ResponseCode.UPLOAD_SUCCESS.getMsg(),
+                    webIp + avatarUrl.substring(1));
+        }
+        return new ResponseResult(ResponseCode.UPLOAD_FAILED.getCode(), ResponseCode.UPLOAD_FAILED.getMsg(),
+                user.getAvatar());
     }
 }
