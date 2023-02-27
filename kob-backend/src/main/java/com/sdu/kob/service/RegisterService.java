@@ -1,7 +1,7 @@
 package com.sdu.kob.service;
 
-import java.util.Map;
+import com.sdu.kob.response.ResponseResult;
 
 public interface RegisterService {
-    Map<String, String> register(String userName, String password);
+    ResponseResult register(String userName, String password);
 }

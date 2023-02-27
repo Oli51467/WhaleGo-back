@@ -2,6 +2,8 @@ package com.sdu.kob.service.impl;
 
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.UserDAO;
+import com.sdu.kob.response.ResponseCode;
+import com.sdu.kob.response.ResponseResult;
 import com.sdu.kob.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,17 +22,14 @@ public class RegisterServiceImpl implements RegisterService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Map<String, String> register(String userName, String password) {
-        Map<String, String> result = new HashMap<>();
+    public ResponseResult register(String userName, String password) {
         if (userDAO.findByUserName(userName) != null) {
-            result.put("msg", "用户名已存在");
-            return result;
+            return new ResponseResult(ResponseCode.USERNAME_EXIST.getCode(), ResponseCode.USERNAME_EXIST.getMsg(), null);
         }
 
         String encodedPassword = passwordEncoder.encode(password); // 密码加密
         User user = new User(userName, encodedPassword);
         userDAO.save(user);
-        result.put("msg", "success");
-        return result;
+        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), null);
     }
 }

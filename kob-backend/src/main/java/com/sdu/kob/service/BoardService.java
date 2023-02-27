@@ -1,7 +1,8 @@
 package com.sdu.kob.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.response.ResponseResult;
 
 public interface BoardService {
-    JSONObject getTerritory(String roomId);
+    ResponseResult getTerritory(String roomId);
 }

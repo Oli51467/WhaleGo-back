@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class EngineRequest {
+public class EngineRequestImpl {
 
     private static String requestEngineUrl;
     private static String initEngineUrl;
@@ -16,22 +16,22 @@ public class EngineRequest {
 
     @Value("${url.engine.request}")
     private void setRequestEngineUrl(String requestEngineUrl) {
-        EngineRequest.requestEngineUrl = requestEngineUrl;
+        EngineRequestImpl.requestEngineUrl = requestEngineUrl;
     }
 
     @Value("${url.engine.init}")
     private void setInitEngineUrl(String initEngineUrl) {
-        EngineRequest.initEngineUrl = initEngineUrl;
+        EngineRequestImpl.initEngineUrl = initEngineUrl;
     }
 
     @Value("${url.engine.resign}")
     private void setResignEngineUrl(String resignEngineUrl) {
-        EngineRequest.resignEngineUrl = resignEngineUrl;
+        EngineRequestImpl.resignEngineUrl = resignEngineUrl;
     }
 
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
-        EngineRequest.restTemplate = restTemplate;
+        EngineRequestImpl.restTemplate = restTemplate;
     }
 
     public static void initEngine(String userId) {
@@ -53,6 +53,10 @@ public class EngineRequest {
         data.put("current_player", currentPlayer);
         return restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
     }
+
+//    public static JSONObject requestTerritory(String userId, ) {
+//
+//    }
 
     public static void resign(String userId) {
         JSONObject data = new JSONObject();

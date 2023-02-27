@@ -1,7 +1,7 @@
 package com.sdu.kob.service;
 
-import java.util.Map;
+import com.sdu.kob.response.ResponseResult;
 
 public interface InfoService {
-    Map<String, String> getInfo();
+    ResponseResult getInfo();
 }

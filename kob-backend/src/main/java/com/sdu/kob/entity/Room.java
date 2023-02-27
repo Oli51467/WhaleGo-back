@@ -5,7 +5,7 @@ import com.sdu.kob.common.GameStatus;
 import com.sdu.kob.consumer.WebSocketServer;
 import com.sdu.kob.domain.Record;
 import com.sdu.kob.domain.User;
-import com.sdu.kob.engine.EngineRequest;
+import com.sdu.kob.engine.EngineRequestImpl;
 
 import java.util.Date;
 import java.util.UUID;
@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.sdu.kob.consumer.WebSocketServer.*;
-import static com.sdu.kob.engine.EngineRequest.resign;
+import static com.sdu.kob.engine.EngineRequestImpl.resign;
 import static com.sdu.kob.entity.Board.BLACK;
 import static com.sdu.kob.entity.Board.WHITE;
 import static com.sdu.kob.utils.BoardUtil.getNext;
@@ -180,7 +180,7 @@ public class Room extends Thread {
                 // 需要引擎来走这一步
                 if (hasEngine && isEngineTurn) {
                     isEngineTurn = false;
-                    JSONObject resp = EngineRequest.requestNextStep(this.humanId.toString(), getPositionByIndex(tmpX, tmpY), playBoard.player);
+                    JSONObject resp = EngineRequestImpl.requestNextStep(this.humanId.toString(), getPositionByIndex(tmpX, tmpY), playBoard.player);
                     System.out.println(resp);
                     if (resp != null && resp.getInteger("code") == 1000) {
                         String indexes = resp.getObject("data", JSONObject.class).getString("move");

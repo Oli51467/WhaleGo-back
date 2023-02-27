@@ -2,7 +2,7 @@ package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.User;
-import com.sdu.kob.engine.EngineRequest;
+import com.sdu.kob.engine.EngineRequestImpl;
 import com.sdu.kob.entity.Room;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
@@ -329,7 +329,7 @@ public class WebSocketServer {
         } else {
             throw new NullPointerException("null user not found");
         }
-        EngineRequest.initEngine(String.valueOf(userId));
+        EngineRequestImpl.initEngine(String.valueOf(userId));
     }
 
     // 开始下棋
