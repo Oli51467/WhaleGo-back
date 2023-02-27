@@ -14,6 +14,7 @@ public class InfoController {
     private InfoService infoService;
 
     @RequestMapping(value = "/api/account/info/", method = RequestMethod.GET)
+    @ResponseBody
     public ResponseResult getInfo() {
         return infoService.getInfo();
     }
