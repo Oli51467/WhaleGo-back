@@ -18,7 +18,8 @@ public class BoardController {
 
     @RequestMapping(value = "/api/board/territory/", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseResult getTerritory(@RequestParam Map<String, String> data) {
-        return boardService.getTerritory("1");
+    public void getTerritory(@RequestParam Map<String, String> data) {
+        String roomId = data.get("room_id");
+        boardService.getTerritory(roomId);
     }
 }

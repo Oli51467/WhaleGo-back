@@ -1,5 +1,7 @@
 package com.sdu.kob.entity;
 
+import com.sdu.kob.utils.BoardUtil;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -220,5 +222,33 @@ public class Board {
         // 3. 还原落子方
         this.player = player;
         return true;
+    }
+
+    public String getState2Engine() {
+        StringBuilder req = new StringBuilder();
+        req.append("[");
+        boolean isBlack = true, ok = false;
+        for (Point step : this.steps) {
+            if (step.getX() == -1) continue;
+            if (ok) {
+                req.append(",");
+            }
+            req.append("[");
+            if (isBlack) {
+                req.append("\"B\"");
+            } else {
+                req.append("\"W\"");
+            }
+            if (!ok) ok = true;
+            req.append(",");
+            req.append("\"");
+            req.append(BoardUtil.getPositionByIndex(step.getX(), step.getY()));
+            req.append("\"");
+            isBlack = !isBlack;
+            req.append("]");
+        }
+        req.append("]");
+        System.out.println(req);
+        return req.toString();
     }
 }

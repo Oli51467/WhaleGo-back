@@ -12,6 +12,7 @@ public class EngineRequestImpl {
     private static String requestEngineUrl;
     private static String initEngineUrl;
     private static String resignEngineUrl;
+    private static String ownerEngineUrl;
     private static RestTemplate restTemplate;
 
     @Value("${url.engine.request}")
@@ -27,6 +28,11 @@ public class EngineRequestImpl {
     @Value("${url.engine.resign}")
     private void setResignEngineUrl(String resignEngineUrl) {
         EngineRequestImpl.resignEngineUrl = resignEngineUrl;
+    }
+
+    @Value("${url.engine.territory}")
+    private void setOwnerEngineUrl(String ownerEngineUrl) {
+        EngineRequestImpl.ownerEngineUrl = ownerEngineUrl;
     }
 
     @Autowired
@@ -54,9 +60,13 @@ public class EngineRequestImpl {
         return restTemplate.postForObject(requestEngineUrl, data, JSONObject.class);
     }
 
-//    public static JSONObject requestTerritory(String userId, ) {
-//
-//    }
+    public static void requestTerritory(String state) {
+        JSONObject data = new JSONObject();
+        data.put("initialStones", state);
+        data.put("level", "p");
+        JSONObject o = restTemplate.postForObject(ownerEngineUrl, data, JSONObject.class);
+        System.out.println(o);
+    }
 
     public static void resign(String userId) {
         JSONObject data = new JSONObject();
