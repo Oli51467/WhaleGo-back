@@ -163,7 +163,7 @@ public class FriendServiceImpl implements FriendService {
         return resp;
     }
 
-    public int checkLogin(Long id) {
+    public static int checkLogin(Long id) {
         if (goUsers.containsKey(id)) return 1;
         return 0;
     }

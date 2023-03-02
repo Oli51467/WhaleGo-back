@@ -1,9 +1,11 @@
 package com.sdu.kob.consumer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.domain.Message;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.engine.EngineRequestImpl;
 import com.sdu.kob.entity.Room;
+import com.sdu.kob.repository.MessageDAO;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
@@ -38,6 +40,7 @@ public class WebSocketServer {
     public static String removePlayerUrl;
     public static UserDAO userDAO;
     public static RecordDAO recordDAO;
+    public static MessageDAO messageDAO;
     public static RestTemplate restTemplate;
 
     private User user;
@@ -51,6 +54,11 @@ public class WebSocketServer {
     @Autowired
     public void setRecordDAO(RecordDAO recordDAO) {
         WebSocketServer.recordDAO = recordDAO;
+    }
+
+    @Autowired
+    public void setMessageDAO(MessageDAO messageDAO) {
+        WebSocketServer.messageDAO = messageDAO;
     }
 
     @Autowired
@@ -99,7 +107,23 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) {    // 将message当作路由 根据请求作不同的处理
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
-        if ("start".equals(event)) {
+        if ("chat".equals(event)) {
+            String msg = data.getString("msg");
+            Long sendId = data.getLong("send_id");
+            Long toId = data.getLong("to_id");
+            Message messageRecord = new Message(sendId, toId, msg, new Date());
+            messageDAO.save(messageRecord);
+            if (goUsers.containsKey(toId)) {
+                long cnt = messageDAO.count();
+                WebSocketServer client = goUsers.get(toId);
+                JSONObject sendMsg = new JSONObject();
+                sendMsg.put("content", msg);
+                sendMsg.put("sendUserId", sendId);
+                sendMsg.put("id", cnt);
+                sendMsg.put("event", "chat");
+                client.sendMessage(sendMsg.toJSONString());
+            }
+        } else if ("start".equals(event)) {
             startMatching();
         } else if ("cancel".equals(event)) {
             cancelMatching();
@@ -109,8 +133,7 @@ public class WebSocketServer {
             if (x == -1 && y == -1) {
                 if (Objects.equals(userId, rooms.get(user2room.get(userId)).blackPlayer.getId())) {
                     rooms.get(user2room.get(userId)).setLoser(BLACK);
-                }
-                else rooms.get(user2room.get(userId)).setLoser(WHITE);
+                } else rooms.get(user2room.get(userId)).setLoser(WHITE);
             }
             rooms.get(user2room.get(userId)).setNextStep(x, y, false);
         } else if ("request_play".equals(event)) {
@@ -138,7 +161,7 @@ public class WebSocketServer {
             Long bId = data.getLong("friend_id");
             getReady(aId, bId);
             startGame(aId, bId);
-        } else if ("accept_draw".equals(event)){
+        } else if ("accept_draw".equals(event)) {
             Long aId = data.getLong("user_id");
             rooms.get(user2room.get(aId)).setLoser(-2);
             rooms.get(user2room.get(aId)).setNextStep(-2, -2, false);
@@ -197,6 +220,7 @@ public class WebSocketServer {
 
     /**
      * 群发消息 维护心跳
+     *
      * @param message 消息
      */
     public static void sendGroupMessage(String message) {
@@ -207,6 +231,7 @@ public class WebSocketServer {
 
     /**
      * 拒绝请求
+     *
      * @param friendId 被拒绝的用户id
      */
     private void sendRefuseMessage(Long friendId) {
@@ -238,8 +263,9 @@ public class WebSocketServer {
 
     /**
      * 请求悔棋或和棋
+     *
      * @param opponentId 对手的id
-     * @param type 类型：1和棋 2悔棋
+     * @param type       类型：1和棋 2悔棋
      */
     private void sendRequest2DrawOrRegret(Long opponentId, int type) {
         if (goUsers.get(opponentId) == null) {
@@ -254,6 +280,7 @@ public class WebSocketServer {
 
     /**
      * 向另一名玩家发送对战请求
+     *
      * @param friendId 被邀请人的id
      */
     private void sendRequest2play(Long friendId, Long requestId) {
@@ -263,7 +290,7 @@ public class WebSocketServer {
             WebSocketServer friendClient = goUsers.get(friendId);
             JSONObject resp = new JSONObject();
             JSONObject request_user = new JSONObject();
-            User requestUser = userDAO.findById((long)requestId);
+            User requestUser = userDAO.findById((long) requestId);
             resp.put("event", "request_play");
             request_user.put("id", requestUser.getId());
             request_user.put("username", requestUser.getUserName());

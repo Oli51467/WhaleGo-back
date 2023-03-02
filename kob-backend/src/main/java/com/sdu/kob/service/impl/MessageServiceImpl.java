@@ -2,7 +2,6 @@ package com.sdu.kob.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.Friend;
-import com.sdu.kob.domain.Message;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.MessageDAO;
@@ -13,9 +12,10 @@ import com.sdu.kob.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.sdu.kob.service.impl.FriendServiceImpl.checkLogin;
 
 @Service("MessageService")
 public class MessageServiceImpl implements MessageService {
@@ -44,6 +44,7 @@ public class MessageServiceImpl implements MessageService {
                     item.put("id", u.getId());
                     item.put("name", u.getUserName());
                     item.put("avatar", u.getAvatar());
+                    item.put("isOnline", checkLogin(u.getId()));
                     item.put("messages", messageDAO.getFriendsMessages(userId, u.getId()));
                     friends.add(item);
                 }
@@ -51,12 +52,5 @@ public class MessageServiceImpl implements MessageService {
         }
         resp.put("friends", friends);
         return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), resp);
-    }
-
-    @Override
-    public ResponseResult sendMessages(Long userId, Long toId, String message) {
-        Message msg = new Message(userId, toId, message, new Date());
-        messageDAO.save(msg);
-        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), null);
     }
 }

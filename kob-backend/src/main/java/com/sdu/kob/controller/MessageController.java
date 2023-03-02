@@ -19,13 +19,4 @@ public class MessageController {
         Long userId = Long.parseLong(data.get("user_id"));
         return messageService.getFriendsAndMessages(userId);
     }
-
-    @RequestMapping(value = "/api/messages/send/", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseResult sendMessages(@RequestParam Map<String, String> data) {
-        Long userId = Long.parseLong(data.get("user_id"));
-        Long toId = Long.parseLong(data.get("to_id"));
-        String message = data.get("message");
-        return messageService.sendMessages(userId, toId, message);
-    }
 }
