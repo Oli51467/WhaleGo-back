@@ -9,8 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig {
 
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
@@ -18,14 +17,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         return new ServerEndpointExporter();
     }
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/app");
-    }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/go/websocket").withSockJS();
-    }
+//    @Override
+//    public void configureMessageBroker(MessageBrokerRegistry config) {
+//        config.enableSimpleBroker("/topic");
+//        config.setApplicationDestinationPrefixes("/app");
+//    }
+//
+//    @Override
+//    public void registerStompEndpoints(StompEndpointRegistry registry) {
+//        registry.addEndpoint("/go/websocket").withSockJS();
+//    }
 }
