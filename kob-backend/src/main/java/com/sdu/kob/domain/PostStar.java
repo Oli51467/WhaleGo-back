@@ -11,7 +11,7 @@ import javax.persistence.Entity;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class StarPost extends BaseDomain {
+public class PostStar extends BaseDomain {
     @Column(name = "user_id")
     private Long userId;
 

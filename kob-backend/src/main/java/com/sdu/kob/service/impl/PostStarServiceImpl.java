@@ -1,18 +1,18 @@
 package com.sdu.kob.service.impl;
 
 import com.sdu.kob.domain.Post;
-import com.sdu.kob.domain.StarPost;
+import com.sdu.kob.domain.PostStar;
 import com.sdu.kob.repository.PostDAO;
-import com.sdu.kob.repository.StarPostDAO;
-import com.sdu.kob.service.StarPostService;
+import com.sdu.kob.repository.PostStarDAO;
+import com.sdu.kob.service.PostStarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("StarPostService")
-public class StarPostServiceImpl implements StarPostService {
+public class PostStarServiceImpl implements PostStarService {
 
     @Autowired
-    private StarPostDAO starPostDAO;
+    private PostStarDAO postStarDAO;
 
     @Autowired
     private PostDAO postDAO;
@@ -23,12 +23,12 @@ public class StarPostServiceImpl implements StarPostService {
         if (null == post) {
             return "该帖子不存在";
         }
-        StarPost starPost = starPostDAO.findByUserIdAndPostId(userId, postId);
-        if (starPost == null) {
-            StarPost star = new StarPost(userId, postId, "true");
-            starPostDAO.save(star);
+        PostStar postStar = postStarDAO.findByUserIdAndPostId(userId, postId);
+        if (postStar == null) {
+            PostStar star = new PostStar(userId, postId, "true");
+            postStarDAO.save(star);
         } else {
-            starPostDAO.update(userId, postId, "true");
+            postStarDAO.update(userId, postId, "true");
         }
         return "success";
     }
@@ -39,12 +39,12 @@ public class StarPostServiceImpl implements StarPostService {
         if (null == post) {
             return "该帖子不存在";
         }
-        StarPost starPost = starPostDAO.findByUserIdAndPostId(userId, postId);
-        if (starPost == null) {
-            StarPost star = new StarPost(userId, postId, "false");
-            starPostDAO.save(star);
+        PostStar postStar = postStarDAO.findByUserIdAndPostId(userId, postId);
+        if (postStar == null) {
+            PostStar star = new PostStar(userId, postId, "false");
+            postStarDAO.save(star);
         } else {
-            starPostDAO.update(userId, postId, "false");
+            postStarDAO.update(userId, postId, "false");
         }
         return "success";
     }

@@ -1,10 +1,10 @@
 package com.sdu.kob.service.impl;
 
 import com.sdu.kob.domain.Post;
-import com.sdu.kob.domain.StarPost;
+import com.sdu.kob.domain.PostStar;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.PostDAO;
-import com.sdu.kob.repository.StarPostDAO;
+import com.sdu.kob.repository.PostStarDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
     private UserDAO userDAO;
 
     @Autowired
-    private StarPostDAO starPostDAO;
+    private PostStarDAO postStarDAO;
 
     @Override
     public List<Post> getAllPosts(Long userId) {
@@ -167,13 +167,13 @@ public class PostServiceImpl implements PostService {
         for (Post post : posts) {
             post.setUsername(id2user.get(post.getUserId()).getUserName());
             post.setUserAvatar(id2user.get(post.getUserId()).getAvatar());
-            Integer stars = starPostDAO.countByIsStarAndPostId("true", post.getId());
+            Integer stars = postStarDAO.countByIsStarAndPostId("true", post.getId());
             post.setStars(stars);
-            StarPost starPost = starPostDAO.findByUserIdAndPostId(curUserId, post.getId());
-            if (null == starPost || starPost.getIsStar().equals("false")) {
+            PostStar postStar = postStarDAO.findByUserIdAndPostId(curUserId, post.getId());
+            if (null == postStar || postStar.getIsStar().equals("false")) {
                 post.setLiked("false");
             }
-            else if (starPost.getIsStar().equals("true")) {
+            else if (postStar.getIsStar().equals("true")) {
                 post.setLiked("true");
             }
         }
