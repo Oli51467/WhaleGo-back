@@ -2,7 +2,9 @@ package com.sdu.kob.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.domain.PostComment;
+import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.PostCommentDAO;
+import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.response.ResponseCode;
 import com.sdu.kob.response.ResponseResult;
 import com.sdu.kob.service.PostCommentService;
@@ -18,6 +20,9 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Autowired
     private PostCommentDAO postCommentDAO;
 
+    @Autowired
+    private UserDAO userDAO;
+
     @Override
     public ResponseResult postComment(Long userId, Long postId, Long parentCommentId, String content) {
         PostComment comment = new PostComment(userId, postId, parentCommentId, content, new Date());
@@ -27,13 +32,16 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     @Override
     public ResponseResult getPostComments(Long postId) {
+        int commentsCount = 0;
         List<PostComment> comments = postCommentDAO.findByPostId(postId);
-        long commentsCount = postCommentDAO.count();
+        for (PostComment comment : comments) {
+            User commentUser = userDAO.findById((long)comment.getUserId());
+            comment.setUsername(commentUser.getUserName());
+            comment.setUserAvatar(commentUser.getAvatar());
+        }
         JSONObject resp = new JSONObject();
         resp.put("comments_count", commentsCount);
         resp.put("comments", comments);
         return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), resp);
     }
-
-
 }

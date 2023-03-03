@@ -3,11 +3,9 @@ package com.sdu.kob.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
 import static com.sdu.kob.common.SystemConstants.WEB_IP;
 import static com.sdu.kob.consumer.WebSocketServer.matchingUsers;
