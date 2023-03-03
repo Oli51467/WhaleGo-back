@@ -22,4 +22,11 @@ public class PostCommentController {
         String content = data.get("content");
         return postCommentService.postComment(userId, postId, parentCommentId, content);
     }
+
+    @RequestMapping(value = "/api/post/comment/get/", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult getPostComments(@RequestParam Map<String, String> data) {
+        Long postId = Long.parseLong(data.get("post_id"));
+        return postCommentService.getPostComments(postId);
+    }
 }
