@@ -8,7 +8,10 @@ import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.response.ResponseCode;
 import com.sdu.kob.response.ResponseResult;
 import com.sdu.kob.service.PostCommentService;
+import com.sdu.kob.utils.DateUtil;
+import net.bytebuddy.TypeCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -33,11 +36,15 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     public ResponseResult getPostComments(Long postId) {
         int commentsCount = 0;
-        List<PostComment> comments = postCommentDAO.findByPostId(postId);
-        for (PostComment comment : comments) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        List<PostComment> comments = postCommentDAO.findByPostId(postId, sort);
+        for (int i = comments.size() - 1; i >= 0; i -- ) {
+            PostComment comment = comments.get(i);
             User commentUser = userDAO.findById((long)comment.getUserId());
             comment.setUsername(commentUser.getUserName());
             comment.setUserAvatar(commentUser.getAvatar());
+            comment.setPresentCommentTime(DateUtil.transformDatetime(comment.getCommentTime()));
+            commentsCount ++;
         }
         JSONObject resp = new JSONObject();
         resp.put("comments_count", commentsCount);

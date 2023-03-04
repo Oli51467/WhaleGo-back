@@ -14,18 +14,14 @@ import java.util.Date;
 @Data
 public class PostComment extends BaseDomain {
 
-    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "post_id")
     private Long postId;
 
-    @Column(name = "parent_comment_id")
     private Long parentCommentId;
 
     private String content;
 
-    @Column(name = "comment_time")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private Date commentTime;
 
@@ -34,6 +30,9 @@ public class PostComment extends BaseDomain {
 
     @Transient
     private String userAvatar;
+
+    @Transient
+    private String presentCommentTime;
 
     public PostComment(Long userId, Long postId, Long parentCommentId, String content, Date commentTime) {
         this.userId = userId;

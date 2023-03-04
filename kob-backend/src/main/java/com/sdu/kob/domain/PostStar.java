@@ -12,12 +12,9 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @Data
 public class PostStar extends BaseDomain {
-    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "post_id")
     private Long postId;
 
-    @Column(name = "is_star")
     private String isStar;
 }
