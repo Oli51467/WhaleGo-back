@@ -31,7 +31,7 @@ import static com.sdu.kob.entity.Board.WHITE;
 @ServerEndpoint("/go/websocket/{token}")
 public class WebSocketServer {
 
-    final public static ConcurrentHashMap<Long, WebSocketServer> goUsers = new ConcurrentHashMap<>();
+    final public static ConcurrentHashMap<Long, WebSocketServer> users = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<Long, String> user2room = new ConcurrentHashMap<>();
     final public static ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     final public static CopyOnWriteArraySet<Long> matchingUsers = new CopyOnWriteArraySet<>();
@@ -86,7 +86,7 @@ public class WebSocketServer {
         this.user = userDAO.findById(userId);
         // 3. 将用户存下来
         if (this.user != null) {
-            goUsers.put(userId, this);
+            users.put(userId, this);
             System.out.println("Connected! " + user.getUserName());
         } else {
             this.session.close();
@@ -97,7 +97,7 @@ public class WebSocketServer {
     public void onClose() {
         if (this.user != null) {
             Long userId = this.user.getId();
-            goUsers.remove(userId);
+            users.remove(userId);
             System.out.println("Closed!");
         }
     }
@@ -113,9 +113,9 @@ public class WebSocketServer {
             Long toId = data.getLong("to_id");
             Message messageRecord = new Message(sendId, toId, msg, new Date());
             messageDAO.save(messageRecord);
-            if (goUsers.containsKey(toId)) {
+            if (users.containsKey(toId)) {
                 long cnt = messageDAO.count();
-                WebSocketServer client = goUsers.get(toId);
+                WebSocketServer client = users.get(toId);
                 JSONObject sendMsg = new JSONObject();
                 sendMsg.put("content", msg);
                 sendMsg.put("sendUserId", sendId);
@@ -191,8 +191,8 @@ public class WebSocketServer {
     }
 
     private void getReady(Long aId, Long bId) {
-        WebSocketServer aClient = goUsers.get(aId);
-        WebSocketServer bClient = goUsers.get(bId);
+        WebSocketServer aClient = users.get(aId);
+        WebSocketServer bClient = users.get(bId);
         JSONObject resp = new JSONObject();
         resp.put("event", "ready");
         aClient.sendMessage(resp.toJSONString());
@@ -224,7 +224,7 @@ public class WebSocketServer {
      * @param message 消息
      */
     public static void sendGroupMessage(String message) {
-        for (Map.Entry<Long, WebSocketServer> entry : goUsers.entrySet()) {
+        for (Map.Entry<Long, WebSocketServer> entry : users.entrySet()) {
             entry.getValue().sendMessage(message);
         }
     }
@@ -235,11 +235,11 @@ public class WebSocketServer {
      * @param friendId 被拒绝的用户id
      */
     private void sendRefuseMessage(Long friendId) {
-        if (goUsers.get(friendId) == null) {
+        if (users.get(friendId) == null) {
             matchingUsers.remove(this.user.getId());
             return;
         }
-        WebSocketServer friendClient = goUsers.get(friendId);
+        WebSocketServer friendClient = users.get(friendId);
         matchingUsers.remove(friendId);
         matchingUsers.remove(this.user.getId());
         JSONObject resp = new JSONObject();
@@ -249,11 +249,11 @@ public class WebSocketServer {
 
     // 取消发送请求
     private void sendRequest2Cancel(Long friendId) {
-        if (goUsers.get(friendId) == null) {
+        if (users.get(friendId) == null) {
             matchingUsers.remove(this.user.getId());
             return;
         }
-        WebSocketServer friendClient = goUsers.get(friendId);
+        WebSocketServer friendClient = users.get(friendId);
         matchingUsers.remove(friendId);
         matchingUsers.remove(this.user.getId());
         JSONObject resp = new JSONObject();
@@ -268,10 +268,10 @@ public class WebSocketServer {
      * @param type       类型：1和棋 2悔棋
      */
     private void sendRequest2DrawOrRegret(Long opponentId, int type) {
-        if (goUsers.get(opponentId) == null) {
+        if (users.get(opponentId) == null) {
             return;
         }
-        WebSocketServer friendClient = goUsers.get(opponentId);
+        WebSocketServer friendClient = users.get(opponentId);
         JSONObject resp = new JSONObject();
         if (type == 1) resp.put("event", "request_draw");
         else if (type == 2) resp.put("event", "request_regret");
@@ -284,10 +284,10 @@ public class WebSocketServer {
      * @param friendId 被邀请人的id
      */
     private void sendRequest2play(Long friendId, Long requestId) {
-        if (goUsers.get(friendId) != null) {
+        if (users.get(friendId) != null) {
             matchingUsers.add(requestId);
             matchingUsers.add(friendId);
-            WebSocketServer friendClient = goUsers.get(friendId);
+            WebSocketServer friendClient = users.get(friendId);
             JSONObject resp = new JSONObject();
             JSONObject request_user = new JSONObject();
             User requestUser = userDAO.findById((long) requestId);
@@ -350,7 +350,7 @@ public class WebSocketServer {
         resp.put("opponent_userid", -1);
         resp.put("game", respGame);
         // 用users哈希表获取A是哪个用户
-        WebSocketServer user = goUsers.get(userId);
+        WebSocketServer user = users.get(userId);
         if (user != null) {
             user.sendMessage(resp.toJSONString());
         } else {
@@ -383,10 +383,10 @@ public class WebSocketServer {
         }
 
         // 将同步的地图同步给两名玩家
-        if (goUsers.get(a.getId()) != null) {
+        if (users.get(a.getId()) != null) {
             user2room.put(a.getId(), room.uuid);
         }
-        if (goUsers.get(b.getId()) != null) {
+        if (users.get(b.getId()) != null) {
             user2room.put(b.getId(), room.uuid);
         }
         rooms.put(room.uuid, room);
@@ -406,7 +406,7 @@ public class WebSocketServer {
         respA.put("opponent_userid", b.getId());
         respA.put("game", respGame);
         // 用users哈希表获取A是哪个用户
-        WebSocketServer userA = goUsers.get(a.getId());
+        WebSocketServer userA = users.get(a.getId());
         if (userA != null) {
             userA.sendMessage(respA.toJSONString());
         } else {
@@ -421,7 +421,7 @@ public class WebSocketServer {
         respB.put("opponent_userid", a.getId());
         respB.put("game", respGame);
         // 用users哈希表获取B是哪个用户
-        WebSocketServer userB = goUsers.get(b.getId());
+        WebSocketServer userB = users.get(b.getId());
         if (userB != null) {
             userB.sendMessage(respB.toJSONString());
         } else {

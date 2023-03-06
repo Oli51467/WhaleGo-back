@@ -16,8 +16,7 @@ public class MatchingController {
 
     @Autowired
     @Qualifier("GoMatchingService")
-    MatchingService goMatchingService;
-
+    private MatchingService goMatchingService;
 
     @RequestMapping(value = "/go/matching/add/", method = RequestMethod.POST)
     public String addGoPlayer(@RequestParam MultiValueMap<String, String> data) {

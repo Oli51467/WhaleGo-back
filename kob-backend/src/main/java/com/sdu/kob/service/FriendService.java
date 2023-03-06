@@ -12,6 +12,4 @@ public interface FriendService {
     JSONObject getAllFollowers(String userName);
 
     JSONObject getFriends(String userName);
-
-    JSONObject getRelationship(Long searchId, Long userId);
 }

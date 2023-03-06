@@ -1,20 +1,13 @@
 package com.sdu.kob.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sdu.kob.domain.User;
-import com.sdu.kob.repository.UserDAO;
+
 import com.sdu.kob.response.ResponseResult;
 import com.sdu.kob.service.UserService;
-import com.sdu.kob.service.impl.UserDetailsImpl;
-import com.sdu.kob.utils.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.Map;
 
@@ -55,5 +48,12 @@ public class UserController {
     @ResponseBody
     public ResponseResult updateUserAvatar(@RequestParam("file") MultipartFile[] file) {
         return userService.updateUserAvatar(file);
+    }
+
+    @RequestMapping(value = "/api/user/get/online/", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult getUsersOnline(Principal principal) {
+        String username = principal.getName();
+        return userService.getUsersOnline(username);
     }
 }

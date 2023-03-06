@@ -76,7 +76,7 @@ public class Room extends Thread {
 
     private void sendAllMessage(String message) {
         for (Long usersInRoom : this.users) {
-            WebSocketServer client = goUsers.get(usersInRoom);
+            WebSocketServer client = WebSocketServer.users.get(usersInRoom);
             if (client != null) {
                 client.sendMessage(message);
             } else {

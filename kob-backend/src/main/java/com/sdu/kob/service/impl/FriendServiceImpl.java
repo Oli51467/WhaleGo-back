@@ -6,16 +6,17 @@ import com.sdu.kob.domain.User;
 import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.service.FriendService;
+import com.sdu.kob.service.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.sdu.kob.consumer.WebSocketServer.goUsers;
+import static com.sdu.kob.consumer.WebSocketServer.users;
 
 @Service("FriendService")
-public class FriendServiceImpl implements FriendService {
+public class FriendServiceImpl implements FriendService, RelationService {
 
     @Autowired
     private UserDAO userDAO;
@@ -130,41 +131,43 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public JSONObject getRelationship(Long searchId, Long userId) {
-        JSONObject resp = new JSONObject();
+    public String getRelationship(Long searchId, Long userId) {
         Friend relationshipA = friendDAO.findByUserAAndUserB(userId, searchId);
         Friend relationshipB = friendDAO.findByUserAAndUserB(searchId, userId);
         if (relationshipA == null && relationshipB == null) {
-            resp.put("relation", "stranger");
+            return "stranger";
         } else if (relationshipA == null) {
             if (relationshipB.getFollowed().equals("false")) {
-                resp.put("relation", "stranger");
+                return "stranger";
             } else if (relationshipB.getFollowed().equals("true")) {
-                resp.put("relation", "follower");
+                return "follower";
+            } else {
+                return "";
             }
         } else if (relationshipB == null) {
             if (relationshipA.getFollowed().equals("false")) {
-                resp.put("relation", "stranger");
+                return "stranger";
             } else if (relationshipA.getFollowed().equals("true")) {
-                resp.put("relation", "followed");
+                return "followed";
+            } else {
+                return "";
             }
         } else {
             String ra = relationshipA.getFollowed(), rb = relationshipB.getFollowed();
             if (ra.equals("true") && rb.equals("true")) {
-                resp.put("relation", "friend");
+                return "friend";
             } else if (ra.equals("false") && rb.equals("true")) {
-                resp.put("relation", "follower");
+                return  "follower";
             } else if (ra.equals("true") && rb.equals("false")) {
-                resp.put("relation", "followed");
+                return "followed";
             } else {
-                resp.put("relation", "stranger");
+                return "stranger";
             }
         }
-        return resp;
     }
 
     public static int checkLogin(Long id) {
-        if (goUsers.containsKey(id)) return 1;
+        if (users.containsKey(id)) return 1;
         return 0;
     }
 }

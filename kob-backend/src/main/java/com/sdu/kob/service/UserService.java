@@ -17,4 +17,6 @@ public interface UserService {
 
     ResponseResult updateUserAvatar(MultipartFile[] file);
 
+    ResponseResult getUsersOnline(String username);
+
 }

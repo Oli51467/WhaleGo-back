@@ -21,9 +21,9 @@ public class GameServiceImpl implements GameService {
         for (Room room: rooms.values()) {
             Player blackPlayer = room.blackPlayer, whitePlayer = room.whitePlayer;
             JSONObject game = new JSONObject();
-            if (blackPlayer.getId() == -1 ){
+            if (blackPlayer.getId() == -1) {
                 game.put("black_username", "AI");
-                game.put("black_avatar", "");
+                game.put("black_avatar", "https://web.fcjznkj.com/images/AI.jpeg");
                 game.put("black_level", "9段");
             } else {
                 game.put("black_username", blackPlayer.getUser().getUserName());
@@ -32,7 +32,7 @@ public class GameServiceImpl implements GameService {
             }
             if (whitePlayer.getId() == -1) {
                 game.put("white_username", "AI");
-                game.put("white_avatar", "");
+                game.put("white_avatar", "https://web.fcjznkj.com/images/AI.jpeg");
                 game.put("white_level", "9段");
             } else {
                 game.put("white_username", whitePlayer.getUser().getUserName());

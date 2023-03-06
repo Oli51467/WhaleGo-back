@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.sdu.kob.consumer.WebSocketServer.users;
 import static com.sdu.kob.utils.StringUtil.isValidPhoneNumber;
 
 @Service("UserService")
@@ -239,5 +240,25 @@ public class UserServiceImpl implements UserService {
         }
         return new ResponseResult(ResponseCode.UPLOAD_FAILED.getCode(), ResponseCode.UPLOAD_FAILED.getMsg(),
                 user.getAvatar());
+    }
+
+    @Override
+    public ResponseResult getUsersOnline(String username) {
+        List<JSONObject> items = new LinkedList<>();
+        for (Long userId: users.keySet()) {
+            User user = userDAO.findById((long)userId);
+            if (user.getUserName().equals(username)) continue;
+            JSONObject item = new JSONObject();
+            item.put("id", userId);
+            item.put("username", user.getUserName());
+            item.put("avatar", user.getAvatar());
+            item.put("state", 1);
+            item.put("status", user.getStatus());
+            item.put("level", user.getRating());
+            item.put("win", user.getWin());
+            item.put("lose", user.getLose());
+            items.add(item);
+        }
+        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), items);
     }
 }

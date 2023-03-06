@@ -2,6 +2,7 @@ package com.sdu.kob.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sdu.kob.service.FriendService;
+import com.sdu.kob.service.RelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +17,9 @@ public class FriendController {
 
     @Autowired
     private FriendService friendService;
+
+    @Autowired
+    private RelationService relationService;
 
     @RequestMapping(value = "/api/friend/follow/", method = RequestMethod.POST)
     public String follow(@RequestParam Map<String, String> data, Principal principal) {
@@ -50,9 +54,9 @@ public class FriendController {
     }
 
     @RequestMapping(value = "/api/friend/getRelationship/", method = RequestMethod.GET)
-    public JSONObject getUserRelationship(@RequestParam Map<String, String> data) {
+    public String getUserRelationship(@RequestParam Map<String, String> data) {
         Long searchId = Long.valueOf(data.get("search_id"));
         Long userId = Long.valueOf(data.get("user_id"));
-        return friendService.getRelationship(searchId, userId);
+        return relationService.getRelationship(searchId, userId);
     }
 }
