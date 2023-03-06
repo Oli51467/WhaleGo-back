@@ -41,9 +41,11 @@ public class RecordServiceImpl implements RecordService {
             JSONObject item = new JSONObject();
             item.put("black_avatar", userBlack.getAvatar());
             item.put("black_username", userBlack.getUserName());
+            item.put("black_userid", userBlack.getId());
             item.put("black_level", userBlack.getRating());
             item.put("white_avatar", userWhite.getAvatar());
             item.put("white_username", userWhite.getUserName());
+            item.put("white_userid", userWhite.getId());
             item.put("white_level", userWhite.getRating());
             item.put("steps", getSteps(record.getSteps()));
             item.put("record", record);
@@ -68,9 +70,11 @@ public class RecordServiceImpl implements RecordService {
             JSONObject item = new JSONObject();
             item.put("black_avatar", userBlack.getAvatar());
             item.put("black_username", userBlack.getUserName());
+            item.put("black_userid", userBlack.getId());
             item.put("black_level", userBlack.getRating());
             item.put("white_avatar", userWhite.getAvatar());
             item.put("white_username", userWhite.getUserName());
+            item.put("white_userid", userWhite.getId());
             item.put("white_level", userWhite.getRating());
             item.put("steps", getSteps(record.getSteps()));
             item.put("record", record);
