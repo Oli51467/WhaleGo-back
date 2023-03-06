@@ -63,7 +63,7 @@ public class User extends BaseDomain {
         this.phone = "";
         this.profile = "";
         this.rating = "3段";
-        this.avatar = "images/34cc8f419c2d44c2b1207e6677e7ece1.jpeg";
+        this.avatar = "images/level_1.png";
         this.win = 0;
         this.lose = 0;
         this.guestsCount = 0;
@@ -75,7 +75,7 @@ public class User extends BaseDomain {
         this.userName = userName;
         this.password = password;
         this.phone = "";
-        this.avatar = "images/34cc8f419c2d44c2b1207e6677e7ece1.jpeg";
+        this.avatar = "images/level_1.png";
         this.profile = "";
         this.win = 0;
         this.lose = 0;
