@@ -181,7 +181,7 @@ public class Room extends Thread {
                 if (hasEngine && isEngineTurn) {
                     isEngineTurn = false;
                     JSONObject resp = EngineRequestImpl.requestNextStep(this.humanId.toString(), getPositionByIndex(tmpX, tmpY), playBoard.player);
-                    System.out.println(resp);
+                    //System.out.println(resp);
                     if (resp != null && resp.getInteger("code") == 1000) {
                         String indexes = resp.getObject("data", JSONObject.class).getString("move");
                         if (!indexes.equals("pass")) {

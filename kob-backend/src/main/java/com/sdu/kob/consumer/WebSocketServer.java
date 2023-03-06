@@ -346,7 +346,7 @@ public class WebSocketServer {
         JSONObject resp = new JSONObject();
         resp.put("event", "start");
         resp.put("opponent_username", "AI");
-        resp.put("opponent_avatar", "");
+        resp.put("opponent_avatar", engine.getAvatar());
         resp.put("opponent_userid", -1);
         resp.put("game", respGame);
         // 用users哈希表获取A是哪个用户
