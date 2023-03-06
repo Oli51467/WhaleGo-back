@@ -64,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
         http.sessionManagement().maximumSessions(1).sessionRegistry(sessionRegistry());
+        http.headers().httpStrictTransportSecurity().disable();
     }
 
     @Override

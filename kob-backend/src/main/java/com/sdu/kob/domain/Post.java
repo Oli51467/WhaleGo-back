@@ -29,6 +29,9 @@ public class Post extends BaseDomain {
     private Integer stars;
 
     @Transient
+    private Integer commentsCount;
+
+    @Transient
     private String liked;
 
     @Column(name = "create_time")

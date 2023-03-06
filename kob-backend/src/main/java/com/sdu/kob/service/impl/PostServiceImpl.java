@@ -3,6 +3,7 @@ package com.sdu.kob.service.impl;
 import com.sdu.kob.domain.Post;
 import com.sdu.kob.domain.PostStar;
 import com.sdu.kob.domain.User;
+import com.sdu.kob.repository.PostCommentDAO;
 import com.sdu.kob.repository.PostDAO;
 import com.sdu.kob.repository.PostStarDAO;
 import com.sdu.kob.repository.UserDAO;
@@ -29,6 +30,9 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private PostStarDAO postStarDAO;
+
+    @Autowired
+    private PostCommentDAO postCommentDAO;
 
     @Override
     public List<Post> getAllPosts(Long userId) {
@@ -165,11 +169,14 @@ public class PostServiceImpl implements PostService {
             id2user.put(user.getId(), user);
         }
         for (Post post : posts) {
+            Long postId = post.getId();
             post.setUsername(id2user.get(post.getUserId()).getUserName());
             post.setUserAvatar(id2user.get(post.getUserId()).getAvatar());
-            Integer stars = postStarDAO.countByIsStarAndPostId("true", post.getId());
+            Integer stars = postStarDAO.countByIsStarAndPostId("true", postId);
+            Integer commentsCount = postCommentDAO.countByPostId(postId);
             post.setStars(stars);
-            PostStar postStar = postStarDAO.findByUserIdAndPostId(curUserId, post.getId());
+            post.setCommentsCount(commentsCount);
+            PostStar postStar = postStarDAO.findByUserIdAndPostId(curUserId, postId);
             if (null == postStar || postStar.getIsStar().equals("false")) {
                 post.setLiked("false");
             }

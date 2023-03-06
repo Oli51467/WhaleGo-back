@@ -9,4 +9,6 @@ import java.util.List;
 public interface PostCommentDAO extends JpaRepository<PostComment, Long> {
 
     List<PostComment> findByPostId(Long postId, Sort sort);
+
+    int countByPostId(Long postId);
 }
