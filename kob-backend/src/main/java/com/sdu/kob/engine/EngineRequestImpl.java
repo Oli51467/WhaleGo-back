@@ -1,10 +1,16 @@
 package com.sdu.kob.engine;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sdu.kob.utils.HttpClientUtil;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class EngineRequestImpl {
@@ -13,6 +19,7 @@ public class EngineRequestImpl {
     private static String initEngineUrl;
     private static String resignEngineUrl;
     private static String ownerEngineUrl;
+    private static String winRateEngineUrl;
     private static RestTemplate restTemplate;
 
     @Value("${url.engine.request}")
@@ -34,6 +41,9 @@ public class EngineRequestImpl {
     private void setOwnerEngineUrl(String ownerEngineUrl) {
         EngineRequestImpl.ownerEngineUrl = ownerEngineUrl;
     }
+
+    @Value("${url.engine.winrate}")
+    private void setWinRateEngineUrl(String winRateEngineUrl) { EngineRequestImpl.winRateEngineUrl = winRateEngineUrl; }
 
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
@@ -72,5 +82,17 @@ public class EngineRequestImpl {
         JSONObject data = new JSONObject();
         data.put("user_id", userId);
         restTemplate.postForObject(resignEngineUrl, data, JSONObject.class);
+    }
+
+    public static String getWinRate(String userid, String moves) {
+        List<NameValuePair> nameValuePairs = new LinkedList<>();
+        nameValuePairs.add(new BasicNameValuePair("user_id", userid));
+        nameValuePairs.add(new BasicNameValuePair("moves", moves));
+        String resp = HttpClientUtil.get(winRateEngineUrl, nameValuePairs);
+        if (resp == null) return "";
+        JSONObject getResp = JSONObject.parseObject(resp);
+        String v = getResp.getString("key");
+        System.out.println(resp + " " + v);
+        return v;
     }
 }

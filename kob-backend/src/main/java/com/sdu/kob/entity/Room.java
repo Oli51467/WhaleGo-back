@@ -198,14 +198,7 @@ public class Room extends Thread {
         }
     }
 
-    public void save2Database() {
-        if (blackPlayer.getIdentifier().equals(loser)) {
-            this.result = "白中盘胜";
-            updateUserRecord(whitePlayer, blackPlayer);
-        } else if (whitePlayer.getIdentifier().equals(loser)) {
-            this.result = "黑中盘胜";
-            updateUserRecord(blackPlayer, whitePlayer);
-        } else this.result = "和棋";
+    public void save2Database(String gameWinRate) {
         Record record = new Record(
                 blackPlayer.getId(),
                 whitePlayer.getId(),
@@ -217,6 +210,10 @@ public class Room extends Thread {
         WebSocketServer.recordDAO.save(record);
     }
 
+    public String getWinRateFromEngine() {
+        return EngineRequestImpl.getWinRate("999", playBoard.getState2Engine());
+    }
+
     /**
      * 向两名玩家广播结果 根据两名玩家的id广播
      */
@@ -226,9 +223,17 @@ public class Room extends Thread {
         if (loser == -2) {
             resp.put("loser", "draw");
         }
-        save2Database();
+        if (blackPlayer.getIdentifier().equals(loser)) {
+            this.result = "白中盘胜";
+            updateUserRecord(whitePlayer, blackPlayer);
+        } else if (whitePlayer.getIdentifier().equals(loser)) {
+            this.result = "黑中盘胜";
+            updateUserRecord(blackPlayer, whitePlayer);
+        } else this.result = "和棋";
         resp.put("loser", result);
         sendAllMessage(resp.toJSONString());
+        String gameWinRate = getWinRateFromEngine();
+        save2Database(gameWinRate);
         user2room.remove(this.blackPlayer.getId());
         user2room.remove(this.whitePlayer.getId());
         this.playCount = -1;

@@ -224,6 +224,7 @@ public class Board {
         return true;
     }
 
+    // 将steps转化为引擎通用的模式串
     public String getState2Engine() {
         StringBuilder req = new StringBuilder();
         req.append("[");
