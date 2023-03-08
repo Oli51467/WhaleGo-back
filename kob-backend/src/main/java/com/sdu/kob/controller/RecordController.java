@@ -39,4 +39,10 @@ public class RecordController {
         Long userId = user.getId();
         return recordService.getMyRecords(userId, page);
     }
+
+    @RequestMapping(value = "/api/record/detail/", method = RequestMethod.GET)
+    public JSONObject getRecordDetail(@RequestParam Map<String, String> data) {
+        long recordId = Long.parseLong(data.get("record_id"));
+        return recordService.getRecordDetails(recordId);
+    }
 }

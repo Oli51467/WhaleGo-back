@@ -20,4 +20,6 @@ public interface RecordDAO extends JpaRepository<Record, Long> {
 
     @Query(value = "select count(*) from record where black_id != :userId and white_id != :userId", nativeQuery = true)
     int countOthers(@Param("userId") Long Id);
+
+    Record findById(long id);
 }

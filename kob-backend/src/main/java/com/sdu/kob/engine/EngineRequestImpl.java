@@ -1,16 +1,11 @@
 package com.sdu.kob.engine;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.sdu.kob.utils.HttpClientUtil;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.LinkedList;
-import java.util.List;
 
 @Component
 public class EngineRequestImpl {
@@ -42,7 +37,7 @@ public class EngineRequestImpl {
         EngineRequestImpl.ownerEngineUrl = ownerEngineUrl;
     }
 
-    @Value("${url.engine.winrate}")
+    @Value("${url.engine.win-rate}")
     private void setWinRateEngineUrl(String winRateEngineUrl) { EngineRequestImpl.winRateEngineUrl = winRateEngineUrl; }
 
     @Autowired
@@ -84,15 +79,24 @@ public class EngineRequestImpl {
         restTemplate.postForObject(resignEngineUrl, data, JSONObject.class);
     }
 
-    public static String getWinRate(String userid, String moves) {
-        List<NameValuePair> nameValuePairs = new LinkedList<>();
-        nameValuePairs.add(new BasicNameValuePair("user_id", userid));
-        nameValuePairs.add(new BasicNameValuePair("moves", moves));
-        String resp = HttpClientUtil.get(winRateEngineUrl, nameValuePairs);
-        if (resp == null) return "";
-        JSONObject getResp = JSONObject.parseObject(resp);
-        String v = getResp.getString("key");
-        System.out.println(resp + " " + v);
-        return v;
+    public static String getWinRate(String moves) {
+        StringBuilder res = new StringBuilder();
+        JSONObject data = new JSONObject();
+        data.put("user_id", "999");
+        data.put("moves", moves);
+        data.put("level", "p");
+        JSONObject resp = restTemplate.postForObject(winRateEngineUrl, data, JSONObject.class);
+        if (null != resp && resp.getInteger("code") == 1000) {
+            JSONArray respData = resp.getJSONArray("data");
+            for (int i = 0; i < respData.size(); i ++ ) {
+                JSONObject stepState = respData.getJSONObject(i);
+                System.out.println("stepState: " + stepState);
+                String winRate = stepState.getString("winrate");
+                System.out.println("winRate: " + winRate);
+                res.append(winRate).append(",");
+            }
+            System.out.println(respData);
+        }
+        return res.toString();
     }
 }

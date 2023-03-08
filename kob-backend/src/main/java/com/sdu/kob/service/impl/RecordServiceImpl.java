@@ -16,7 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.sdu.kob.utils.BoardUtil.getStrContainData;
+import static com.sdu.kob.utils.StringUtil.getDoubleListSplitByComma;
+import static com.sdu.kob.utils.StringUtil.getSteps;
 
 @Service("RecordService")
 public class RecordServiceImpl implements RecordService {
@@ -39,6 +40,9 @@ public class RecordServiceImpl implements RecordService {
             User userBlack = userDAO.findById((long) record.getBlackId());
             User userWhite = userDAO.findById((long) record.getWhiteId());
             JSONObject item = new JSONObject();
+            item.put("id", record.getId());
+            item.put("result", record.getResult());
+            item.put("create_time", record.getCreateTime().toString().substring(0, record.getCreateTime().toString().lastIndexOf(":")));
             item.put("black_avatar", userBlack.getAvatar());
             item.put("black_username", userBlack.getUserName());
             item.put("black_userid", userBlack.getId());
@@ -47,8 +51,6 @@ public class RecordServiceImpl implements RecordService {
             item.put("white_username", userWhite.getUserName());
             item.put("white_userid", userWhite.getId());
             item.put("white_level", userWhite.getRating());
-            item.put("steps", getSteps(record.getSteps()));
-            item.put("record", record);
             items.add(item);
         }
         resp.put("records", items);
@@ -68,6 +70,9 @@ public class RecordServiceImpl implements RecordService {
             User userBlack = userDAO.findById((long) record.getBlackId());
             User userWhite = userDAO.findById((long) record.getWhiteId());
             JSONObject item = new JSONObject();
+            item.put("id", record.getId());
+            item.put("result", record.getResult());
+            item.put("create_time", record.getCreateTime().toString().substring(0, record.getCreateTime().toString().lastIndexOf(":")));
             item.put("black_avatar", userBlack.getAvatar());
             item.put("black_username", userBlack.getUserName());
             item.put("black_userid", userBlack.getId());
@@ -76,8 +81,6 @@ public class RecordServiceImpl implements RecordService {
             item.put("white_username", userWhite.getUserName());
             item.put("white_userid", userWhite.getId());
             item.put("white_level", userWhite.getRating());
-            item.put("steps", getSteps(record.getSteps()));
-            item.put("record", record);
             items.add(item);
         }
         resp.put("records", items);
@@ -85,17 +88,26 @@ public class RecordServiceImpl implements RecordService {
         return resp;
     }
 
-    private List<String> getSteps(String content) {
-        List<String> blackMoves = getStrContainData(content, "B\\[", "\\]");
-        List<String> whiteMoves = getStrContainData(content, "W\\[", "\\]");
-        List<String> moves = new LinkedList<>();
-        int bs = blackMoves.size(), ws = whiteMoves.size();
-        int i = 0;
-        while(i < bs || i < ws) {
-            if (i < bs) moves.add(blackMoves.get(i));
-            if (i < ws) moves.add(whiteMoves.get(i));
-            i ++;
-        }
-        return moves;
+    @Override
+    public JSONObject getRecordDetails(long recordId) {
+        JSONObject resp = new JSONObject();
+        Record record = recordDAO.findById(recordId);
+        User userBlack = userDAO.findById((long) record.getBlackId());
+        User userWhite = userDAO.findById((long) record.getWhiteId());
+        resp.put("steps", getSteps(record.getSteps()));
+        resp.put("win_rate", getDoubleListSplitByComma(record.getWinRate()));
+        JSONObject item = new JSONObject();
+        item.put("black_avatar", userBlack.getAvatar());
+        item.put("black_id", userBlack.getId());
+        item.put("black_username", userBlack.getUserName());
+        item.put("black_level", userBlack.getRating());
+        item.put("white_avatar", userWhite.getAvatar());
+        item.put("white_id", userWhite.getId());
+        item.put("white_username", userWhite.getUserName());
+        item.put("white_level", userWhite.getRating());
+        resp.put("record", item);
+        return resp;
     }
+
+
 }

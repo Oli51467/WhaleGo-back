@@ -205,13 +205,14 @@ public class Room extends Thread {
                 result,
                 playBoard.getSgf(),
                 null,
+                gameWinRate,
                 new Date()
         );
         WebSocketServer.recordDAO.save(record);
     }
 
     public String getWinRateFromEngine() {
-        return EngineRequestImpl.getWinRate("999", playBoard.getState2Engine());
+        return EngineRequestImpl.getWinRate(playBoard.getState2Engine());
     }
 
     /**
