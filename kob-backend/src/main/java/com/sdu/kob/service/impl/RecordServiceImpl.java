@@ -105,6 +105,7 @@ public class RecordServiceImpl implements RecordService {
         item.put("white_id", userWhite.getId());
         item.put("white_username", userWhite.getUserName());
         item.put("white_level", userWhite.getRating());
+        item.put("result", record.getResult());
         resp.put("record", item);
         return resp;
     }
