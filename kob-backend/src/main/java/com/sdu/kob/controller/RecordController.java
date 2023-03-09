@@ -32,11 +32,9 @@ public class RecordController {
     }
 
     @RequestMapping(value = "/api/record/getMy/", method = RequestMethod.GET)
-    public JSONObject getMyRecords(@RequestParam Map<String, String> data, Principal principal) {
+    public JSONObject getMyRecords(@RequestParam Map<String, String> data) {
         Integer page = Integer.parseInt(data.get("page"));
-        String userName = principal.getName();
-        User user = userDAO.findByUserName(userName);
-        Long userId = user.getId();
+        Long userId = Long.parseLong(data.get("user_id"));
         return recordService.getMyRecords(userId, page);
     }
 
