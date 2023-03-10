@@ -61,9 +61,14 @@ public class RecordServiceImpl implements RecordService {
     @Override
     public JSONObject getMyRecords(Long userId, Integer page) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        Pageable pageable = PageRequest.of(page, 9, sort);
-        Page<Record> recordsPage = recordDAO.findMyRecords(userId, pageable);
-        List<Record> records = recordsPage.toList();
+        List<Record> records;
+        if (page == -1) {
+            records = recordDAO.findMyRecords(userId);
+        } else {
+            Pageable pageable = PageRequest.of(page, 9, sort);
+            Page<Record> recordsPage = recordDAO.findMyRecords(userId, pageable);
+            records = recordsPage.toList();
+        }
         JSONObject resp = new JSONObject();
         List<JSONObject> items = new LinkedList<>();
         for (Record record: records) {

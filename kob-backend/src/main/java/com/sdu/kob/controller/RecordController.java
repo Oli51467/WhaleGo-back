@@ -31,14 +31,14 @@ public class RecordController {
         return recordService.getAllRecords(userId, page);
     }
 
-    @RequestMapping(value = "/api/record/getMy/", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/record/getMy/", method = RequestMethod.POST)
     public JSONObject getMyRecords(@RequestParam Map<String, String> data) {
         Integer page = Integer.parseInt(data.get("page"));
         Long userId = Long.parseLong(data.get("user_id"));
         return recordService.getMyRecords(userId, page);
     }
 
-    @RequestMapping(value = "/api/record/detail/", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/record/detail/", method = RequestMethod.POST)
     public JSONObject getRecordDetail(@RequestParam Map<String, String> data) {
         long recordId = Long.parseLong(data.get("record_id"));
         return recordService.getRecordDetails(recordId);
