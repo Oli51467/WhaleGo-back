@@ -9,8 +9,10 @@ import com.sdu.kob.repository.MessageDAO;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
+import com.sdu.kob.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -111,6 +113,7 @@ public class WebSocketServer {
             String msg = data.getString("msg");
             Long sendId = data.getLong("send_id");
             Long toId = data.getLong("to_id");
+            RedisUtil.addUserUnreadMessageCount(toId.toString());
             Message messageRecord = new Message(sendId, toId, msg, new Date());
             messageDAO.save(messageRecord);
             if (users.containsKey(toId)) {

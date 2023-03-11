@@ -19,4 +19,11 @@ public class MessageController {
         Long userId = Long.parseLong(data.get("user_id"));
         return messageService.getFriendsAndMessages(userId);
     }
+
+    @RequestMapping(value = "/api/messages/getCount/", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult getMessagesCount(@RequestParam Map<String, String> data) {
+        Long userId = Long.parseLong(data.get("user_id"));
+        return messageService.getMessageCount(userId);
+    }
 }
