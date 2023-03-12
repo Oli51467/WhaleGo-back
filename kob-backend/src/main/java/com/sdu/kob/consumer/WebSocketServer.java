@@ -116,11 +116,11 @@ public class WebSocketServer {
             String msg = data.getString("msg");
             Long sendId = data.getLong("send_id");
             Long toId = data.getLong("to_id");
-            //RedisUtil.addUserUnreadMessageCount(toId.toString());
             Message messageRecord = new Message(sendId, toId, msg, new Date());
             messageDAO.save(messageRecord);
             friendDAO.increaseUnreadMessage(sendId, toId);
             int unread = friendDAO.findUnreadMessageCount(sendId, toId);
+            int sumUnread = friendDAO.getMessageSum(toId);
             if (users.containsKey(toId)) {
                 long cnt = messageDAO.count();
                 WebSocketServer client = users.get(toId);
@@ -130,6 +130,7 @@ public class WebSocketServer {
                 sendMsg.put("id", cnt);
                 sendMsg.put("event", "chat");
                 sendMsg.put("unread_cnt", unread);
+                sendMsg.put("sum_unread", sumUnread);
                 client.sendMessage(sendMsg.toJSONString());
             }
         } else if ("start".equals(event)) {
