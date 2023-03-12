@@ -9,7 +9,6 @@ import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.response.ResponseCode;
 import com.sdu.kob.response.ResponseResult;
 import com.sdu.kob.service.MessageService;
-import com.sdu.kob.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

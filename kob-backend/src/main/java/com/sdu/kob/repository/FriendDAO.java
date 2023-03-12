@@ -7,13 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 public interface FriendDAO extends JpaRepository<Friend, Long> {
 
     Friend findByUserAAndUserB(Long userA, Long userB);
-
-    Friend findByUserAOrUserB(Long userA, Long userB);
 
     @Modifying
     @Transactional
