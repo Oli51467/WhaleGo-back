@@ -33,7 +33,7 @@ public class FriendServiceImpl implements FriendService, RelationService {
         Long friendId = friend.getId();
         Friend relationship = friendDAO.findByUserAAndUserB(userId, friendId);
         if (relationship == null) {
-            Friend relation = new Friend(userId, friendId, "true");
+            Friend relation = new Friend(userId, friendId, "true", 0);
             friendDAO.save(relation);
         } else {
             friendDAO.update(userId, friendId, "true");

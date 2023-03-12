@@ -46,6 +46,7 @@ public class MessageServiceImpl implements MessageService {
                     item.put("name", u.getUserName());
                     item.put("avatar", u.getAvatar());
                     item.put("isOnline", checkLogin(u.getId()));
+                    item.put("unread_cnt", friendDAO.findUnreadMessageCount(u.getId(), userId));
                     item.put("messages", messageDAO.getFriendsMessages(userId, u.getId()));
                     friends.add(item);
                 }
@@ -57,6 +58,19 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public ResponseResult getMessageCount(Long userId) {
-        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), RedisUtil.getUserMessageCount(userId.toString()));
+        int unreadSum = friendDAO.getMessageSum(userId);
+        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), unreadSum);
+    }
+
+    @Override
+    public ResponseResult getPeer2PeerUnreadMessageCount(Long sendId, Long receiveId) {
+        int unreadMessageCount = friendDAO.findUnreadMessageCount(sendId, receiveId);
+        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), unreadMessageCount);
+    }
+
+    @Override
+    public ResponseResult clearUnreadMessageCount(Long sendId, Long receiveId) {
+        friendDAO.clearUnreadMessage(sendId, receiveId);
+        return new ResponseResult(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMsg(), null);
     }
 }

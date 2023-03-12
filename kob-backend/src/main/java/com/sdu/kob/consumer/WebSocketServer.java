@@ -5,14 +5,13 @@ import com.sdu.kob.domain.Message;
 import com.sdu.kob.domain.User;
 import com.sdu.kob.engine.EngineRequestImpl;
 import com.sdu.kob.entity.Room;
+import com.sdu.kob.repository.FriendDAO;
 import com.sdu.kob.repository.MessageDAO;
 import com.sdu.kob.repository.RecordDAO;
 import com.sdu.kob.repository.UserDAO;
 import com.sdu.kob.utils.JwtUtil;
-import com.sdu.kob.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -43,6 +42,7 @@ public class WebSocketServer {
     public static UserDAO userDAO;
     public static RecordDAO recordDAO;
     public static MessageDAO messageDAO;
+    public static FriendDAO friendDAO;
     public static RestTemplate restTemplate;
 
     private User user;
@@ -62,6 +62,9 @@ public class WebSocketServer {
     public void setMessageDAO(MessageDAO messageDAO) {
         WebSocketServer.messageDAO = messageDAO;
     }
+
+    @Autowired
+    public void setFriendDAO(FriendDAO friendDAO) { WebSocketServer.friendDAO = friendDAO; }
 
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
@@ -113,9 +116,11 @@ public class WebSocketServer {
             String msg = data.getString("msg");
             Long sendId = data.getLong("send_id");
             Long toId = data.getLong("to_id");
-            RedisUtil.addUserUnreadMessageCount(toId.toString());
+            //RedisUtil.addUserUnreadMessageCount(toId.toString());
             Message messageRecord = new Message(sendId, toId, msg, new Date());
             messageDAO.save(messageRecord);
+            friendDAO.increaseUnreadMessage(sendId, toId);
+            int unread = friendDAO.findUnreadMessageCount(sendId, toId);
             if (users.containsKey(toId)) {
                 long cnt = messageDAO.count();
                 WebSocketServer client = users.get(toId);
@@ -124,6 +129,7 @@ public class WebSocketServer {
                 sendMsg.put("sendUserId", sendId);
                 sendMsg.put("id", cnt);
                 sendMsg.put("event", "chat");
+                sendMsg.put("unread_cnt", unread);
                 client.sendMessage(sendMsg.toJSONString());
             }
         } else if ("start".equals(event)) {

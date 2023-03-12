@@ -27,4 +27,20 @@ public interface FriendDAO extends JpaRepository<Friend, Long> {
     int countByUserAAndFollowed(Long userId, String followed);
 
     int countByUserBAndFollowed(Long userId, String followed);
+
+    @Query(value = "select unread_msg_count from friend where user_a = ?1 and user_b = ?2", nativeQuery = true)
+    int findUnreadMessageCount(Long sendId, Long receiveId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update friend set unread_msg_count = 0 where user_a = ?1 and user_b = ?2", nativeQuery = true)
+    void clearUnreadMessage(Long sendId, Long receiveId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "update friend set unread_msg_count = unread_msg_count + 1 where user_a = ?1 and user_b = ?2", nativeQuery = true)
+    void increaseUnreadMessage(Long sendId, Long receiveId);
+
+    @Query(value = "select sum(unread_msg_count) from friend where user_b = ?1", nativeQuery = true)
+    int getMessageSum(Long userId);
 }

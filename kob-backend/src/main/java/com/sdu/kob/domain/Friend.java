@@ -20,4 +20,6 @@ public class Friend extends BaseDomain {
     Long userB;
 
     String followed;
+
+    Integer unreadMsgCount;
 }

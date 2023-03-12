@@ -26,4 +26,20 @@ public class MessageController {
         Long userId = Long.parseLong(data.get("user_id"));
         return messageService.getMessageCount(userId);
     }
+
+    @RequestMapping(value = "/api/messages/getUnread/", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseResult getUnreadMessageCount(@RequestParam Map<String, String> data) {
+        Long sendId = Long.parseLong(data.get("send_id"));
+        Long receiveId = Long.parseLong(data.get("receive_id"));
+        return messageService.getPeer2PeerUnreadMessageCount(sendId, receiveId);
+    }
+
+    @RequestMapping(value = "/api/messages/clearUnread/", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseResult clearUnreadMessageCount(@RequestParam Map<String, String> data) {
+        Long sendId = Long.parseLong(data.get("send_id"));
+        Long receiveId = Long.parseLong(data.get("receive_id"));
+        return messageService.clearUnreadMessageCount(sendId, receiveId);
+    }
 }
