@@ -51,6 +51,11 @@ public class FriendServiceImpl implements FriendService, RelationService {
         return "success";
     }
 
+    /**
+     * 获取一个用户的所有关注
+     * @param userName 用户名
+     * @return 所有的关注用户的json
+     */
     @Override
     public JSONObject getUserFollowed(String userName) {
         User user = userDAO.findByUserName(userName);
@@ -75,6 +80,11 @@ public class FriendServiceImpl implements FriendService, RelationService {
         return resp;
     }
 
+    /**
+     * 获取一个用户所有的粉丝
+     * @param userName 用户名
+     * @return 粉丝json集合
+     */
     @Override
     public JSONObject getAllFollowers(String userName) {
         User user = userDAO.findByUserName(userName);
@@ -99,6 +109,11 @@ public class FriendServiceImpl implements FriendService, RelationService {
         return resp;
     }
 
+    /**
+     * 获取一个用户的所有互相关注
+     * @param userName 用户名
+     * @return 互相关注的json集合
+     */
     @Override
     public JSONObject getFriends(String userName) {
         User user = userDAO.findByUserName(userName);
